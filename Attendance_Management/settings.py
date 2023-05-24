@@ -71,7 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'upload.apps.UploadConfig'
+               
             ],
         },
     },
@@ -93,26 +93,26 @@ WSGI_APPLICATION = 'Attendance_Management.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'djongo',
-#         'CLIENT': {
-#             "host": "mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority",
-#             "name": "demodatabase",
-#             "authMechanism": "SCRAM-SHA-1"
-#         }
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'djongo',
+        'CLIENT': {
+            "host": "mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority",
+            "name": "demodatabase",
+            "authMechanism": "SCRAM-SHA-1"
+        }
+    }
+}
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        # Feel free to alter this value to suit your needs.
-        default='postgres://attendance_3y3s_user:Sn7VuFATvu0R7hJYvD8v1ZIhE2cscbz6@dpg-chmt6qu7avj3o33hlqm0-a.singapore-postgres.render.com/attendance_3y3s',
-        conn_max_age=600
-    )
-}
+# DATABASES = {
+#     'default': dj_database_url.config(
+#         # Feel free to alter this value to suit your needs.
+#         default='postgres://attendance_3y3s_user:Sn7VuFATvu0R7hJYvD8v1ZIhE2cscbz6@dpg-chmt6qu7avj3o33hlqm0-a.singapore-postgres.render.com/attendance_3y3s',
+#         conn_max_age=600
+#     )
+# }
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
