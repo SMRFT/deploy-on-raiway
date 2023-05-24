@@ -1,0 +1,268 @@
+.viewemp{
+  margin-left: 14%;
+}
+.employee {
+  display: inline-block;
+  box-shadow: 2px 5px #e0e0e0;
+  padding: 10px;
+  border-radius: 5%;
+  background-color: white !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.App {
+  background-color: rgb(199, 218, 221);
+}
+.modal-100w{
+  position: relative;
+  overflow-y: auto;
+  min-height: 100% !important;
+  max-height: 100% !important;
+}
+.profile {
+  margin-left: -50px;
+}
+
+.empprofile {
+  width: 30%;
+  height: 30%;
+  /* border: 1px solid rgb(59, 153, 172); */
+  padding: 2px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.empname {
+  font-size: 14px;
+  font-family: cursive;
+  font-weight: bold;
+  color: rgb(26, 85, 97);
+}
+
+.emptable {
+  background-color: rgb(194, 220, 228);
+}
+
+.modal-100w {
+  max-width: 70% !important;
+  max-height: 50% !important;
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('https://fonts.gstatic.com/s/opensans/v23/mem8YaGs126MiZpBA-UFVZ0e.ttf') format('truetype');
+}
+
+.active-btn,
+.break-btn,
+.not-active-btn {
+  height: 0.6cm !important;
+  width:2cm !important;
+  line-height: 0.1 !important;
+  font-size: 12px !important;
+  font-weight: bold;
+  border-radius:0.2cm !important;
+  border-style:outset !important;
+  font-family:cursive
+}
+.active-btn{
+  border-color: rgb(156, 224, 156) !important;
+  background-color: rgb(228, 255, 243) !important;
+  color: green;
+}
+.break-btn {
+  border-color: rgb(157, 189, 250) !important;
+  background-color: rgb(189, 212, 255) !important;
+  color: blue !important;
+}
+.not-active-btn {
+  border-color: rgb(236, 87, 87) !important;
+  background-color: rgb(255, 196, 196) !important;
+  color: red !important;
+}
+
+.container-input {
+  position: relative;
+  
+  
+}
+
+.input {
+  width: 150px;
+  padding: 10px 0px 10px 40px;
+  border-radius: 9999px;
+  border: solid 1px #333;
+  transition: all .2s ease-in-out;
+  outline: none;
+  opacity: 0.8;
+}
+
+.container-input svg {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translate(0, -50%);
+}
+
+.input:focus {
+  opacity: 1;
+  width: 200px;
+}
+
+.filter{
+  position: absolute;
+  margin-left: 2%;
+  margin-top: -3%;
+}
+
+.add-emp-button {
+  position: absolute;
+  height: 1.1cm;
+  width: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 1px;
+  background-color: rgb(103, 180, 204);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.2cm;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 55%;
+  margin-top: -3%;
+}
+.add-emp-button:hover {
+  background-color: #8ED0E4;
+}
+
+.summary-button {
+  position: absolute;
+  height: 1.1cm;
+  width: 8%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 1px;
+  background-color: rgb(103, 180, 204);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.2cm !important;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left:45%;
+  margin-top: -3%;
+}
+.summary-button:hover {
+  background-color: #8ED0E4;
+}
+.add-icon {
+  margin-right: 10px;
+  font-size: 24px;
+}
+.input-group {
+  position: relative;
+  margin-left: 75%;
+  margin-top: 4%;
+}
+
+.form-outline {
+  position: relative;
+  
+}
+
+.form-control {
+  padding-left: 2.5rem; /* Adjust this value to add some space between the icon and text */
+  margin-left: 2%;
+  border-color:rgb(103, 180, 204);
+  border-radius: 10;
+  border-width: 2px;
+  text-align: start;
+}
+
+.search-button {
+  position: absolute;
+  right: 202px;
+  top: 4px;
+  height: 80%;
+  width: 2.5rem; /* Adjust this value as needed */
+  background-color: rgb(103, 180, 204);
+  border-radius: 5px;
+  border: none;
+  color: white;
+}
+
+
+/* CSS for styling the employee count element */
+.employee-count {
+  position: absolute;
+  font-size: 22px;
+  font-weight: bold;
+  color: rgb(103, 180, 204);
+  margin-top: -2.8%;
+  margin-left: 22%;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif!important;
+}
+
+.pagination-container {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  height: 60px;
+  padding: 10px;
+  background-color: rgb(255, 255, 255);
+  float: right;
+}
+
+.pagination-container select {
+  margin: 0 10px;
+  font-size: 16px;
+}
+
+.pagination-container .page-item {
+  margin: 0 5px;
+}
+
+.pagination-container .page-link {
+  color: rgb(103, 180, 204);
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 5px 10px;
+}
+
+.pagination-container .page-link:hover {
+  color: white;
+  background-color:rgb(103, 180, 204);
+  border-color: rgb(103, 180, 204);
+}
+
+.pagination-container .active .page-link {
+  background-color: rgb(103, 180, 204);
+  border-color: rgb(103, 180, 204);
+  color: white;
+}
+
+@media only screen and (max-width: 768px) {
+  .pagination-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .pagination-container select {
+    margin: 10px 0;
+  }
+
+  .pagination-container .page-item {
+    margin: 5px 0;
+  }
+}

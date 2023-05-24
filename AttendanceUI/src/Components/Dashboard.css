@@ -1,0 +1,147 @@
+.dashboard{
+    margin-left: 20%;
+    margin-top: -10%;
+}
+
+
+.chartdetails {
+    position: relative;
+    height: 150px;
+    width: 150px;
+    animation: fadeIn 4s;
+}
+
+@media only screen and (min-width: 768px) {
+
+    /* For tablets and desktops */
+    .chartdetails {
+        margin-left: 200px;
+        margin-top: 50px;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+
+    /* For desktops */
+    .chartdetails {
+        margin-left: 400px;
+        margin-top: 100px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+
+    /* For large desktops */
+    .chartdetails {
+        margin-left: 900px;
+        margin-top: 300px;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.donut-chart-container {
+    position: relative;
+    height: 200px;
+    width: 100%;
+    margin-top: 50px;
+    text-align: center;
+}
+
+.donut-chart {
+    position: absolute;
+    left: 30%;
+    top: 130%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    max-width: 400px;
+}
+
+
+
+/* @keyframes fadeOut {
+
+    100% {
+        opacity: 0;
+    }
+
+    0% {
+        opacity: 1;
+    }
+
+} */
+
+
+/* .chartdetails {
+    position: absolute;
+    top: 210px;
+    left: 200px;
+    transform: rotate();
+    background: blue;
+    color: black;
+    padding: $pad;
+    border-radius: 6px;
+    width: 440px;
+    height: 100px;
+    box-shadow: 0 0 3px #888888;
+
+    animation-name: dropHeader;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: 2.9s;
+}
+
+.chartdetails {
+    text-align: left;
+    padding: 36px $pad * 3;
+}
+
+@keyframes dropHeader {
+    0% {
+        transform: translateY(-260px);
+    }
+
+    80% {
+        transform: translateY(0);
+    }
+
+    90% {
+        transform: rotate() translateY(-10px);
+    }
+
+    100% {
+        transform: rotate() translateY(0);
+    }
+} */
+
+
+
+  .container5 {
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: center;
+    margin-top: 10%;
+  }
+  
+  .container5 > div {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem 1rem;
+    background-color: #d3ffc0;
+    border-radius: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .container5 > div > span {
+    font-size: 1.2rem;
+  }
+  

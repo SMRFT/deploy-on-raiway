@@ -1,0 +1,185 @@
+.AdminCalendar {
+    background-color: rgb(226, 249, 253);
+    color: rgb(0, 0, 0);
+    border-radius: 10px;
+    border-color: rgb(0, 0, 0);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    font-family: monospace;
+    font-style: oblique;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: auto;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.disabled-cell {
+    background-color: darkgray !important;
+  }
+
+@media (max-width: 768px) {
+    .AdminCalendar {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .AdminCalendar {
+        font-size: 12px;
+        padding: 6px;
+    }
+}
+
+
+.profile {
+    width: 100%;
+}
+
+.center {
+    flex-direction: row;
+    justify-content: flex-end;
+    border-radius: 50%;
+    border: 1px solid rgb(14, 115, 76);
+    padding: 10px;
+    width: 150px;
+    height: 150px;
+    margin: 20px auto;
+}
+
+@media (min-width: 576px) {
+
+    /* Small devices (landscape phones, 576px and up) */
+    .center {
+        width: 100px;
+        height: 100px;
+        /* max-width: 300px; */
+        height: auto;
+        margin: 20px auto;
+    }
+}
+
+@media (min-width: 768px) {
+
+    /* Medium devices (tablets, 768px and up) */
+    .center {
+        width: 150px;
+        height: 150px;
+        margin: 20px auto;
+    }
+}
+
+@media (min-width: 992px) {
+
+    /* Large devices (desktops, 992px and up) */
+    .center {
+        width: 150px;
+        height: 150px;
+        margin-left: auto;
+        margin-right: 20px;
+    }
+}
+
+
+
+
+
+
+
+.previous,
+.next {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #555;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.previous:hover,
+.next:hover {
+    background-color: #41fb59;
+    border-color: #aaa;
+    color: #fff;
+}
+
+
+.name {
+    display: inline-block;
+    position: absolute;
+    padding: 20px 25px;
+    margin-left: 1650px;
+    margin-top: 200px;
+    color: rgba(188, 242, 11, 0.787);
+    font-family: Arial, sans-serif;
+    /* change font to Arial or other sans-serif font */
+    text-decoration: none;
+    font-size: 1.5em;
+    text-transform: uppercase;
+    /* increase font size for better readability */
+    text-align: center;
+    text-indent: 15px;
+}
+
+@media only screen and (max-width: 768px) {
+    .name {
+        margin-left: 50%;
+        /* center align for smaller screens */
+        transform: translateX(-50%);
+    }
+}
+
+.profile {
+    display: flex;
+    margin-top: -5%;
+    /* flex-direction: row;
+    justify-content: flex-end; */
+    align-items: center;
+}
+
+/* .name {
+    margin-left: auto;
+} */
+
+.csv {
+    position: relative;
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.fa-download {
+    font-size: 40px;
+    cursor: pointer;
+    color: green;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+    .csv {
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .fa-download {
+        position: static;
+        margin-right: 10px;
+        margin-top: 0;
+    }
+}
