@@ -53,10 +53,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'Attendance_Management.urls'
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',  # Add the URL of your React app
-    # Add any other allowed origins if needed
-]
+
 
 TEMPLATES = [
     {
@@ -106,13 +103,6 @@ DATABASES = {
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': dj_database_url.config(
-#         # Feel free to alter this value to suit your needs.
-#         default='postgres://attendance_3y3s_user:Sn7VuFATvu0R7hJYvD8v1ZIhE2cscbz6@dpg-chmt6qu7avj3o33hlqm0-a.singapore-postgres.render.com/attendance_3y3s',
-#         conn_max_age=600
-#     )
-# }
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
@@ -176,7 +166,7 @@ APPEND_SLASH = False
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-# ALLOWED_HOSTS = ['.ngrok.io']
+
 
 # mongo storage connection
 
