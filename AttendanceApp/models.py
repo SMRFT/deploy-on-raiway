@@ -12,31 +12,13 @@ from django.core.mail import send_mail
 from django.http import JsonResponse
 from gridfs_storage.storage import GridFSStorage
 from django.utils import timezone
-# image upload via local disk
-# image_storage = FileSystemStorage(
-#     # Physical file location ROOT
-#     location=u'{0}/my_Employee/'.format(
-#         settings.MEDIA_ROOT),
-#     # Url for file
-#     base_url=u'{0}my_Employee/'.format(
-#         settings.MEDIA_URL),
-# )
+
 
 
 import datetime
 import uuid
 
-# def image_directory_path(instance, filename):
-#     # generate a new filename with timestamp and instance information
-#     extension = filename.split('.')[-1]
-#     new_filename = f"{instance.name}_{instance.id}_{uuid.uuid4().hex}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.{extension}"
-#     return u'picture/{0}'.format(new_filename)
 
-# def image_directory_path(instance, filename):
-#     # file will be uploaded to MEDIA_ROOT/my_sell/picture/<filename>
-#     extension = filename.split('.')[-1]
-#     new_filename = f"{instance.name}_{instance.id}.{extension}"
-#     return u'picture/{0}'.format(new_filename)
 
 # Employee
 
