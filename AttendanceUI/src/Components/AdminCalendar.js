@@ -29,7 +29,7 @@ function Admincalendar() {
   const [employee, setEmployee] = useState(null);
  
   useEffect(() => {
-    const apiUrl = `http://127.0.0.1:7000/attendance/showemp?id=${id}`;
+    const apiUrl = `https://smrft555.onrender.com/attendance/showemp?id=${id}`;
 
     fetch(apiUrl)
       .then((res) => res.json())
@@ -104,6 +104,14 @@ function Admincalendar() {
     },
     onTimeRangeSelected: async (args) => {
       const dp = args.control;
+      const existingEvent = dp.events.list.some(event => {
+        return event.resource === args.resource && new DayPilot.Date(event.start).getDatePart() === new DayPilot.Date(args.start).getDatePart();
+      });
+      // If there's an existing event, do not show the modal
+      if (existingEvent) {
+        dp.clearSelection();
+        return;
+      }
       const form = [
         { name: "LeaveType", id: "leaveType", options: [{ name: "SL", id: "SL" }, { name: "CL", id: "CL" }] }
       ];
@@ -132,7 +140,7 @@ function Admincalendar() {
         text: Object.values(modal.result)
       });
       try {
-        const response = await fetch('http://127.0.0.1:7000/attendance/admincalendarlogin', {
+        const response = await fetch('https://smrft555.onrender.com/attendance/admincalendarlogin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -170,7 +178,7 @@ async function fetchCalendarData() {
     month: month,
     year: year
   };
-  const { data: calendarData } = await DayPilot.Http.post("http://127.0.0.1:7000/attendance/EmpcalendarId", currentMonthPayload);
+  const { data: calendarData } = await DayPilot.Http.post("https://smrft555.onrender.com/attendance/EmpcalendarId", currentMonthPayload);
   const eventDatesArr = calendarData.map(item => item.date);
   setEventDates(eventDatesArr);
   setCalendarData(calendarData);
@@ -192,7 +200,7 @@ useEffect(() => {
   // Function to get the user data (export details) for a specific month and year
   const getuserdata = async (month, year) => {
     try {
-      const response = await fetch("http://127.0.0.1:7000/attendance/EmployeeExport", {
+      const response = await fetch("https://smrft555.onrender.com/attendance/EmployeeExport", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -221,7 +229,7 @@ useEffect(() => {
       year: prevMonthYear
     };
 
-    const { data: calendarData } = await DayPilot.Http.post("http://127.0.0.1:7000/attendance/EmpcalendarId", prevMonthPayload);
+    const { data: calendarData } = await DayPilot.Http.post("https://smrft555.onrender.com/attendance/EmpcalendarId", prevMonthPayload);
     timesheet().update({
       startDate: prevmonthstartdate,
       days: prevmonthstartdate.daysInMonth(),
@@ -297,7 +305,7 @@ useEffect(() => {
       <br />
       <div className="profile">
   <img
-    src={`http://localhost:7000/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
+    src={`https://smrft555.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
     className="center"
     alt="profile"
   />

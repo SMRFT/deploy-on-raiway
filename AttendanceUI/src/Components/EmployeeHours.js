@@ -21,7 +21,7 @@ function App() {
   const options = users.map(user => ({value: user.id, label: user.name}));
 
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp")
+    fetch("https://smrft555.onrender.com/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
@@ -62,7 +62,7 @@ function App() {
 
   useEffect(() => {
     const getuserdata = async () => {
-      fetch("http://127.0.0.1:7000/attendance/Employeehours", {
+      fetch("https://smrft555.onrender.com/attendance/Employeehours", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

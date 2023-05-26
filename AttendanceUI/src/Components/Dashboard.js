@@ -27,7 +27,7 @@ const Donut = () => {
         setIsShown((current) => !current);
     };
     const donutchart = useCallback(() => {
-        fetch("http://127.0.0.1:7000/attendance/showempdesignation")
+        fetch("https://smrft555.onrender.com/attendance/showempdesignation")
             .then((res) => res.json())
             .then(
                 (data) => {
@@ -41,7 +41,7 @@ const Donut = () => {
     const reactdonutcharthandleclick = (item, toggled) => {
         if (toggled) {
             // console.log(item);
-            fetch("http://127.0.0.1:7000/attendance/empbydesignation", {
+            fetch("https://smrft555.onrender.com/attendance/empbydesignation", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -65,7 +65,7 @@ const Donut = () => {
 
     useEffect(() => {
       axios
-        .get("http://127.0.0.1:7000/attendance/breakdetails")
+        .get("https://smrft555.onrender.com/attendance/breakdetails")
         .then((response) => {
           setEmployeeData(response.data);
         })
@@ -170,7 +170,7 @@ const breakEmployeesCount = breakEmployees.length;
     
     useEffect(() => {
       axios
-        .get("http://127.0.0.1:7000/attendance/deleted-employees/")
+        .get("https://smrft555.onrender.com/attendance/deleted-employees/")
         .then((res) => {
           const employees = res.data;
           const months = Array.from({ length: 12 }, (_, i) => {
@@ -266,7 +266,7 @@ const breakEmployeesCount = breakEmployees.length;
     });
     useEffect(() => {
       axios
-        .get("http://127.0.0.1:7000/attendance/showemp")
+        .get("https://smrft555.onrender.com/attendance/showemp")
         .then((res) => {
           // Map the data to an object with month and employee name properties
           const employeeData = res.data.map((employee) => {
@@ -332,7 +332,7 @@ const breakEmployeesCount = breakEmployees.length;
       const fetchData = async () => {
         const data = [];
         for (let i = 1; i <= 12; i++) {
-          const response = await fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
+          const response = await fetch("https://smrft555.onrender.com/attendance/EmployeeSummaryExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

@@ -55,7 +55,7 @@ const WebcamCaptureLogin = () => {
         {
           method: "POST",
           headers: {
-            "x-api-key": "99ea99a4-3b1d-4090-b327-b2dc09efbb8d",
+            "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
           },
           body: formData,
         }
@@ -67,7 +67,7 @@ const WebcamCaptureLogin = () => {
             const empId = nameOfLoggedInEmp.split("_");
            
             //Post method to show the employee details using id
-            const res = fetch("http://127.0.0.1:7000/attendance/showempById", {
+            const res = fetch("https://smrft555.onrender.com/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
@@ -82,7 +82,7 @@ const WebcamCaptureLogin = () => {
                   setEmail(email);
                   // <ReactWhatsapp number="+91-7904019642" message="Hello World!!!" />
                   // console.log("email", email);
-                  fetch("http://127.0.0.1:7000/attendance/send-email/", {
+                  fetch("https://smrft555.onrender.com/attendance/send-email/", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -90,7 +90,7 @@ const WebcamCaptureLogin = () => {
                     },
                     body: JSON.stringify({ subject: subject, message: messages, recipient: email,cc_recipients:cc }),
                   })
-                  fetch("http://127.0.0.1:7000/attendance/send-whatsapp/", {
+                  fetch("https://smrft555.onrender.com/attendance/send-whatsapp/", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -198,7 +198,7 @@ const WebcamCaptureLogin = () => {
               let earlyLogout="00:00:00";       
             //Posting login information of employee to db using the above data
             const empLoginResultSet = fetch(
-              "http://127.0.0.1:7000/attendance/admincalendarlogin",
+              "https://smrft555.onrender.com/attendance/admincalendarlogin",
               {
                 method: "POST",
                 headers: {

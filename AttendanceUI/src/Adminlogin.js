@@ -21,7 +21,7 @@ function Adminlogin() {
     const submit = async (e) => {
         e.preventDefault();
     
-        const response = await fetch('http://localhost:7000/attendance/adminlog', {
+        const response = await fetch('https://smrft555.onrender.com/attendance/adminlog', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',

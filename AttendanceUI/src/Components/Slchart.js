@@ -5,7 +5,7 @@ const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 
 const fetchData = async (month) => {
-  const response = await fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
+  const response = await fetch("https://smrft555.onrender.com/attendance/EmployeeSummaryExport", {
     method: "post",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

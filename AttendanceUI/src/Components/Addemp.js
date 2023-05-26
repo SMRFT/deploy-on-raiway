@@ -228,7 +228,7 @@ function Addemp() {
     try {
       const res = await axios({
         method: "post",
-        url: "http://localhost:7000/attendance/addemp",
+        url: "https://smrft555.onrender.com/attendance/addemp",
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -238,7 +238,7 @@ function Addemp() {
         ({
           method: "POST",
           headers: {
-            "x-api-key": "99ea99a4-3b1d-4090-b327-b2dc09efbb8d",
+            "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
           },
           url: "http://localhost:8000/api/v1/recognition/faces/?subject=" + name + "_" + id,
           data: comprefaceImage,

@@ -47,7 +47,7 @@ const WebcamCaptureLogout = () => {
                 {
                     method: "POST",
                     headers: {
-                        "x-api-key": "99ea99a4-3b1d-4090-b327-b2dc09efbb8d",
+                        "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
                     },
                     body: formData,
                 }
@@ -59,7 +59,7 @@ const WebcamCaptureLogout = () => {
 
                         const empId = nameOfLoggedInEmp.split("_");
 
-                        const res = fetch("http://127.0.0.1:7000/attendance/showempById", {
+                        const res = fetch("https://smrft555.onrender.com/attendance/showempById", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ id: empId[1] }),
@@ -97,7 +97,7 @@ const WebcamCaptureLogout = () => {
                         let date = log.format('YYYY-MM-DD')
 
 
-                        const empLogoutResultSet = fetch("http://127.0.0.1:7000/attendance/lunchhourslogout", {
+                        const empLogoutResultSet = fetch("https://smrft555.onrender.com/attendance/lunchhourslogout", {
                             method: "Post",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -110,7 +110,7 @@ const WebcamCaptureLogout = () => {
                             .then((empLogoutResultSet) => {
                                 if (empLogoutResultSet.status === 200) {
                                     setMessage(Myconstants.lunchlogin);
-                                    return fetch("http://127.0.0.1:7000/attendance/breakhours", {
+                                    return fetch("https://smrft555.onrender.com/attendance/breakhours", {
                                         method: "Post",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({

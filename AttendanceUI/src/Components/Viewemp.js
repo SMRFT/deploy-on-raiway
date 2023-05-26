@@ -21,7 +21,7 @@ const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [users, setUsers] = useState({ blogs: [] });
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp")
+    fetch("https://smrft555.onrender.com/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
@@ -89,7 +89,7 @@ const navigateToEditForm = () => {
   ///delete employee
   const deleteEmployee = async (e) => {
     if (window.confirm("Are you sure you want to delete this employee?"))
-      await fetch("http://127.0.0.1:7000/attendance/delemp", {
+      await fetch("https://smrft555.onrender.com/delemp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -105,7 +105,7 @@ const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
 const [employeesActive, setEmployeesActive] = useState([]);
 const [employeesNotActive, setEmployeesNotActive] = useState([]);
 const fetchData = useCallback(() => {
-  fetch("http://127.0.0.1:7000/attendance/breakdetails")
+  fetch("https://smrft555.onrender.com/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {
@@ -293,7 +293,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
         </Link><br/>
         </div> )}
         </div><br/><br/>
-        <img src={`http://localhost:7000/attendance/profile_image?profile_picture_id=${user.profile_picture_id}`}   style={{
+        <img src={`https://smrft555.onrender.com/attendance/profile_image?profile_picture_id=${user.profile_picture_id}`}   style={{
             display: "block",
             margin: "auto",
             width: "80px",

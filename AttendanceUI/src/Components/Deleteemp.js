@@ -7,7 +7,7 @@ const TrashPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:7000/attendance/deleted-employees/")
+      .get("https://smrft555.onrender.com/attendance/deleted-employees/")
       .then((res) => {
         setDeletedEmployees(res.data);
       })
@@ -20,7 +20,7 @@ const TrashPage = () => {
   const deleteEmployee = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        await fetch("http://127.0.0.1:7000/attendance/permanentdelete", {
+        await fetch("https://smrft555.onrender.com/attendance/permanentdelete", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -39,7 +39,7 @@ const TrashPage = () => {
   const restoreEmployee = async (id) => {
     if (window.confirm("Are you sure you want to restore this employee?")) {
       try {
-        await fetch(`http://127.0.0.1:7000/attendance/restore-employee/`, {
+        await fetch(`https://smrft555.onrender.com/attendance/restore-employee/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
@@ -74,7 +74,7 @@ const TrashPage = () => {
           }}
         >
      
-         <img src={`http://localhost:7000/attendance/profile_image?profile_picture_id=${employee.profile_picture_id}`}   style={{
+         <img src={`https://smrft555.onrender.com/attendance/profile_image?profile_picture_id=${employee.profile_picture_id}`}   style={{
           display: "block",
           margin: "auto",
           width: "90px",
