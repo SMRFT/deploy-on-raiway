@@ -50,7 +50,7 @@ function Admin(props) {
         setMobile(mobile);
         setRole(role);
         try {
-          const response = await axios.get('https://smrft555.onrender.com/attendance/UserDetails', {
+          const response = await axios.get('https://smrftadmin.onrender.com/attendance/UserDetails', {
             params: { email: email } // Set the desired email as a query parameter
           });
           setUserData(response.data);

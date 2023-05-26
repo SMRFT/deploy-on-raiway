@@ -39,7 +39,7 @@ const AdminReg = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post("https://smrft555.onrender.com/attendance/adminreg", {
+        const response = await axios.post("https://smrftadmin.onrender.com/attendance/adminreg", {
           name,
           email,
           password,

@@ -61,7 +61,7 @@ const WebcamCaptureLogin = () => {
                         const nameOfLoggedInEmp = recognizedEmp.subjects[0].subject;
                         const empId = nameOfLoggedInEmp.split("_");
 
-                        const res = fetch("https://smrft555.onrender.com/attendance/showempById", {
+                        const res = fetch("https://smrftadmin.onrender.com/attendance/showempById", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ id: empId[1] }),
@@ -101,7 +101,7 @@ const WebcamCaptureLogin = () => {
 
                         let takentime = '0'
                         const empLoginResultSet = fetch(
-                            "https://smrft555.onrender.com/attendance/lunchhourslogin",
+                            "https://smrftadmin.onrender.com/attendance/lunchhourslogin",
                             {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },

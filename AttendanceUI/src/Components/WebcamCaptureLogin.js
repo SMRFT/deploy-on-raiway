@@ -67,7 +67,7 @@ const WebcamCaptureLogin = () => {
             const empId = nameOfLoggedInEmp.split("_");
            
             //Post method to show the employee details using id
-            const res = fetch("https://smrft555.onrender.com/attendance/showempById", {
+            const res = fetch("https://smrftadmin.onrender.com/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
@@ -82,7 +82,7 @@ const WebcamCaptureLogin = () => {
                   setEmail(email);
                   // <ReactWhatsapp number="+91-7904019642" message="Hello World!!!" />
                   // console.log("email", email);
-                  fetch("https://smrft555.onrender.com/attendance/send-email/", {
+                  fetch("https://smrftadmin.onrender.com/attendance/send-email/", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -90,7 +90,7 @@ const WebcamCaptureLogin = () => {
                     },
                     body: JSON.stringify({ subject: subject, message: messages, recipient: email,cc_recipients:cc }),
                   })
-                  fetch("https://smrft555.onrender.com/attendance/send-whatsapp/", {
+                  fetch("https://smrftadmin.onrender.com/attendance/send-whatsapp/", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -198,7 +198,7 @@ const WebcamCaptureLogin = () => {
               let earlyLogout="00:00:00";       
             //Posting login information of employee to db using the above data
             const empLoginResultSet = fetch(
-              "https://smrft555.onrender.com/attendance/admincalendarlogin",
+              "https://smrftadmin.onrender.com/attendance/admincalendarlogin",
               {
                 method: "POST",
                 headers: {

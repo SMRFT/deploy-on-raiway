@@ -8,7 +8,7 @@ const Breakdetails = () => {
   const [users, setUsers] = useState({ blogs: [] });
   // fetch the data from the server and update the state
   const breakData = useCallback(() => {
-    fetch("https://smrft555.onrender.com/attendance/breakdetails")
+    fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
       .then((res) => res.json())
       .then(
         (data) => {

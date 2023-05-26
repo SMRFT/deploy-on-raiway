@@ -59,7 +59,7 @@ const WebcamCaptureLogout = () => {
 
                         const empId = nameOfLoggedInEmp.split("_");
 
-                        const res = fetch("https://smrft555.onrender.com/attendance/showempById", {
+                        const res = fetch("https://smrftadmin.onrender.com/attendance/showempById", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ id: empId[1] }),
@@ -97,7 +97,7 @@ const WebcamCaptureLogout = () => {
                         let date = log.format('YYYY-MM-DD')
 
 
-                        const empLogoutResultSet = fetch("https://smrft555.onrender.com/attendance/lunchhourslogout", {
+                        const empLogoutResultSet = fetch("https://smrftadmin.onrender.com/attendance/lunchhourslogout", {
                             method: "Post",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -110,7 +110,7 @@ const WebcamCaptureLogout = () => {
                             .then((empLogoutResultSet) => {
                                 if (empLogoutResultSet.status === 200) {
                                     setMessage(Myconstants.lunchlogin);
-                                    return fetch("https://smrft555.onrender.com/attendance/breakhours", {
+                                    return fetch("https://smrftadmin.onrender.com/attendance/breakhours", {
                                         method: "Post",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({

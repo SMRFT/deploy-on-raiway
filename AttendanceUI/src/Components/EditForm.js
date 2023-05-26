@@ -81,7 +81,7 @@ const EditForm = ({ theuser }) => {
       formData.append("educationData", JSON.stringify(dataArray));
       formData.append("proof", proof);
       formData.append("certificates", certificates);
-      const res = await fetch(`https://smrft555.onrender.com/attendance/editemp`, {
+      const res = await fetch(`https://smrftadmin.onrender.com/attendance/editemp`, {
         method: "PUT",
         body: formData,
       });

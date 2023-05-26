@@ -55,7 +55,7 @@ const WebcamCaptureLogout = () => {
             const nameOfLoggedInEmp = recognizedEmp.subjects[0].subject;
             const empId = nameOfLoggedInEmp.split("_");
             //Post method to show the employee details using id
-            const res = fetch("https://smrft555.onrender.com/attendance/showempById", {
+            const res = fetch("https://smrftadmin.onrender.com/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id: empId[1] }),
@@ -117,7 +117,7 @@ const WebcamCaptureLogout = () => {
                           
 
             //Updating logout information of employee to db using the above data
-            const empLogoutResultSet = fetch("https://smrft555.onrender.com/attendance/admincalendarlogout", {
+            const empLogoutResultSet = fetch("https://smrftadmin.onrender.com/attendance/admincalendarlogout", {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

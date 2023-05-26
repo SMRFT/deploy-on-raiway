@@ -24,7 +24,7 @@ function MyComponent() {
       }
       useEffect(() => {
         const getuserdata = async () => {
-          fetch("https://smrft555.onrender.com/attendance/EmployeeSummaryExport", {
+          fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

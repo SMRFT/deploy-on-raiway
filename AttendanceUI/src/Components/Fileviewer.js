@@ -122,7 +122,7 @@ function DownloadButton(props) {
           // Make a POST request to the server to get the file as a blob
           axios
             .post(
-              `https://smrft555.onrender.com/attendance/get_file?filename=${name}_proof.pdf`,
+              `https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_proof.pdf`,
               {
                 filename: `${name}_proof.pdf`,
               },
@@ -163,7 +163,7 @@ function DownloadButton(props) {
         const queryParams = new URLSearchParams();
 
         // Make a POST request to the server to get the file as a blob
-        axios.post(`https://smrft555.onrender.com/attendance/get_file?filename=${name}_certificate.pdf`, {
+        axios.post(`https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_certificate.pdf`, {
             filename: `${name}_certificate.pdf`,
         }, {
             responseType: "blob"
@@ -218,7 +218,7 @@ function DownloadButton(props) {
     };
       
     useEffect(() => {
-        const apiUrl = `https://smrft555.onrender.com/attendance/showemp?id=${id}`;
+        const apiUrl = `https://smrftadmin.onrender.com/attendance/showemp?id=${id}`;
         fetch(apiUrl)
             .then((res) => res.json())
             .then(
@@ -280,7 +280,7 @@ function DownloadButton(props) {
   
     useEffect(() => {
         const getuserdata = async () => {
-          fetch("https://smrft555.onrender.com/attendance/EmployeeExport", {
+          fetch("https://smrftadmin.onrender.com/attendance/EmployeeExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -309,7 +309,7 @@ function DownloadButton(props) {
     const [userexportdata, setExportdata] = useState([]);
     useEffect(() => {
         const getexportdata = async () => {
-          fetch("https://smrft555.onrender.com/attendance/EmployeeSummaryExport", {
+          fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -344,7 +344,7 @@ const [error, setError] = useState(null);
 const [isLoaded, setIsLoaded] = useState(false);
 
 const fetchData = useCallback(() => {
-  fetch("https://smrft555.onrender.com/attendance/breakdetails")
+  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {

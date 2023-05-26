@@ -228,7 +228,7 @@ function Addemp() {
     try {
       const res = await axios({
         method: "post",
-        url: "https://smrft555.onrender.com/attendance/addemp",
+        url: "https://smrftadmin.onrender.com/attendance/addemp",
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -963,21 +963,21 @@ function Addemp() {
              <div>
               <div className="row">
               <div className="col-sm-6">   
-            <Form.Field>
+              <Form.Field>
               <Col>
                 <div className="mb-3">
-                  <label className=" mx-3 form-label"><div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>Aadhaarno</div></label>
+                <label className=" mx-3 form-label"><div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>Aadhaarno<span style={{color: "red"}}>*</span></div></label>
                   <div className="col-sm-7">
-                    <input style={{ borderRadius: 40 ,width:"100%"}}
-                      className="mx-4 form-control"
-                      type="text"
-                      value={Aadhaarno}
-                      placeholder="Enter your Aadhaarno"
-                      ref={register("Aadhaarno")}
-                      required
-                      autoComplete="off"
-                      onChange={e => { setAadhaarno(e.target.value);validateAadhaarNo(e.target.value);}}
-                    />
+                  <input style={{ borderRadius: 40 ,width:"100%"}}
+                        className="mx-4 form-control"
+                        type="text"
+                        value={Aadhaarno}
+                        placeholder="Enter your Aadhaarno"
+                        ref={register("Aadhaarno")}
+                        required // add this attribute to make Aadhaar number a mandatory field
+                        autoComplete="off"
+                        onChange={e => { setAadhaarno(e.target.value);validateAadhaarNo(e.target.value);}}
+                      />
                     <div style={{ color: "red", marginLeft: "55%", marginTop: "-4%" }}>{validateAadhaarNo(Aadhaarno) ? <p>{validateAadhaarNo(Aadhaarno)}</p> : null}</div>
                   </div>
                 </div>

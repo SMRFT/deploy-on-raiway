@@ -7,7 +7,7 @@ function ApexChart() {
 
   useEffect(() => {
     axios
-      .get('https://smrft555.onrender.com/attendance/showemp')
+      .get('https://smrftadmin.onrender.com/attendance/showemp')
       .then((res) => {
         const data = res.data;
         const employees = {};

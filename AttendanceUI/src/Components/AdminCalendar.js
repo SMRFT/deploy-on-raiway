@@ -140,7 +140,7 @@ function Admincalendar() {
         text: Object.values(modal.result)
       });
       try {
-        const response = await fetch('https://smrft555.onrender.com/attendance/admincalendarlogin', {
+        const response = await fetch('https://smrftadmin.onrender.com/attendance/admincalendarlogin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -178,7 +178,7 @@ async function fetchCalendarData() {
     month: month,
     year: year
   };
-  const { data: calendarData } = await DayPilot.Http.post("https://smrft555.onrender.com/attendance/EmpcalendarId", currentMonthPayload);
+  const { data: calendarData } = await DayPilot.Http.post("https://smrftadmin.onrender.com/attendance/EmpcalendarId", currentMonthPayload);
   const eventDatesArr = calendarData.map(item => item.date);
   setEventDates(eventDatesArr);
   setCalendarData(calendarData);
@@ -200,7 +200,7 @@ useEffect(() => {
   // Function to get the user data (export details) for a specific month and year
   const getuserdata = async (month, year) => {
     try {
-      const response = await fetch("https://smrft555.onrender.com/attendance/EmployeeExport", {
+      const response = await fetch("https://smrftadmin.onrender.com/attendance/EmployeeExport", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -229,7 +229,7 @@ useEffect(() => {
       year: prevMonthYear
     };
 
-    const { data: calendarData } = await DayPilot.Http.post("https://smrft555.onrender.com/attendance/EmpcalendarId", prevMonthPayload);
+    const { data: calendarData } = await DayPilot.Http.post("https://smrftadmin.onrender.com/attendance/EmpcalendarId", prevMonthPayload);
     timesheet().update({
       startDate: prevmonthstartdate,
       days: prevmonthstartdate.daysInMonth(),
@@ -252,7 +252,7 @@ useEffect(() => {
       year: nextMonthYear
     };
 
-    const { data: calendarData } = await DayPilot.Http.post("http://127.0.0.1:7000/attendance/EmpcalendarId", nextMonthPayload);
+    const { data: calendarData } = await DayPilot.Http.post("https://smrftadmin.onrender.com/attendance/EmpcalendarId", nextMonthPayload);
     timesheet().update({
       startDate: nextmonthstartdate,
       days: nextmonthstartdate.daysInMonth(),
@@ -305,7 +305,7 @@ useEffect(() => {
       <br />
       <div className="profile">
   <img
-    src={`https://smrft555.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
+    src={`https://smrftadmin.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
     className="center"
     alt="profile"
   />
