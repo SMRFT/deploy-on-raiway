@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-5#y-^bdkqu5-_2ttnr7(^*ai-i$2nh+ef)7+t$+%+hhol59h@!
 DEBUG = True
 
 # https://docs.djangoproject.com/en/3.0/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://smrftadmin.netlify.app']
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
