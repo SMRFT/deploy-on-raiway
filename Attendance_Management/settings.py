@@ -161,7 +161,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # for authentication
 
 AUTH_USER_MODEL = 'AttendanceApp.Admin'
-
+CORS_ALLOWED_ORIGINS = [
+    'https://smrftadmin.netlify.app/',  # Add the URL of your React app
+    # Add any other allowed origins if needed
+]
 APPEND_SLASH = False
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
