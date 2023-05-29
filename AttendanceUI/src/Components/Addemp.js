@@ -228,21 +228,21 @@ function Addemp() {
     try {
       const res = await axios({
         method: "post",
-        url: "https://smrftadmin.onrender.com/attendance/addemp",
+        url: "http://localhost:7000/attendance/addemp",
         headers: {
           'Content-Type': 'multipart/form-data'
         },
         data: data,
       });
-      // const res2 = await axios
-      //   ({
-      //     method: "POST",
-      //     headers: {
-      //       "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
-      //     },
-      //     url: "http://localhost:8000/api/v1/recognition/faces/?subject=" + name + "_" + id,
-      //     data: comprefaceImage,
-      //   });
+      const res2 = await axios
+        ({
+          method: "POST",
+          headers: {
+            "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
+          },
+          url: "http://localhost:8000/api/v1/recognition/faces/?subject=" + name + "_" + id,
+          data: comprefaceImage,
+        });
       if (res.status === 200 && res2.status === 201) {
         setMessage(Myconstants.AddEmp);
       } else {
