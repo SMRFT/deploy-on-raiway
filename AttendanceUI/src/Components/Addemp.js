@@ -234,15 +234,15 @@ function Addemp() {
         },
         data: data,
       });
-      const res2 = await axios
-        ({
-          method: "POST",
-          headers: {
-            "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
-          },
-          url: "http://localhost:8000/api/v1/recognition/faces/?subject=" + name + "_" + id,
-          data: comprefaceImage,
-        });
+      // const res2 = await axios
+      //   ({
+      //     method: "POST",
+      //     headers: {
+      //       "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
+      //     },
+      //     url: "http://localhost:8000/api/v1/recognition/faces/?subject=" + name + "_" + id,
+      //     data: comprefaceImage,
+      //   });
       if (res.status === 200 && res2.status === 201) {
         setMessage(Myconstants.AddEmp);
       } else {
