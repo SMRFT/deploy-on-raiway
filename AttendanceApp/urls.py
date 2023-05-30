@@ -7,7 +7,7 @@ from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
 from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, upload_file, get_file, RetrieveEmployeehours, get_profile_image, login
-from .views import EmployeeView, upload_image
+from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static
 from django.conf import settings
@@ -49,7 +49,7 @@ urlpatterns = [
     path("UserDetails", UserDetails.as_view()),
     path('profile_image', get_profile_image, name='profile_image'),
     path('login/', login),
-    path('upload/', upload_image, name='upload_image'),
+ 
     # path('message/', send_whatsapp, name='message')
 ]
 
