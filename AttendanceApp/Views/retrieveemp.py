@@ -653,7 +653,7 @@ def upload_file(request):
         # Connect to MongoDB
         client = MongoClient(
             'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-        db = client['demodatabase']
+        db = client['data']
         fs = GridFS(db)
 
         # Open the uploaded file and read its contents
@@ -679,7 +679,7 @@ def get_file(request):
 
     client = MongoClient(
         'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-    db = client['demodatabase']
+    db = client['data']
     fs = GridFS(db)
     # print("gridfs",fs)
     filename = request.GET.get('filename')
@@ -705,7 +705,7 @@ def get_profile_image(request):
     # Connect to MongoDB
     client = MongoClient(
         'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-    db = client['demodatabase']
+    db = client['data']
     fs = GridFS(db)
 
     # Get the employee's profile_picture_id from the request
