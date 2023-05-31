@@ -21,6 +21,45 @@ from pymongo import MongoClient
 from django.core.files.storage import default_storage
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
+
+
+
+def save_proof_file(file, employee):
+    if file:
+        file_contents = file.read()
+        client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
+        db = client["demodatabase"]
+        fs = GridFS(db)
+        file_id = fs.put(file_contents, filename=f"{employee.name}_{employee.id}_proof.pdf",
+                        employee_id=employee.id, employee_name=employee.name)
+        employee.proof_file_id = str(file_id)
+        employee.save()
+
+
+def save_certificates_file(file, employee):
+    if file:
+        file_contents = file.read()
+        client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
+        db = client["demodatabase"]
+        fs = GridFS(db)
+        file_id = fs.put(file_contents, filename=f"{employee.name}_{employee.id}_certificate.pdf",
+                        employee_id=employee.id, employee_name=employee.name)
+        employee.certificates_file_id = str(file_id)
+        employee.save()
+
+
+def save_imgsrc_file(file, employee):
+    if file:
+        file_contents = file.read()
+        client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
+        db = client["demodatabase"]
+        fs = GridFS(db)
+        file_id = fs.put(file_contents, filename=f"{employee.name}_{employee.id}_profile.jpg",
+                        employee_id=employee.id, employee_name=employee.name)
+        employee.imgsrc_file_id = str(file_id)
+        employee.save()
+
+
 class EmployeeView(APIView):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -35,44 +74,11 @@ class EmployeeView(APIView):
         serializer.is_valid(raise_exception=True)
         employee = serializer.save()
 
-        self.save_proof_file(request.FILES.get('proof'), employee)
-        self.save_certificates_file(request.FILES.get('certificates'), employee)
-        self.save_imgsrc_file(request.FILES.get('imgSrc'), employee)
+        save_proof_file(request.FILES.get('proof'), employee)
+        save_certificates_file(request.FILES.get('certificates'), employee)
+        save_imgsrc_file(request.FILES.get('imgSrc'), employee)
 
         return Response({'message': 'New Employee Has Been Added Successfully'})
-
-    def save_proof_file(self, file, employee):
-        if file:
-            file_contents = file.read()
-            client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
-            db = client["demodatabase"]
-            fs = GridFS(db)
-            file_id = fs.put(file_contents, filename=f"{employee.name}_{employee.id}_proof.pdf",
-                            employee_id=employee.id, employee_name=employee.name)
-            employee.proof_file_id = str(file_id)
-            employee.save()
-
-    def save_certificates_file(self, file, employee):
-        if file:
-            file_contents = file.read()
-            client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
-            db = client["demodatabase"]
-            fs = GridFS(db)
-            file_id = fs.put(file_contents, filename=f"{employee.name}_{employee.id}_certificate.pdf",
-                            employee_id=employee.id, employee_name=employee.name)
-            employee.certificates_file_id = str(file_id)
-            employee.save()
-
-    def save_imgsrc_file(self, file, employee):
-        if file:
-            file_contents = file.read()
-            client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
-            db = client["demodatabase"]
-            fs = GridFS(db)
-            file_id = fs.put(file_contents, filename=f"{employee.name}_{employee.id}_profile.jpg",
-                            employee_id=employee.id, employee_name=employee.name)
-            employee.imgsrc_file_id = str(file_id)
-            employee.save()
 
 
 
