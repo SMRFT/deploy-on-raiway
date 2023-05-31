@@ -705,7 +705,7 @@ def get_profile_image(request):
     # Connect to MongoDB
     client = MongoClient(
         'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-    db = client['data']
+    db = client['demodatabase']
     fs = GridFS(db)
 
     # Get the employee's profile_picture_id from the request
