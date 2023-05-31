@@ -44,7 +44,7 @@ class EmployeeView(APIView):
         client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
         db = client["demodatabase"]
         fs = GridFS(db)
-
+        
 
         proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id, employee_name=employee.name)
         certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id, employee_name=employee.name)
