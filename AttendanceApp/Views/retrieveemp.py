@@ -653,7 +653,7 @@ def upload_file(request):
         # Connect to MongoDB
         client = MongoClient(
             'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-        db = client['data']
+        db = client['demodatabase']
         fs = GridFS(db)
 
         # Open the uploaded file and read its contents

@@ -19,10 +19,16 @@ import io
 from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
-
-
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 class EmployeeView(APIView):
-    @csrf_exempt
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response["Access-Control-Allow-Headers"] = "Content-Type, x-api-key"
+        return response
     def post(self, request):
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
