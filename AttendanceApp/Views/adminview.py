@@ -19,17 +19,10 @@ import io
 from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+
 
 class EmployeeView(APIView):
-    @method_decorator(csrf_exempt)
-    def dispatch(self, *args, **kwargs):
-        response = super().dispatch(*args, **kwargs)
-        response["Access-Control-Allow-Origin"] = "*"  # Allow requests from all origins
-        response["Access-Control-Allow-Methods"] = "POST"  # Allow only POST requests
-        return response
-
+    @csrf_exempt
     def post(self, request):
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
@@ -41,10 +34,11 @@ class EmployeeView(APIView):
         serializer.is_valid(raise_exception=True)
         employee = serializer.save()
 
-        # Store the files in GridFS
+        # Store the files in GridFS using default database connection
         client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
-        db = client["data"]
+        db = client["demodatabase"]
         fs = GridFS(db)
+
 
         proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id, employee_name=employee.name)
         certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id, employee_name=employee.name)
@@ -53,6 +47,7 @@ class EmployeeView(APIView):
         employee.save()
 
         return Response({'message': 'New Employee Has Been Added Successfully'})
+
 
 
 

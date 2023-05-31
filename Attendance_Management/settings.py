@@ -125,13 +125,16 @@ WSGI_APPLICATION = 'Attendance_Management.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
+        'NAME': 'demodatabase',  # Replace with your database name
         'CLIENT': {
-            "host": "mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority",
-            "name": "demodatabase",
-            "authMechanism": "SCRAM-SHA-1"
-        }
-    }
+            'host': 'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net',  # Replace with your MongoDB connection URL
+            'username': 'madhu',  # Replace with your MongoDB username
+            'password': 'salem2022',  # Replace with your MongoDB password
+            'authMechanism': 'SCRAM-SHA-1',
+        },
+    },
 }
+
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
