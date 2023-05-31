@@ -19,10 +19,17 @@ import io
 from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 class EmployeeView(APIView):
-    @csrf_exempt
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        response = super().dispatch(*args, **kwargs)
+        response["Access-Control-Allow-Origin"] = "*"  # Allow requests from all origins
+        response["Access-Control-Allow-Methods"] = "POST"  # Allow only POST requests
+        return response
+
     def post(self, request):
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
@@ -33,19 +40,19 @@ class EmployeeView(APIView):
         serializer = EmployeeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         employee = serializer.save()
+
         # Store the files in GridFS
         client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
         db = client["data"]
         fs = GridFS(db)
-        # certificates_filename =employee.name+".pdf"
-        proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id,employee_name=employee.name)
-        certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id,employee_name=employee.name)
-        imgsrc_profile_id = fs.put(file_contents3, filename=employee.name + "_" + employee.id + "_profile.jpg", employee_id=employee.id,employee_name=employee.name)
+
+        proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id, employee_name=employee.name)
+        certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id, employee_name=employee.name)
+        imgsrc_profile_id = fs.put(file_contents3, filename=employee.name + "_" + employee.id + "_profile.jpg", employee_id=employee.id, employee_name=employee.name)
         employee.profile_picture_id = str(imgsrc_profile_id)
         employee.save()
-        # imgsrc_profile_id = fs.put(file_contents3, filename = employee.name + "-" + str(employee.id) + ".pdf", employee_id=employee.id)
-        return Response({'message': 'New Employee Has Been Added Successfully'})
 
+        return Response({'message': 'New Employee Has Been Added Successfully'})
 
 
 
