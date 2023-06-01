@@ -22,7 +22,6 @@ from django.core.files.storage import default_storage
 
 
 class EmployeeView(APIView):
-    @csrf_exempt
     def post(self, request):
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
