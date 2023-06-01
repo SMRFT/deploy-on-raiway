@@ -28,7 +28,6 @@ def upload_file(request):
             'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
         db = client['data']
         fs = GridFS(db)
-
         # Open the uploaded file and read its contents
         uploaded_file = request.FILES['file']
         file_contents = uploaded_file.read()
