@@ -5,8 +5,8 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails
-from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, upload_file, get_file, RetrieveEmployeehours, get_profile_image, login
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails, upload_file
+from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours, get_profile_image, login
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static

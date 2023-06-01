@@ -19,7 +19,57 @@ import io
 from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
+from django.http import HttpResponse
 
+@csrf_exempt
+def upload_file(request):
+    if request.method == 'POST':
+        # Connect to MongoDB
+        client = MongoClient(
+            'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
+        db = client['data']
+        fs = GridFS(db)
+
+        # Open the uploaded files and read their contents
+        proof_file = request.FILES['proof']
+        certificates_file = request.FILES['certificates']
+        imgsrc_profile = request.FILES['imgSrc']
+        file_contents1 = proof_file.read()
+        file_contents2 = certificates_file.read()
+        file_contents3 = imgsrc_profile.read()
+
+        # Store the files using GridFS
+        proof_file_id = fs.put(file_contents1, filename=proof_file.name)
+        certificates_file_id = fs.put(file_contents2, filename=certificates_file.name)
+        imgsrc_profile_id = fs.put(file_contents3, filename=imgsrc_profile.name)
+
+        # Check if the files were stored inline or as chunks
+        proof_file_info = db.fs.files.find_one({'_id': proof_file_id})
+        certificates_file_info = db.fs.files.find_one({'_id': certificates_file_id})
+        imgsrc_profile_info = db.fs.files.find_one({'_id': imgsrc_profile_id})
+
+        response = {
+            'proof_file_id': str(proof_file_id),
+            'certificates_file_id': str(certificates_file_id),
+            'imgsrc_profile_id': str(imgsrc_profile_id)
+        }
+
+        if 'chunks' in proof_file_info:
+            response['proof_file_storage'] = 'chunks'
+        else:
+            response['proof_file_storage'] = 'inline'
+
+        if 'chunks' in certificates_file_info:
+            response['certificates_file_storage'] = 'chunks'
+        else:
+            response['certificates_file_storage'] = 'inline'
+
+        if 'chunks' in imgsrc_profile_info:
+            response['imgsrc_profile_storage'] = 'chunks'
+        else:
+            response['imgsrc_profile_storage'] = 'inline'
+
+        return HttpResponse(response)
 
 class EmployeeView(APIView):
     @csrf_exempt

@@ -646,33 +646,6 @@ def send_whatsapp(request):
 
 ...
 
-
-@csrf_exempt
-def upload_file(request):
-    if request.method == 'POST':
-        # Connect to MongoDB
-        client = MongoClient(
-            'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-        db = client['data']
-        fs = GridFS(db)
-
-        # Open the uploaded file and read its contents
-        uploaded_file = request.FILES['file']
-        file_contents = uploaded_file.read()
-
-        # Store the file using GridFS
-        file_id = fs.put(file_contents, filename=uploaded_file.name)
-
-        # Check if the file was stored inline or as chunks
-        file_info = db.fs.files.find_one({'_id': file_id})
-        if 'chunks' in file_info:
-            # The file was stored as chunks
-            return HttpResponse(f'File uploaded with ID {file_id} (stored as chunks)')
-        else:
-            # The file was stored inline
-            return HttpResponse(f'File uploaded with ID {file_id} (stored inline)')
-
-
 @csrf_exempt
 def get_file(request):
     # Connect to MongoDB

@@ -100,6 +100,9 @@ function DownloadButton(props) {
 
         // Click event handler for the employee details icon
         const handleTableIconClick = () => {
+            setShowAttendanceTable(false);
+            setShowOvertimeTable(false);
+            setShowTable(false);
             closePreviousContent(); // close previous content
             setActiveIcon("table"); // set active icon
             toggleTables(); // open overtime content
@@ -107,16 +110,28 @@ function DownloadButton(props) {
             };
 
     // Click event handler for the editform icon
-        const handleEditIconClick = () => {
-            closePreviousContent(); 
-            setActiveIcon("edit"); 
-            setShowEditForm(!showEditForm);
-            closeIframe(); 
-            }
+    const handleEditIconClick = () => {
+      setShowAttendanceTable(false);
+      setShowOvertimeTable(false);
+      setShowTable(false);
+      closePreviousContent();
+      setActiveIcon("edit");
+      
+      if (showEditForm) {
+        window.location.reload();
+      } else {
+        setShowEditForm(!showEditForm);
+        closeIframe();
+      }
+    };
+    
     
      //View the file in an iframe when the View button is clicked
      const viewFile1 = () => {
           setIsLoading(true);
+          setShowAttendanceTable(false);
+          setShowOvertimeTable(false);
+          setShowTable(false);
           const queryParams = new URLSearchParams();
       
           // Make a POST request to the server to get the file as a blob
@@ -141,7 +156,9 @@ function DownloadButton(props) {
               const fileURL = URL.createObjectURL(file);
               const iframe = document.createElement("iframe");
               iframe.src = fileURL;
-              iframe.style.width = "100%";
+              iframe.style.width = "50%";
+              iframe.style.marginLeft = "30%"
+              iframe.style.marginTop = "-10%"
               iframe.style.height = `${window.innerHeight}px`;
               document.body.appendChild(iframe);
               setIsLoading(false);
@@ -160,6 +177,9 @@ function DownloadButton(props) {
     // View the file in an iframe when the View button is clicked
     const viewFile = () => {
         setIsLoading(true);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
+        setShowTable(false);
         const queryParams = new URLSearchParams();
 
         // Make a POST request to the server to get the file as a blob
@@ -179,7 +199,9 @@ function DownloadButton(props) {
                 const fileURL = URL.createObjectURL(file);
                 const iframe = document.createElement('iframe');
                 iframe.src = fileURL;
-                iframe.style.width = '100%';
+                iframe.style.width = "50%";
+                iframe.style.marginLeft = "30%"
+                iframe.style.marginTop = "-10%"
                 iframe.style.height = `${window.innerHeight}px`;
                 document.body.appendChild(iframe);
                 setIsLoading(false);
@@ -250,31 +272,43 @@ function DownloadButton(props) {
 
     const toggleSummaryPicker = () => {
         setShowSummaryPicker(!showSummaryPicker);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
         closeIframe();
       };
 
       const toggleAttendancePicker = () => {
         setShowAttendancePicker(!showAttendancePicker);
+        setShowOvertimeTable(false);
+        setShowTable(false);
         closeIframe();
       };
 
       const toggleOvertimePicker = () => {
         setShowOvertimePicker(!showOvertimePicker);
+        setShowAttendanceTable(false);
+        setShowTable(false);
         closeIframe();
       };
 
       const handleSummaryClick = () => {
         setShowTable(!showTable);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
         closeIframe();
       };    
 
       const handleOvertimeClick = () => {
         setShowOvertimeTable(!showOvertimeTable);
+        setShowAttendanceTable(false);
+        setShowTable(false);
         closeIframe();
       };   
 
       const handleAttendanceClick = () => {
         setShowAttendanceTable(!showAttendanceTable);
+        setShowOvertimeTable(false);
+        setShowTable(false);
         closeIframe();
       }; 
   
@@ -444,7 +478,7 @@ state = {
         
             <div className='normal-container' style={{ display: 'flex', flexDirection: 'column' }}>
             <img style={{ width:"2.3cm",height:"2.3cm",borderRadius:60,marginLeft:"20px", marginTop: "30px"}}
-                src={`https://smrft555.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
+                src={`https://smrftadmin.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
                 alt="profile"
             />    
             {employee && (
@@ -473,16 +507,18 @@ state = {
                     </button>
                 </div>
                 )}
-                {editMode && (
-                    <br/>
-                )}
-
+         
             </div>
-            <br/><br/>
+            <br/>
             {showEditForm && employee && ( // Show EditForm component if showEditForm is true
-                <EditForm theuser={employee} toggleForm={handleEditIconClick} />
-            )}
-             
+            <div>
+            <div style={{fontFamily:"-moz-initial",fontSize:"26px",color:"darkcyan",whiteSpace:"nowrap",marginLeft:"700px"}}>Edit Form</div><br/>
+            <EditForm theuser={employee} toggleForm={handleEditIconClick} /></div>
+            )}        
+            {editMode && <br />} 
+             {editMode && <br />}
+             {editMode && <br />}
+             {editMode && <br />}
             <div className="icon-container">
                 <div style={{marginLeft:'5%',marginTop:"10%",color:'red'}} className="message">
                     {message ? <p>{message}</p> : null}
@@ -693,7 +729,7 @@ state = {
                 <div >    
                 {showTables && (
                 <>
-                <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",marginLeft:"38%"}}>{employee.name}'s Details</div><br/>
+                <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",marginLeft:"47%",marginTop:"-15%"}}>{employee.name}'s Details</div><br/>
                 <div style={{ display: "flex" }}>
                 <div className="employee-details-container">
                 <div className="details-row">
@@ -788,7 +824,7 @@ state = {
                     <div className="details-value">{employee.languages}</div>
                 </div>
                 </div>
-                        <div>
+                        <div style={{marginLeft:"-12%",marginTop:"2%"}}>
                         <caption style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Education Data</caption><br/>
                             {educationData ? (
                                 <table>
@@ -823,7 +859,7 @@ state = {
                         </div>
                         </div>
 
-                        <div style={{ display: "flex",margin: '5%' ,marginTop:"-1%"}}>
+                        <div style={{ display: "flex",marginLeft: '15%' ,marginTop:"-12%"}}>
                         <div>
                         <caption style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Experience Data</caption><br/>
                             {experienceData ? (
@@ -855,7 +891,7 @@ state = {
                                 <p>No experience data available</p>
                             )}
                         </div>
-                        <div style={{ marginLeft: '5%' }}>
+                        <div style={{ marginLeft: '2%' }}>
                         <caption style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Reference Data </caption><br/>
                             {referenceData ? (
                                 <table>
