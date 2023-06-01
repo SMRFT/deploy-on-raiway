@@ -19,11 +19,37 @@ import io
 from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
+from django.http import HttpResponse
 
+@csrf_exempt
+def upload_file(request):
+    if request.method == 'POST':
+        # Connect to MongoDB
+        client = MongoClient(
+            'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
+        db = client['demodatabase']
+        fs = GridFS(db)
+        # Open the uploaded file and read its contents
+        proof = request.FILES['proof']
+        file_contents =  proof.read()
+        # Store the file using GridFS
+        file_id = fs.put(file_contents, filename= proof.name)
+        # Check if the file was stored inline or as chunks
+        file_info = db.fs.files.find_one({'_id': file_id})
+        if 'chunks' in file_info:
+            # The file was stored as chunks
+            return HttpResponse(f'File uploaded with ID {file_id} (stored as chunks)')
+        else:
+            # The file was stored inline
+            return HttpResponse(f'File uploaded with ID {file_id} (stored inline)')
 
 class EmployeeView(APIView):
     @csrf_exempt
     def post(self, request):
+        # Store the files in GridFS
+        client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
+        db = client["data"]
+        fs = GridFS(db)
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
         certificates_file = request.FILES['certificates']
@@ -33,10 +59,7 @@ class EmployeeView(APIView):
         serializer = EmployeeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         employee = serializer.save()
-        # Store the files in GridFS
-        client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
-        db = client["data"]
-        fs = GridFS(db)
+ 
         # certificates_filename =employee.name+".pdf"
         proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id,employee_name=employee.name)
         certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id,employee_name=employee.name)
