@@ -284,7 +284,46 @@ function Addemp() {
     }
     return new File([u8arr], filename);
   }
-
+  const handleproof = async (event) => {
+    event.preventDefault();
+  
+    const formData = new FormData();
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    formData.append('file', file, name + "_" + id+ '_proof.pdf'); // Set the custom file name here
+  
+    try {
+      const response = await axios.post('https://smrftattendance.onrender.com/attendance/upload_file/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log(response.data); // Response from the server
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handlecertificate = async (event) => {
+    event.preventDefault();
+  
+    const formData = new FormData();
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput.files[0];
+    formData.append('file', file, name + "_" + id+ '_certificate.pdf'); // Set the custom file name here
+  
+    try {
+      const response = await axios.post('https://smrftattendance.onrender.com/attendance/upload_file/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      console.log(response.data); // Response from the server
+    } catch (error) {
+      console.error(error);
+    }
+  };
    // Validation for forms
    function validateName(name) {
     let error = "";
@@ -987,7 +1026,7 @@ function Addemp() {
             <br />
             <div className="col-sm-6"> 
             <div className="mx-5 form-group">
-                <input id="selectFile" type="file" accept=".pdf" onChange={handleFileSelect} hidden /><b>Choose a PAN or Aadhaar proof :</b>
+                <input id="selectFile" type="file" accept=".pdf" onChange={handleproof} hidden /><b>Choose a PAN or Aadhaar proof :</b>
                 <label for="selectFile" className="mx-4 bi bi-folder-check" style={{ fontSize: "40px", color: "#00A693", opacity: "9.9", WebkitTextStroke: "2.0px", cursor: "pointer" }}></label>
                 {proof && (
                   <>
@@ -1027,7 +1066,7 @@ function Addemp() {
             <br/>
             <div className="col-sm-6"> 
             <div className="mx-5 form-group">
-                <input id="formFileMultiple" type="file" accept=".pdf" onChange={handleCertificateSelect} multiple hidden /><b>Choose a Certificates (multiple file select) :</b>
+                <input id="formFileMultiple" type="file" accept=".pdf" onChange={handlecertificate} multiple hidden /><b>Choose a Certificates (multiple file select) :</b>
                 <label for="formFileMultiple" className="mx-4 bi bi-folder-plus" style={{ fontSize: "40px", color: "#00A693", opacity: "9.9", WebkitTextStroke: "2.0px", cursor: "pointer" }}></label>
                 {certificates && (
                   <>
