@@ -657,16 +657,14 @@ def upload_file(request):
         fs = GridFS(db)
 
         # Open the uploaded file and read its contents
-        proof = request.FILES['proof']
-        certificate=request.FILES['certificate']
-        file_contents =  proof.read()
-        file_contents2 = certificate.read()
+        uploaded_file = request.FILES['file']
+        file_contents = uploaded_file.read()
+
         # Store the file using GridFS
-        file_id = fs.put(file_contents, filename= proof.name)
-        file_id2 = fs.put(file_contents2, filename= certificate.name)
+        file_id = fs.put(file_contents, filename=uploaded_file.name)
+
         # Check if the file was stored inline or as chunks
         file_info = db.fs.files.find_one({'_id': file_id})
-
         if 'chunks' in file_info:
             # The file was stored as chunks
             return HttpResponse(f'File uploaded with ID {file_id} (stored as chunks)')
