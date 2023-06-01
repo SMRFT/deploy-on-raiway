@@ -19,7 +19,7 @@ SECRET_KEY = 'django-insecure-5#y-^bdkqu5-_2ttnr7(^*ai-i$2nh+ef)7+t$+%+hhol59h@!
 DEBUG = True
 
 # https://docs.djangoproject.com/en/3.0/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['https://smrftadmin.netlify.app/','http://localhost:8000/api/v1/recognition/faces/?subject=','http://localhost:8000/api/v1/recognition/recognize',"http://localhost:3000/","localhost"]
+ALLOWED_HOSTS = ['https://smrftadmin.netlify.app/','127.0.0.1','http://localhost:8000/api/v1/recognition/recognize',"http://localhost:3000/","localhost"]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
