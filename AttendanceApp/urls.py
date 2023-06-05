@@ -16,7 +16,7 @@ from django.urls import path
 # from .views import send_email
 urlpatterns = [
 
-    path('addemp', EmployeeView.as_view()),
+    path('addemp/', EmployeeView.as_view()),
     path('showemp', RetriveEmp.as_view()),
     path('showempById', RetriveEmpById.as_view()),
     path('delemp', DeleteEmp.as_view()),
