@@ -29,52 +29,65 @@ def upload_file(request):
         db = client['data']
         fs = GridFS(db)
         # Open the uploaded file and read its contents
-        uploaded_file = request.FILES['proof']
+        uploaded_file = request.FILES['file']
         file_contents = uploaded_file.read()
 
         # Store the file using GridFS
         file_id = fs.put(file_contents, filename=uploaded_file.name)
-        print(file_id)
-        # Check if the file was stored inline or as chunks
- 
-from django.core.exceptions import ValidationError
 
+        # Check if the file was stored inline or as chunks
+        file_info = db.fs.files.find_one({'_id': file_id})
+        if 'chunks' in file_info:
+            # The file was stored as chunks
+            return HttpResponse(f'File uploaded with ID {file_id} (stored as chunks)')
+        else:
+            # The file was stored inline
+            return HttpResponse(f'File uploaded with ID {file_id} (stored inline)')  
 class EmployeeView(APIView):
     def post(self, request):
-        proof_file = request.FILES.get('proof')
-        certificates_file = request.FILES.get('certificates')
-        imgsrc_profile = request.FILES.get('imgSrc')
-
-        if proof_file is None or certificates_file is None or imgsrc_profile is None:
-            return Response({'message': 'Required files not provided'}, status=400)
-
-        employee = self.save_employee(request.data)
-
-        try:
-            proof_file_id = self.store_file(proof_file, employee, "_proof.pdf")
-            certificates_file_id = self.store_file(certificates_file, employee, "_certificate.pdf")
-            imgsrc_profile_id = self.store_file(imgsrc_profile, employee, "_profile.jpg")
-        except ValidationError as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        employee.profile_picture_id = str(imgsrc_profile_id)
-        employee.save()
-
-        return Response({'message': 'New Employee has been added successfully'})
-
-    def save_employee(self, data):
-        serializer = EmployeeSerializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
-
-    def store_file(self, file, employee, suffix):
         client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
         db = client["data"]
         fs = GridFS(db)
-        file_contents = file.read()
-        filename = f"{employee.name}_{employee.id}{suffix}"
-        file_id = fs.put(file_contents, filename=filename, employee_id=employee.id, employee_name=employee.name)
-        return file_id
+        # Retrieve the proof file if present
+        if 'proof' in request.FILES:
+            proof_file = request.FILES['proof']
+            file_contents1 = proof_file.read()
+        else:
+            file_contents1 = None
+
+        # Retrieve the certificates file if present
+        if 'certificates' in request.FILES:
+            certificates_file = request.FILES['certificates']
+            file_contents = certificates_file.read()
+        else:
+            file_contents = None
+
+        # Retrieve the imgSrc file if present
+        if 'imgSrc' in request.FILES:
+            imgsrc_profile = request.FILES['imgSrc']
+            file_contents3 = imgsrc_profile.read()
+        else:
+            file_contents3 = None
+
+        serializer = EmployeeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        employee = serializer.save()
+
+        # Store the files in GridFS if they are present
+
+
+        if file_contents1 is not None:
+            proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id, employee_name=employee.name)
+
+        if file_contents is not None:
+            certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id, employee_name=employee.name)
+
+        if file_contents3 is not None:
+            imgsrc_profile_id = fs.put(file_contents3, filename=employee.name + "_" + employee.id + "_profile.jpg", employee_id=employee.id, employee_name=employee.name)
+            employee.profile_picture_id = str(imgsrc_profile_id)
+            employee.save()
+
+        return Response({'message': 'New Employee Has Been Added Successfully'})
 
 
 
