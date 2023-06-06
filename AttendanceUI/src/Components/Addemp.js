@@ -228,7 +228,7 @@ function Addemp() {
     try {
       const res = await axios({
         method: "post",
-        url: "https://smrftattendance.onrender.com/attendance/addemp",
+        url: "https://smrftattendance.onrender.com/attendance/addemp/",
         headers: {
           'Content-Type': 'multipart/form-data'
         },

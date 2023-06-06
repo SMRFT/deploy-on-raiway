@@ -5,7 +5,7 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails,upload_file
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours, get_profile_image
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
@@ -38,7 +38,7 @@ urlpatterns = [
     path('breakhours', RetriveBreakhours.as_view()),
     path('send-email/', send_email, name='send_email'),
     path('send-whatsapp/', send_whatsapp, name='send_whatsapp'),
-    path('upload_file/', upload_file, name='upload_file'),
+    # path('upload_file/', upload_file, name='upload_file'),
     path('get_file', get_file, name='get_file'),
     path('breakdetails', RetrieveBreak.as_view()),
     path('Employeehours', RetrieveEmployeehours.as_view()),

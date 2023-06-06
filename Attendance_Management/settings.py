@@ -31,7 +31,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_CREDENTIALS = True
 # Application definition
-
+CSRF_TRUSTED_ORIGINS = ['*']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -175,7 +175,7 @@ AUTH_USER_MODEL = 'AttendanceApp.Admin'
 # mongo storage connection
 
 GRIDFS_STORAGE_OPTIONS = {
-    'location': 'mongodb://localhost:27017/',
+    'location': 'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net',
     'database': 'data',
     'base_url': '/media/',
 }
