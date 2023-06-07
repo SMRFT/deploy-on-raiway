@@ -252,7 +252,39 @@ function Addemp() {
     catch (err) {
     }
   };
-
+  const FileUpload = () => {
+    const [file, setFile] = useState(null);
+  
+    const handleFileSelect = (event) => {
+      setFile(event.target.files[0]);
+    };
+  
+    const handleRemoveFile = () => {
+      setFile(null);
+    };
+  
+    const handleUpload = () => {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('fileName', file.name);
+  
+        fetch('http://localhost:7000/attendance/upload_file/', {
+          method: 'POST',
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            // Handle response from the Django backend
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            // Handle error
+          });
+      }
+    };
+  }
   // Refresh function
   function refreshPage() {
     {
