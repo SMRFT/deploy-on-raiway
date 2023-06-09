@@ -204,11 +204,11 @@ function Addemp() {
     data.append("", imgSrc);
     data.append("imgSrcname", imgSrc.name);
     comprefaceImage.append("file", imgSrc);
-    // let formDataNew = new FormData();
-    // formDataNew.append("file", imgSrc);
-    // let formData = new FormData();
+    let formDataNew = new FormData();
+    formDataNew.append("file", imgSrc);
+    let formData = new FormData();
     // formData.append("file", proof);
-    formData.append("file", certificates);
+    // formData.append("file", certificates);
     console.log(data)
     try {
       const res = await axios({
@@ -532,11 +532,11 @@ function Addemp() {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append('employee_name', employeeName);
-    formData.append('employee_id', employeeId);
+    formData.append('employee_name', name);
+    formData.append('employee_id', id);
     formData.append('proof', proofFile);
     formData.append('certificates', certificatesFile);
-     formData.append('imgSrc', profileImageFile);
+    formData.append('imgSrc', profileImageFile);
      console.log("profileImageFile:",profileImageFile);
 
     try {
@@ -1385,8 +1385,10 @@ function Addemp() {
   </div>
   
   
-  <button className="button-71 Add-employee-button" role="button" type="submit" onClick={() => { handleClick();}}>ADD EMPLOYEE</button>
-  <button type="submit" onClick={handleSubmit2}>Upload Profile Image</button>
+  <button className="button-71 Add-employee-button" type="submit" onClick={() => { handleClick(); handleSubmit2(); }}>
+  ADD EMPLOYEE
+</button>
+
 
      </div>  
   
