@@ -20,77 +20,85 @@ from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
 from django.http import HttpResponse
+
 @csrf_exempt
 def upload_file(request):
-    if request.method == 'POST':
-        # Connect to MongoDB
-        client = MongoClient(
-            'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-        db = client['data']
-        fs = GridFS(db)
-        # Open the uploaded file and read its contents
-        uploaded_file = request.FILES['file']
-        file_contents = uploaded_file.read()
-
-        # Store the file using GridFS
-        file_id = fs.put(file_contents, filename=uploaded_file.name)
-
-        # Check if the file was stored inline or as chunks
-        file_info = db.fs.files.find_one({'_id': file_id})
-        if 'chunks' in file_info:
-            # The file was stored as chunks
-            return HttpResponse(f'File uploaded with ID {file_id} (stored as chunks)')
-        else:
-            # The file was stored inline
-            return HttpResponse(f'File uploaded with ID {file_id} (stored inline)') 
-@csrf_exempt
-def upload_files(request):
     if request.method == 'POST':
         # Connect to MongoDB
         client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
         db = client['data']
         fs = GridFS(db)
         
-        # Open and store uploaded files using GridFS
-
+        # Open the uploaded files and read their contents
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
-        proof_file_id = fs.put(file_contents1, filename=proof_file.name)
-
         certificates_file = request.FILES['certificates']
         file_contents2 = certificates_file.read()
-        certificates_file_id = fs.put(file_contents2, filename=certificates_file.name)
-
         imgsrc_profile = request.FILES['imgSrc']
         file_contents3 = imgsrc_profile.read()
-        imgsrc_profile_id = fs.put(file_contents3, filename=imgsrc_profile.name)
+        
+        # Store the files in the GridFS
+        proof_id = fs.put(file_contents1, filename='proof_file')
+        certificates_id = fs.put(file_contents2, filename='certificates_file')
+        imgsrc_id = fs.put(file_contents3, filename='imgsrc_profile')
+        
+        # Save file information in the database
+        db.fs.files.insert_one({
+            'proof_id': str(proof_id),
+            'certificates_id': str(certificates_id),
+            'imgsrc_id': str(imgsrc_id)
+        })
+        
+        return HttpResponse('Files uploaded successfully')
 
-        # Check if the files were stored as chunks or inline
-        # file_info = db.fs.files.find_one({'_id': file_id})
-        proof_info = db.fs.files.find_one({'_id': proof_file_id})
-        certificates_info = db.fs.files.find_one({'_id': certificates_file_id})
-        imgsrc_profile_info = db.fs.files.find_one({'_id': imgsrc_profile_id})
 
-        # if 'chunks' in file_info:
-            # The file was stored as chunks
-            # return HttpResponse(f'File uploaded with ID {file_id} (stored as chunks)')
-        # else:
-            # The file was stored inline
-            # return HttpResponse(f'File uploaded with ID {file_id} (stored inline)')
-
-        # You can also handle the other files in a similar manner
-
-    else:
-        return HttpResponse('Invalid request method.') 
+         
 class EmployeeView(APIView):
+    def save_files(self, employee, request):
+        # Store the files in GridFS
+        client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
+        db = client["data"]
+        fs = GridFS(db)
+
+        proof_file = request.FILES.get('proof')
+        if proof_file:
+            proof_file_id = fs.put(
+                proof_file,
+                filename=f"{employee.name}_{employee.id}_proof.pdf",
+                employee_id=employee.id,
+                employee_name=employee.name
+            )
+
+        certificates_file = request.FILES.get('certificates')
+        if certificates_file:
+            certificates_file_id = fs.put(
+                certificates_file,
+                filename=f"{employee.name}_{employee.id}_certificate.pdf",
+                employee_id=employee.id,
+                employee_name=employee.name
+            )
+
+        imgsrc_profile = request.FILES.get('imgSrc')
+        if imgsrc_profile:
+            imgsrc_profile_id = fs.put(
+                imgsrc_profile,
+                filename=f"{employee.name}_{employee.id}_profile.jpg",
+                employee_id=employee.id,
+                employee_name=employee.name
+            )
+            employee.profile_picture_id = str(imgsrc_profile_id)
+
+        employee.save()
+
     def post(self, request):
         serializer = EmployeeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         employee = serializer.save()
 
-        upload_files(request)
+        self.save_files(employee, request)
 
-        return Response({'message': 'New Employee Has Been Added Successfully'})
+        return Response({'message': 'New Employee has been added successfully'})
+
 
 
 

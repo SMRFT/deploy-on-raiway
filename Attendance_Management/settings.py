@@ -108,6 +108,16 @@ DATABASES = {
         },
     },
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'admindata',
+#         'USER': 'admin',
+#         'PASSWORD': 'SMRFT#636007',
+#         'HOST': 'database-1.czlpcyejzya7.us-west-2.rds.amazonaws.com',
+#         'PORT': '3306',
+#     }
+# }
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -179,7 +189,7 @@ GRIDFS_STORAGE_OPTIONS = {
     'database': 'data',
     'base_url': '/media/',
 }
-DEFAULT_FILE_STORAGE = 'gridfs_storage.storage.GridFSStorage'
+# DEFAULT_FILE_STORAGE = 'gridfs_storage.storage.GridFSStorage'
 
 # email sender
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -196,3 +206,21 @@ TWILIO_AUTH_TOKEN = 'c6ff1b2f81b4fcac652d4d71fce766a2'
 VONAGE_API_KEY = '4be358a0'
 VONAGE_API_SECRET = '6GF9TK0JGgbe4V0A'
 VONAGE_BRAND_NAME = 'parthiban'
+
+
+
+AWS_ACCESS_KEY_ID = 'AKIA2N5OVS4K7RY5MBWN'
+AWS_SECRET_ACCESS_KEY = '0N1IuuY8Kl0sNvca886pVSm4KIXJMJfMiKYrXy1Y'
+AWS_BUCKET_NAME = 'employee-images-files'
+AWS_S3_REGION_NAME = 'ap-south-1'  # Replace with the appropriate region code, e.g., 'us-west-2'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+
+# Static and Media File Settings
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
