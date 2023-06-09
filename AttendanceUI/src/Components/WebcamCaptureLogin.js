@@ -7,67 +7,123 @@ import moment from "moment";
 import { useState, useEffect } from "react";
 import "../WebcamCapture.css";
 import Myconstants from "../Components/Myconstants";
-import { Navigate, useNavigate } from "react-router-dom";
 import "../Admin";
 import profile from "../images/smrft.png";
-import NavbarComp from "../Components/NavbarComp";
 import { Navbar, Nav } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route, Link, useParams } from "react-router-dom";
-import { render } from "react-dom";
-import { propTypes } from "react-bootstrap/esm/Image";
-import { FilterTiltShift } from "@material-ui/icons";
-import axios from 'axios';
-import ReactWhatsapp from 'react-whatsapp';
-// import { Twilio } from 'twilio';
+import AWS from 'aws-sdk';
 import Footer from './Footer';
+
 const WebcamCaptureLogin = () => {
   const webcamRef = React.useRef(null);
   const [imgSrc, setImgSrc] = React.useState(null);
-  const [error, setError] = useState(null);
   const [employee, setEmployees] = useState([]);
   const [isShown, setIsShown] = useState(true);
   const [message, setMessage] = useState("");
-  const [loggedIn, setLoggedIn] = useState(true);
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
-  const [duration, setDuration] = useState(null);
-  const [email, setEmail] = useState([]);
+  const [Email, setEmail] = useState("");
   let [login, setLogin] = useState();
+  const [Employeename, setEmployeeName] = React.useState(null);
 
   //Function for hide and show for employee details
   const handleClick = (event) => {
     setIsShown((current) => !current);
   };
 
-  const capture = React.useCallback(() => {
-    //Function to get camera screenshot image of an employee and changing it as dataurl
+  AWS.config.update({
+    region: 'us-west-2',
+    accessKeyId: 'AKIA2N5OVS4KY4HBQX5U',
+    secretAccessKey: '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',
+  });
+
+  const capture = React.useCallback(async () => {
+    // Function to get the camera screenshot image of an employee and change it to data URL
     const imageSrc = webcamRef.current.getScreenshot();
+  
+    // Convert the captured image to data URL
     setImgSrc(imageSrc);
     toDataURL(imageSrc).then((dataUrl) => {
-      var fileData = dataURLtoFile(dataUrl, "imageName.jpg");
-      //Appending the image to formdata as dataurl format
-      let formData = new FormData();
-      formData.append("file", fileData);
-      formData.append("file", imageSrc);
-      //Posting image to compreface
-      const recognize = fetch(
-        "http://localhost:8000/api/v1/recognition/recognize",
-        {
-          method: "POST",
-          headers: {
-            "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
-          },
-          body: formData,
-        }
-      )
+      const fileData = dataURLtoFile(dataUrl, 'imageName.jpg');
+      // Retrieve the list of objects in the S3 bucket
+      const s3 = new AWS.S3();
+      const listParams = {
+        Bucket: 'smrft-facial-recognition', // Replace with your S3 bucket name
+      };
+  
+      s3.listObjectsV2(listParams).promise()
+      .then(data => {
+        const objectKeys = data.Contents.map((object) => object.Key);
+    
+        // Initialize the AWS Rekognition client
+        const rekognition = new AWS.Rekognition();
+    
+        // Compare the captured image with the images in the S3 bucket
+        const compareFace = async (index) => {
+          if (index >= objectKeys.length) {
+            console.log('No matching face found in the S3 bucket.');
+            return;
+          }
+    
+          const compareFacesParams = {
+            SourceImage: {
+              Bytes: new Uint8Array(await fileData.arrayBuffer()),
+            },
+            TargetImage: {
+              S3Object: {
+                Bucket: 'smrft-facial-recognition',
+                Name: objectKeys[index],
+              },
+            },
+            SimilarityThreshold: 90, // Set a suitable similarity threshold
+          };
+    
+          rekognition.compareFaces(compareFacesParams, (err, data) => {
+            if (err) {
+              console.error(err);
+            } else {
+              const faceMatches = data.FaceMatches;
+              if (faceMatches.length > 0) {
+                // A match is found, retrieve the matched image
+                const matchedImageKey = objectKeys[index];
+                const s3ImageParams = {
+                  Bucket: 'smrft-facial-recognition',
+                  Key: matchedImageKey,
+                };
+    
+                s3.getObject(s3ImageParams, (err, data) => {
+                  if (err) {
+                    console.error(err);
+                  } else {
+                    // Use the retrieved image data as needed
+                    const matchedImageBytes = data.Body;
+                    console.log('Retrieved image:', matchedImageBytes);
+    
+                    // Construct the URL dynamically using the retrieved image key
+                    const imageUrl = `https://smrft-facial-recognition.s3.us-west-2.amazonaws.com/${matchedImageKey}`;
+                    console.log('Image URL:', imageUrl);
+                    console.log('name',matchedImageKey)
+                    setEmployeeName(matchedImageKey);
+                  }
+                });
+    
+              } else {
+                // No match found, compare with the next image
+                compareFace(index + 1);
+              }
+            }
+          });
+        };
+    
+        compareFace(0);
+      })    
         .then((r) => r.json())
-        .then(function (data) {
-          var nameEmp = data.result.map(function (recognizedEmp) {
-            const nameOfLoggedInEmp = recognizedEmp.subjects[0].subject;
-            const empId = nameOfLoggedInEmp.split("_");
+        .then(
+          (data) => {
+            const empId = Employeename.split("_");
+            console.log("Id:",empId)
+            console.log(data)
            
             //Post method to show the employee details using id
-            const res = fetch("https://smrftadmin.onrender.com/attendance/showempById", {
+            const res = fetch("http://127.0.0.1:7000/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
@@ -82,7 +138,7 @@ const WebcamCaptureLogin = () => {
                   setEmail(email);
                   // <ReactWhatsapp number="+91-7904019642" message="Hello World!!!" />
                   // console.log("email", email);
-                  fetch("https://smrftadmin.onrender.com/attendance/send-email/", {
+                  fetch("http://127.0.0.1:7000/attendance/send-email/", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -90,7 +146,7 @@ const WebcamCaptureLogin = () => {
                     },
                     body: JSON.stringify({ subject: subject, message: messages, recipient: email,cc_recipients:cc }),
                   })
-                  fetch("https://smrftadmin.onrender.com/attendance/send-whatsapp/", {
+                  fetch("http://127.0.0.1:7000/attendance/send-whatsapp/", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -103,7 +159,6 @@ const WebcamCaptureLogin = () => {
                     .catch(error => {
                       console.log('error', error);
                     });
-
                   setEmployees(data);
                 },
                 (error) => {
@@ -121,11 +176,8 @@ const WebcamCaptureLogin = () => {
             setLogin(login)
             let date = log.format('YYYY-MM-DD')
             console.log("date",date)
-            const day = moment(logintime).format('DD')
-            
-            console.log('day', day); // Output: "24"
-            
-            
+            const day = moment(logintime).format('DD') 
+            console.log('day', day); // Output: "24" 
             let month = moment(logintime).format('MM')
             let iddate = empId[1] + date
             // sessionStorage.setItem("iddate", iddate.toString());
@@ -192,13 +244,11 @@ const WebcamCaptureLogin = () => {
 
               const lateLogin = `${hours}:${minutes}:${seconds}`;
               console.log("lateLogin",lateLogin)
-                          
             
-           
               let earlyLogout="00:00:00";       
             //Posting login information of employee to db using the above data
             const empLoginResultSet = fetch(
-              "https://smrftadmin.onrender.com/attendance/admincalendarlogin",
+              "http://127.0.0.1:7000/attendance/admincalendarlogin",
               {
                 method: "POST",
                 headers: {
@@ -206,7 +256,7 @@ const WebcamCaptureLogin = () => {
                 },
                 body: JSON.stringify({
                   id: empId[1],
-                  name: nameOfLoggedInEmp,
+                  name: Employeename,
                   start: logintime,
                   end: logintime,
                   date: date,
@@ -229,7 +279,6 @@ const WebcamCaptureLogin = () => {
                 }
 
               })
-          });
         })
         .catch(function (error) {
         });
@@ -260,18 +309,18 @@ const WebcamCaptureLogin = () => {
       );
 
   //converting "Base64" to javascript "File Object"
-  function dataURLtoFile(dataurl, filename) {
-    var arr = dataurl.split(","),
-      mime = arr[0].match(/:(.*?);/)[1],
-      bstr = atob(arr[1]),
-      n = bstr.length,
-      u8arr = new Uint8Array(n);
+  function dataURLtoFile(dataURL, filename) {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], filename);
+    return new File([u8arr], filename, { type: mime });
   }
-
+  
   return (
     <React.Fragment>
       <div>
@@ -287,9 +336,10 @@ const WebcamCaptureLogin = () => {
         <Navbar.Collapse id="navbarScroll">
           <Nav
             className="mr-auto my-2 my-lg"
-            style={{ marginLeft: '100px' }}
+            style={{ marginLeft: '100px'}}
             navbarScroll>
-            <Nav.Link as={Link} to="/" className='nav_link1'>Home</Nav.Link>
+            <Nav.Link as={Link}  to="/" >
+              <div className="nav_link1" style={{ color: "cadetblue", fontFamily: "cursive", ':hover': { background: "blue" } }}>Home</div></Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
@@ -299,7 +349,7 @@ const WebcamCaptureLogin = () => {
       </div>
 
       <button className="In" onClick={() => { capture(); handleClick(); }}>
-        <i class="bi bi-camera2"> Check In</i>
+        <i className="bi bi-camera2"> Check In</i>
       </button>
 
       {imgSrc && (
@@ -322,12 +372,12 @@ const WebcamCaptureLogin = () => {
         </div>
         <div className="message" style={{ marginLeft: "30px", marginTop: "10px" }}>{message ? <p>{message}</p> : null}</div>
           <div className="col-lg" style={{ marginLeft: "80px", marginTop: "10px" }}>
-          <button className="btn btn-outline-success" onClick={() => { refreshPage(); }} variant="danger" type="submit" block>
+          <button className="btn btn-outline-success" onClick={() => { refreshPage(); }} variant="danger" type="submit" block="true">
             <i className="bi bi-check-circle"> Done</i>
           </button>
         </div>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </React.Fragment >
   );
 };

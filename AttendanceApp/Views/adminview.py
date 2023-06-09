@@ -28,76 +28,66 @@ def upload_file(request):
         client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
         db = client['data']
         fs = GridFS(db)
-        
+
+        # Retrieve employee information
+        employee_name = request.POST.get('employee_name')
+        employee_id = request.POST.get('employee_id')
+
         # Open the uploaded files and read their contents
         proof_file = request.FILES['proof']
         file_contents1 = proof_file.read()
         certificates_file = request.FILES['certificates']
         file_contents2 = certificates_file.read()
-        imgsrc_profile = request.FILES['imgSrc']
-        file_contents3 = imgsrc_profile.read()
-        
+        # imgsrc_profile = request.FILES['imgSrc']
+        # file_contents3 = imgsrc_profile.read()
+
         # Store the files in the GridFS
-        proof_id = fs.put(file_contents1, filename='proof_file')
-        certificates_id = fs.put(file_contents2, filename='certificates_file')
-        imgsrc_id = fs.put(file_contents3, filename='imgsrc_profile')
-        
+        proof_filename = f'{employee_name}_{employee_id}_proof.pdf'
+        certificates_filename = f'{employee_name}_{employee_id}_certificates.pdf'
+        imgsrc_filename = f'{employee_name}_{employee_id}_profile.jpg'
+
+        proof_id = fs.put(file_contents1, filename=proof_filename)
+        certificates_id = fs.put(file_contents2, filename=certificates_filename)
+        # imgsrc_id = fs.put(file_contents3, filename=imgsrc_filename)
+
         # Save file information in the database
         db.fs.files.insert_one({
             'proof_id': str(proof_id),
             'certificates_id': str(certificates_id),
-            'imgsrc_id': str(imgsrc_id)
+            # 'imgsrc_id': str(imgsrc_id),
+            'employee_name': employee_name,
+            'employee_id': employee_id
         })
-        
+
+        # Return a response indicating successful file upload
         return HttpResponse('Files uploaded successfully')
+
 
 
          
 class EmployeeView(APIView):
-    def save_files(self, employee, request):
+    def post(self, request):
+        proof_file = request.FILES['proof']
+        file_contents1 = proof_file.read()
+        certificates_file = request.FILES['certificates']
+        file_contents = certificates_file.read()
+        imgsrc_profile = request.FILES['imgSrc']
+        file_contents3 = imgsrc_profile.read()
+        serializer = EmployeeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        employee = serializer.save()
         # Store the files in GridFS
         client = MongoClient("mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
         db = client["data"]
         fs = GridFS(db)
-
-        proof_file = request.FILES.get('proof')
-        if proof_file:
-            proof_file_id = fs.put(
-                proof_file,
-                filename=f"{employee.name}_{employee.id}_proof.pdf",
-                employee_id=employee.id,
-                employee_name=employee.name
-            )
-
-        certificates_file = request.FILES.get('certificates')
-        if certificates_file:
-            certificates_file_id = fs.put(
-                certificates_file,
-                filename=f"{employee.name}_{employee.id}_certificate.pdf",
-                employee_id=employee.id,
-                employee_name=employee.name
-            )
-
-        imgsrc_profile = request.FILES.get('imgSrc')
-        if imgsrc_profile:
-            imgsrc_profile_id = fs.put(
-                imgsrc_profile,
-                filename=f"{employee.name}_{employee.id}_profile.jpg",
-                employee_id=employee.id,
-                employee_name=employee.name
-            )
-            employee.profile_picture_id = str(imgsrc_profile_id)
-
+        # certificates_filename =employee.name+".pdf"
+        proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id,employee_name=employee.name)
+        certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id + "_certificate.pdf", employee_id=employee.id,employee_name=employee.name)
+        imgsrc_profile_id = fs.put(file_contents3, filename=employee.name + "_" + employee.id + "_profile.jpg", employee_id=employee.id,employee_name=employee.name)
+        employee.profile_picture_id = str(imgsrc_profile_id)
         employee.save()
-
-    def post(self, request):
-        serializer = EmployeeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        employee = serializer.save()
-
-        self.save_files(employee, request)
-
-        return Response({'message': 'New Employee has been added successfully'})
+        # imgsrc_profile_id = fs.put(file_contents3, filename = employee.name + "-" + str(employee.id) + ".pdf", employee_id=employee.id)
+        return Response({'message': 'New Employee Has Been Added Successfully'})
 
 
 

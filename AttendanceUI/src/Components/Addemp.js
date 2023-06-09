@@ -17,8 +17,8 @@ import VerticalTabs from "./VerticalTabs";
 
 function Addemp() {
   const [page, setPage] = useState(1);
-  const webcamRef = React.useRef(null);
-  const [imgSrc, setImgSrc] = React.useState("");
+  // const webcamRef = React.useRef(null);
+  // const [imgSrc, setImgSrc] = React.useState("");
   const [imageSrc, setImageSrc] = useState("");
   const [imgSrcname, setImgSrcname] = useState("");
   const [image, setImage] = useState(null);
@@ -169,22 +169,7 @@ function Addemp() {
       const ageDt = new Date(diffMs);
       return Math.abs(ageDt.getUTCFullYear() - 1970);
     };
-  useEffect(() => {
-    if (imgSrc) {
-      setImage(URL.createObjectURL(imgSrc));
-    }
-  }, [imgSrc]);
-  const Capture = React.useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    toDataURL(imageSrc).then((dataUrl) => {
-      var fileData = dataURLtoFile(dataUrl, "image.jpg");
-      let formData = new FormData();
-      formData.append("file", fileData);
-      formData.append("file", imageSrc);
-      setImgSrc(fileData);
-      setImageSrc(imageSrc)
-    });
-  }, [webcamRef, setImgSrc]);
+
   const onSubmit = async (details) => {
     const data = new FormData();
     const comprefaceImage = new FormData();
@@ -207,8 +192,8 @@ function Addemp() {
     data.append("Maritalstatus", Maritalstatus);
     data.append("Aadhaarno", Aadhaarno);
     data.append("PanNo", PanNo);
-    data.append("proof", proof);
-    data.append("certificates", certificates);
+    // data.append("proof", proof);
+    // data.append("certificates", certificates);
     data.append("shift", shift);
     data.append("IdentificationMark", IdentificationMark);
     data.append("BloodGroup", BloodGroup);
@@ -219,10 +204,10 @@ function Addemp() {
     data.append("", imgSrc);
     data.append("imgSrcname", imgSrc.name);
     comprefaceImage.append("file", imgSrc);
-    let formDataNew = new FormData();
-    formDataNew.append("file", imgSrc);
-    let formData = new FormData();
-    formData.append("file", proof);
+    // let formDataNew = new FormData();
+    // formDataNew.append("file", imgSrc);
+    // let formData = new FormData();
+    // formData.append("file", proof);
     formData.append("file", certificates);
     console.log(data)
     try {
@@ -252,39 +237,7 @@ function Addemp() {
     catch (err) {
     }
   };
-  const FileUpload = () => {
-    const [file, setFile] = useState(null);
-  
-    const handleFileSelect = (event) => {
-      setFile(event.target.files[0]);
-    };
-  
-    const handleRemoveFile = () => {
-      setFile(null);
-    };
-  
-    const handleUpload = () => {
-      if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('fileName', file.name);
-  
-        fetch('http://localhost:7000/attendance/upload_file/', {
-          method: 'POST',
-          body: formData,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-            // Handle response from the Django backend
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-            // Handle error
-          });
-      }
-    };
-  }
+
   // Refresh function
   function refreshPage() {
     {
@@ -539,6 +492,56 @@ function Addemp() {
       return null;
     }
   }
+  const [employeeName, setEmployeeName] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
+  const [proofFile, setProofFile] = useState(null);
+  const [certificatesFile, setCertificatesFile] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [imgSrc, setImgSrc] = useState(null);
+  const webcamRef = useRef(null);
+
+  useEffect(() => {
+    if (imgSrc) {
+      setImage(URL.createObjectURL(imgSrc));
+    }
+  }, [imgSrc]);
+
+  const Capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    const fileData = dataURLtoFile(imageSrc, 'image.jpg');
+    setImgSrc(fileData);
+  }, [webcamRef, setImgSrc]);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (event.target.name === 'proof') {
+      setProofFile(file);
+    } else if (event.target.name === 'certificates') {
+      setCertificatesFile(file);
+    } else if (event.target.name === 'imgSrc') {
+      setProfileImageFile(file);
+    }
+  };
+
+  const handleSubmit2 = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append('employee_name', employeeName);
+    formData.append('employee_id', employeeId);
+    formData.append('proof', proofFile);
+    formData.append('certificates', certificatesFile);
+   // formData.append('imgSrc', profileImageFile);
+
+    try {
+      await axios.post('http://127.0.0.1:7000/attendance/upload_file/', formData);
+      // Handle successful file upload
+      console.log('Files uploaded successfully');
+    } catch (error) {
+      // Handle error
+      console.error('File upload failed:', error);
+    }
+  };
   const nextPage = () => {
     setPage(page + 1);
   };
@@ -879,6 +882,7 @@ function Addemp() {
               </div>
               </div>
               <br/>
+          
               <div className="row">
              <div className="col-sm-6">   
             <Form.Field>
@@ -901,7 +905,8 @@ function Addemp() {
                 </div>
               </Col>
              </Form.Field>
-            </div>    
+            </div>   
+           
             <div className="col-sm-6">
   <Form.Field>
     <Col sm={{ span: 12 }}>
@@ -1017,20 +1022,39 @@ function Addemp() {
             </Form.Field>
             </div>
             <br />
-            <div className="col-sm-6"> 
-            <div className="mx-5 form-group">
-                <input id="selectFile" type="file" accept=".pdf" onChange={handleFileSelect} hidden /><b>Choose a PAN or Aadhaar proof :</b>
-                <label for="selectFile" className="mx-4 bi bi-folder-check" style={{ fontSize: "40px", color: "#00A693", opacity: "9.9", WebkitTextStroke: "2.0px", cursor: "pointer" }}></label>
-                {proof && (
-                  <>
-                    <span className="mx-3">{proof.name}</span>
-                    <button className="btn btn-danger" onClick={handleRemoveFile}>
-                      <i className="fa fa-times"></i>
-                    </button>
-                  </>
-                )}
-              </div>
-</div>
+            <div className="col-sm-6">
+        <div className="mx-5 form-group">
+          <input
+            id="formFileMultiple"
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            multiple
+            hidden
+            name="certificates"
+          />
+          <b>Choose Certificates (multiple file select):</b>
+          <label
+            htmlFor="formFileMultiple"
+            className="mx-4 bi bi-folder-plus"
+            style={{
+              fontSize: "40px",
+              color: "#00A693",
+              opacity: "9.9",
+              WebkitTextStroke: "2.0px",
+              cursor: "pointer",
+            }}
+          ></label>
+          {certificatesFile && (
+            <>
+              <span className="mx-3">{certificatesFile.name}</span>
+              <button className="btn btn-danger" onClick={() => setCertificatesFile(null)}>
+                <i className="fa fa-times"></i>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 </div>
 <br/>
               <div className="row">
@@ -1057,20 +1081,38 @@ function Addemp() {
             </Form.Field>
             </div>
             <br/>
-            <div className="col-sm-6"> 
-            <div className="mx-5 form-group">
-                <input id="formFileMultiple" type="file" accept=".pdf" onChange={handleCertificateSelect} multiple hidden /><b>Choose a Certificates (multiple file select) :</b>
-                <label for="formFileMultiple" className="mx-4 bi bi-folder-plus" style={{ fontSize: "40px", color: "#00A693", opacity: "9.9", WebkitTextStroke: "2.0px", cursor: "pointer" }}></label>
-                {certificates && (
-                  <>
-                    <span className="mx-3">{certificates.name}</span>
-                    <button className="btn btn-danger" onClick={handleRemoveCertificate}>
-                      <i className="fa fa-times"></i>
-                    </button>
-                  </>
-                )}
-              </div>  
-              </div>
+            <div className="col-sm-6">
+        <div className="mx-5 form-group">
+          <input
+            id="selectFile"
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            hidden
+            name="proof"
+          />
+          <b>Choose PAN or Aadhaar proof:</b>
+          <label
+            htmlFor="selectFile"
+            className="mx-4 bi bi-folder-check"
+            style={{
+              fontSize: "40px",
+              color: "#00A693",
+              opacity: "9.9",
+              WebkitTextStroke: "2.0px",
+              cursor: "pointer",
+            }}
+          ></label>
+          {proofFile && (
+            <>
+              <span className="mx-3">{proofFile.name}</span>
+              <button className="btn btn-danger" onClick={() => setProofFile(null)}>
+                <i className="fa fa-times"></i>
+              </button>
+            </>
+          )}
+        </div>
+      </div>
               </div>
 <br/>
             <Form.Field>
@@ -1151,8 +1193,10 @@ function Addemp() {
   </button>
   </div>
    )}  
+       
   </Form> 
   </div>  
+  
     )   
   },
   {
@@ -1336,7 +1380,7 @@ function Addemp() {
   
   
   <button className="button-71 Add-employee-button" role="button" type="submit" onClick={() => { handleClick();}}>ADD EMPLOYEE</button>
-
+  <button type="submit" onClick={handleSubmit2}>Upload Profile Image</button>
 
      </div>  
   

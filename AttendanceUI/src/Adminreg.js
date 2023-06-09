@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./Admin.css";
+
 // import "./Adminreg.css";
 const AdminReg = () => {
   const [name, setName] = useState("");
@@ -95,7 +96,9 @@ const AdminReg = () => {
     return error;
   };
   return (
+    
     <div class="screen-2">
+     
       {/* <h2>Admin Registration</h2> */}
       <form onSubmit={handleSubmit}>
         <div
@@ -181,6 +184,7 @@ const AdminReg = () => {
         </div>
       </form>
     </div>
+     
   );
 };
 

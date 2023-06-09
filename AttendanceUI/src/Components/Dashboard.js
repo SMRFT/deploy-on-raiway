@@ -388,7 +388,7 @@ const breakEmployeesCount = breakEmployees.length;
   </div>
 </div>
 <div style={{ marginLeft:"-10%", width: '500px', height: '300px',marginTop:"5%" }}>
-=
+
   <ReactFC
       type="pie3d"
       width="120%"

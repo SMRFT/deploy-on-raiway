@@ -1,60 +1,149 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-function FileUploadForm() {
+const FileUploadForm = () => {
+  const [employeeName, setEmployeeName] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
   const [proofFile, setProofFile] = useState(null);
   const [certificatesFile, setCertificatesFile] = useState(null);
-  const [imgSrcFile, setImgSrcFile] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
 
-  const handleProofFileChange = (event) => {
-    setProofFile(event.target.files[0]);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (event.target.name === 'proof') {
+      setProofFile(file);
+    } else if (event.target.name === 'certificates') {
+      setCertificatesFile(file);
+    } else if (event.target.name === 'imgSrc') {
+      setProfileImageFile(file);
+    }
   };
 
-  const handleCertificatesFileChange = (event) => {
-    setCertificatesFile(event.target.files[0]);
-  };
-
-  const handleImgSrcFileChange = (event) => {
-    setImgSrcFile(event.target.files[0]);
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Create a FormData object
     const formData = new FormData();
-    formData.append('proof', proofFile, 'proof_filename.pdf');
-    formData.append('certificates', certificatesFile, 'certificates_filename.pdf');
-    formData.append('imgSrc', imgSrcFile, 'imgSrc_filename.pdf');
-    // Send the form data to the server
-    fetch('http://127.0.0.1:7000/attendance/upload_file/', {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.text())
-      .then((data) => {
-        console.log(data); // File upload success message
-      })
-      .catch((error) => {
-        console.error(error); // Handle error
-      });
+    formData.append('employee_name', employeeName);
+    formData.append('employee_id', employeeId);
+    formData.append('proof', proofFile);
+    formData.append('certificates', certificatesFile);
+    formData.append('imgSrc', profileImageFile);
+
+    try {
+      await axios.post('http://127.0.0.1:7000/attendance/upload_file/', formData);
+      // Handle successful file upload
+      console.log('Files uploaded successfully');
+    } catch (error) {
+      // Handle error
+      console.error('File upload failed:', error);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="proof">Proof File:</label>
-        <input type="file" id="proof" name="proof" onChange={handleProofFileChange} />
+      <div className="col-sm-6">
+        <div className="mx-5 form-group">
+          <input
+            id="formFileMultiple"
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            multiple
+            hidden
+            name="certificates"
+          />
+          <b>Choose Certificates (multiple file select):</b>
+          <label
+            htmlFor="formFileMultiple"
+            className="mx-4 bi bi-folder-plus"
+            style={{
+              fontSize: "40px",
+              color: "#00A693",
+              opacity: "9.9",
+              WebkitTextStroke: "2.0px",
+              cursor: "pointer",
+            }}
+          ></label>
+          {certificatesFile && (
+            <>
+              <span className="mx-3">{certificatesFile.name}</span>
+              <button className="btn btn-danger" onClick={() => setCertificatesFile(null)}>
+                <i className="fa fa-times"></i>
+              </button>
+            </>
+          )}
+        </div>
       </div>
-      <div>
-        <label htmlFor="certificates">Certificates File:</label>
-        <input type="file" id="certificates" name="certificates" onChange={handleCertificatesFileChange} />
+
+      <div className="col-sm-6">
+        <div className="mx-5 form-group">
+          <input
+            id="selectFile"
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            hidden
+            name="proof"
+          />
+          <b>Choose PAN or Aadhaar proof:</b>
+          <label
+            htmlFor="selectFile"
+            className="mx-4 bi bi-folder-check"
+            style={{
+              fontSize: "40px",
+              color: "#00A693",
+              opacity: "9.9",
+              WebkitTextStroke: "2.0px",
+              cursor: "pointer",
+            }}
+          ></label>
+          {proofFile && (
+            <>
+              <span className="mx-3">{proofFile.name}</span>
+              <button className="btn btn-danger" onClick={() => setProofFile(null)}>
+                <i className="fa fa-times"></i>
+              </button>
+            </>
+          )}
+        </div>
       </div>
-      <div>
-        <label htmlFor="imgSrc">Image Source File:</label>
-        <input type="file" id="imgSrc" name="imgSrc" onChange={handleImgSrcFileChange} />
+
+      <div className="col-sm-6">
+        <div className="mx-5 form-group">
+          <input
+            id="imageFile"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            hidden
+            name="imgSrc"
+          />
+          <b>Choose Profile Image:</b>
+          <label
+            htmlFor="imageFile"
+            className="mx-4 bi bi-folder-image"
+            style={{
+              fontSize: "40px",
+              color: "#00A693",
+              opacity: "9.9",
+              WebkitTextStroke: "2.0px",
+              cursor: "pointer",
+            }}
+          ></label>
+          {profileImageFile && (
+            <>
+              <span className="mx-3">{profileImageFile.name}</span>
+              <button className="btn btn-danger" onClick={() => setProfileImageFile(null)}>
+                <i className="fa fa-times"></i>
+              </button>
+            </>
+          )}
+        </div>
       </div>
+
       <button type="submit">Upload Files</button>
     </form>
   );
-}
+};
+
 export default FileUploadForm;
