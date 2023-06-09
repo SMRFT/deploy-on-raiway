@@ -100,7 +100,7 @@ const WebcamCaptureLogin = () => {
           console.log('Employee ID:', empId);
   
           try {
-            const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
+            const response = await fetch("https://smrftadmin.onrender.com/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id: empId }),
@@ -172,7 +172,7 @@ const WebcamCaptureLogin = () => {
               const lateLogin = `${hours}:${minutes}:${seconds}`;
               let earlyLogout="00:00:00";  
 
-               await fetch("http://127.0.0.1:7000/attendance/admincalendarlogin",
+               await fetch("https://smrftadmin.onrender.com/attendance/admincalendarlogin",
                 {
                   method: "POST",
                   headers: {
@@ -214,7 +214,7 @@ const WebcamCaptureLogin = () => {
                 const email = data.email;
                 setEmail(email);
              
-              await fetch("http://127.0.0.1:7000/attendance/send-email/", {
+              await fetch("https://smrftadmin.onrender.com/attendance/send-email/", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

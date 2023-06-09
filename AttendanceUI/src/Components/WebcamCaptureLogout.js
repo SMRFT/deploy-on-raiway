@@ -103,7 +103,7 @@ const WebcamCaptureLogout = () => {
           console.log('Employee ID:', empId);
   
           try {
-            const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
+            const response = await fetch("https://smrftadmin.onrender.com/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id: empId }),
@@ -156,7 +156,7 @@ const WebcamCaptureLogout = () => {
             console.log("earlyLogout", earlyLogout);             
 
             //Updating logout information of employee to db using the above data
-            await fetch("http://127.0.0.1:7000/attendance/admincalendarlogout", {
+            await fetch("https://smrftadmin.onrender.com/attendance/admincalendarlogout", {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

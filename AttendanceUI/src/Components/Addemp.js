@@ -213,22 +213,14 @@ function Addemp() {
     try {
       const res = await axios({
         method: "post",
-        url: "https://smrftattendance.onrender.com/attendance/addemp/",
+        url: "https://smrftadmin.onrender.com/attendance/addemp/",
         headers: {
           'Content-Type': 'multipart/form-data'
         },
         data: data,
       });
-      const res2 = await axios
-        ({
-          method: "POST",
-          headers: {
-            "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
-          },
-          url: "http://localhost:8000/api/v1/recognition/faces/?subject=" + name + "_" + id,
-          data: comprefaceImage,
-        });
-      if (res.status === 200 && res2.status === 201) {
+
+      if (res.status === 200) {
         setMessage(Myconstants.AddEmp);
       } else {
         setMessage(Myconstants.AddEmpError);
@@ -540,7 +532,7 @@ function Addemp() {
      console.log("profileImageFile:",profileImageFile);
 
     try {
-      await axios.post('http://127.0.0.1:7000/attendance/upload_file/', formData);
+      await axios.post('https://smrftadmin.onrender.com/attendance/upload_file/', formData);
       // Handle successful file upload
       console.log('Files uploaded successfully');
     } catch (error) {
