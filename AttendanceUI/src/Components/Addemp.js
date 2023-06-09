@@ -202,7 +202,7 @@ function Addemp() {
     data.append("referenceData", JSON.stringify(referenceData));
     data.append("imgSrc", imgSrc);
     data.append("", imgSrc);
-    data.append("imgSrcname", imgSrc.name);
+  
     comprefaceImage.append("file", imgSrc);
     let formDataNew = new FormData();
     formDataNew.append("file", imgSrc);
@@ -489,6 +489,7 @@ function Addemp() {
   const [proofFile, setProofFile] = useState(null);
   const [certificatesFile, setCertificatesFile] = useState(null);
   const [profileImageFile, setProfileImageFile] = useState(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   useEffect(() => {
     if (imgSrc) {
       setImage(URL.createObjectURL(imgSrc));
@@ -535,6 +536,7 @@ function Addemp() {
       await axios.post('https://smrftadmin.onrender.com/attendance/upload_file/', formData);
       // Handle successful file upload
       console.log('Files uploaded successfully');
+      setUploadSuccess(true);
     } catch (error) {
       // Handle error
       console.error('File upload failed:', error);
@@ -1377,9 +1379,14 @@ function Addemp() {
   </div>
   
   
-  <button className="button-71 Add-employee-button" type="submit" onClick={() => { handleClick(); handleSubmit2(); }}>
-  ADD EMPLOYEE
-</button>
+  <button className="button-71 Add-employee-button" role="button" type="submit" onClick={() => { handleClick();}}>ADD EMPLOYEE</button>
+
+   <div>
+      <button className="button-71 Add-employee-button upload-profile-btn" type="submit" onClick={handleSubmit2}>
+        Upload Image
+      </button>
+      {uploadSuccess && <p>Upload successful!</p>}
+    </div>
 
 
      </div>  
