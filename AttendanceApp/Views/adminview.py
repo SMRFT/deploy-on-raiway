@@ -38,8 +38,8 @@ def upload_file(request):
         file_contents1 = proof_file.read()
         certificates_file = request.FILES['certificates']
         file_contents2 = certificates_file.read()
-        # imgsrc_profile = request.FILES['imgSrc']
-        # file_contents3 = imgsrc_profile.read()
+        imgsrc_profile = request.FILES['imgSrc']
+        file_contents3 = imgsrc_profile.read()
 
         # Store the files in the GridFS
         proof_filename = f'{employee_name}_{employee_id}_proof.pdf'
@@ -48,13 +48,13 @@ def upload_file(request):
 
         proof_id = fs.put(file_contents1, filename=proof_filename)
         certificates_id = fs.put(file_contents2, filename=certificates_filename)
-        # imgsrc_id = fs.put(file_contents3, filename=imgsrc_filename)
+        imgsrc_id = fs.put(file_contents3, filename=imgsrc_filename)
 
         # Save file information in the database
         db.fs.files.insert_one({
             'proof_id': str(proof_id),
             'certificates_id': str(certificates_id),
-            # 'imgsrc_id': str(imgsrc_id),
+            'imgsrc_id': str(imgsrc_id),
             'employee_name': employee_name,
             'employee_id': employee_id
         })

@@ -17,8 +17,8 @@ import VerticalTabs from "./VerticalTabs";
 
 function Addemp() {
   const [page, setPage] = useState(1);
-  // const webcamRef = React.useRef(null);
-  // const [imgSrc, setImgSrc] = React.useState("");
+  const webcamRef = React.useRef(null);
+  const [imgSrc, setImgSrc] = React.useState("");
   const [imageSrc, setImageSrc] = useState("");
   const [imgSrcname, setImgSrcname] = useState("");
   const [image, setImage] = useState(null);
@@ -497,28 +497,33 @@ function Addemp() {
   const [proofFile, setProofFile] = useState(null);
   const [certificatesFile, setCertificatesFile] = useState(null);
   const [profileImageFile, setProfileImageFile] = useState(null);
-  const [imgSrc, setImgSrc] = useState(null);
-  const webcamRef = useRef(null);
-
   useEffect(() => {
     if (imgSrc) {
       setImage(URL.createObjectURL(imgSrc));
     }
   }, [imgSrc]);
-
-  const Capture = useCallback(() => {
+  const Capture = React.useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
-    const fileData = dataURLtoFile(imageSrc, 'image.jpg');
-    setImgSrc(fileData);
+    toDataURL(imageSrc).then((dataUrl) => {
+      var fileData = dataURLtoFile(dataUrl, "image.jpg");
+     // let formData = new FormData();
+      //formData.append("file", fileData);
+      //formData.append("file", imageSrc);
+      setProfileImageFile(fileData);
+      setImageSrc(imageSrc)
+      console.log("____",fileData)
+      
+    });
   }, [webcamRef, setImgSrc]);
-
   const handleFileChange = (event) => {
     const file = event.target.files[0];
+
     if (event.target.name === 'proof') {
       setProofFile(file);
     } else if (event.target.name === 'certificates') {
       setCertificatesFile(file);
     } else if (event.target.name === 'imgSrc') {
+      console.log("i am here",file)
       setProfileImageFile(file);
     }
   };
@@ -531,7 +536,8 @@ function Addemp() {
     formData.append('employee_id', employeeId);
     formData.append('proof', proofFile);
     formData.append('certificates', certificatesFile);
-   // formData.append('imgSrc', profileImageFile);
+     formData.append('imgSrc', profileImageFile);
+     console.log("profileImageFile:",profileImageFile);
 
     try {
       await axios.post('http://127.0.0.1:7000/attendance/upload_file/', formData);

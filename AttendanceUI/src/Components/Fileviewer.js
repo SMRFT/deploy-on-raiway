@@ -60,6 +60,9 @@ function DownloadButton(props) {
         };
          // Click event handler for the proof icon
          const handleProofIconClick = () => {
+            setShowAttendanceTable(false);
+            setShowOvertimeTable(false);
+            setShowTable(false);
             closePreviousContent(); // close previous content
             setActiveIcon("proof"); // set active icon
             viewFile1(); 
@@ -68,6 +71,9 @@ function DownloadButton(props) {
 
         // Click event handler for the certificates icon
         const handleCertificatesIconClick = () => {
+            setShowAttendanceTable(false);
+            setShowOvertimeTable(false);
+            setShowTable(false);
             closePreviousContent(); 
             setActiveIcon("certificates"); 
             viewFile(); 
@@ -76,6 +82,8 @@ function DownloadButton(props) {
   
         // Click event handler for the summary icon
         const handleSummaryIconClick = () => {
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
         closePreviousContent(); 
         setActiveIcon("summary"); 
         toggleSummaryPicker(); 
@@ -84,6 +92,8 @@ function DownloadButton(props) {
 
         // Click event handler for the attendance icon
         const handleAttendanceIconClick = () => {
+        setShowOvertimeTable(false);
+        setShowTable(false);
         closePreviousContent();
         setActiveIcon("attendance"); 
         toggleAttendancePicker(); 
@@ -92,6 +102,8 @@ function DownloadButton(props) {
 
         // Click event handler for the overtime icon
         const handleOvertimeIconClick = () => {
+        setShowAttendanceTable(false);
+        setShowTable(false);
         closePreviousContent(); 
         setActiveIcon("overtime"); 
         toggleOvertimePicker(); 
@@ -137,7 +149,7 @@ function DownloadButton(props) {
           // Make a POST request to the server to get the file as a blob
           axios
             .post(
-              `https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_proof.pdf`,
+              `http://localhost:7000/attendance/get_file?filename=${name}_proof.pdf`,
               {
                 filename: `${name}_proof.pdf`,
               },
@@ -183,7 +195,7 @@ function DownloadButton(props) {
         const queryParams = new URLSearchParams();
 
         // Make a POST request to the server to get the file as a blob
-        axios.post(`https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_certificate.pdf`, {
+        axios.post(`http://localhost:7000/attendance/get_file?filename=${name}_certificate.pdf`, {
             filename: `${name}_certificate.pdf`,
         }, {
             responseType: "blob"
@@ -240,7 +252,7 @@ function DownloadButton(props) {
     };
       
     useEffect(() => {
-        const apiUrl = `https://smrftadmin.onrender.com/attendance/showemp?id=${id}`;
+        const apiUrl = `http://127.0.0.1:7000/attendance/showemp?id=${id}`;
         fetch(apiUrl)
             .then((res) => res.json())
             .then(
@@ -314,7 +326,7 @@ function DownloadButton(props) {
   
     useEffect(() => {
         const getuserdata = async () => {
-          fetch("https://smrftadmin.onrender.com/attendance/EmployeeExport", {
+          fetch("http://127.0.0.1:7000/attendance/EmployeeExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -343,7 +355,7 @@ function DownloadButton(props) {
     const [userexportdata, setExportdata] = useState([]);
     useEffect(() => {
         const getexportdata = async () => {
-          fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
+          fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -378,7 +390,7 @@ const [error, setError] = useState(null);
 const [isLoaded, setIsLoaded] = useState(false);
 
 const fetchData = useCallback(() => {
-  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
+  fetch("http://127.0.0.1:7000/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {
@@ -478,7 +490,7 @@ state = {
         
             <div className='normal-container' style={{ display: 'flex', flexDirection: 'column' }}>
             <img style={{ width:"2.3cm",height:"2.3cm",borderRadius:60,marginLeft:"20px", marginTop: "30px"}}
-                src={`https://smrftadmin.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
+                src={`http://localhost:7000/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
                 alt="profile"
             />    
             {employee && (

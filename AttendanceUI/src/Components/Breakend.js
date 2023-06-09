@@ -13,10 +13,11 @@ import NavbarComp from "../Components/NavbarComp";
 import { Navbar, Nav } from "react-bootstrap";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { render } from "react-dom";
-// import "../Logo.css";
 import Footer from './Footer';
+import AWS from 'aws-sdk';
 import { propTypes } from "react-bootstrap/esm/Image";
 import { LocalGroceryStore } from "@material-ui/icons";
+
 const WebcamCaptureLogout = () => {
     const webcamRef = React.useRef(null);
     const [imgSrc, setImgSrc] = React.useState(null);
@@ -30,91 +31,110 @@ const WebcamCaptureLogout = () => {
         setIsShown((current) => !current);
     };
 
-    const capture = React.useCallback(() => {
+    AWS.config.update({
+        region: 'us-west-2',
+        accessKeyId: 'AKIA2N5OVS4KY4HBQX5U',
+        secretAccessKey: '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',
+      });
+
+      const capture = React.useCallback(async () => {
         const imageSrc = webcamRef.current.getScreenshot();
         setImgSrc(imageSrc);
-
-        toDataURL(imageSrc).then((dataUrl) => {
-
-            var fileData = dataURLtoFile(dataUrl, "imageName.jpg");
-
-            let formData = new FormData();
-            formData.append("file", fileData);
-            formData.append("file", imageSrc);
-
-            const recognize = fetch(
-                "http://localhost:8000/api/v1/recognition/recognize",
-                {
+        try {
+            const dataUrl = await toDataURL(imageSrc);
+            const fileData = dataURLtoFile(dataUrl, 'imageName.jpg');
+        
+            // Retrieve the list of objects in the S3 bucket
+            const s3 = new AWS.S3();
+            const listParams = {
+              Bucket: 'smrft-facial-recognition', // Replace with your S3 bucket name
+            };
+        
+            const listData = await s3.listObjectsV2(listParams).promise();
+            const objectKeys = listData.Contents.map((object) => object.Key);
+        
+            // Initialize the AWS Rekognition client
+            const rekognition = new AWS.Rekognition();
+        
+            // Compare the captured image with the images in the S3 bucket
+            const compareFace = async (index) => {
+              if (index >= objectKeys.length) {
+                console.log('No matching face found in the S3 bucket.');
+                return;
+              }
+        
+              const compareFacesParams = {
+                SourceImage: {
+                  Bytes: new Uint8Array(await fileData.arrayBuffer()),
+                },
+                TargetImage: {
+                  S3Object: {
+                    Bucket: 'smrft-facial-recognition',
+                    Name: objectKeys[index],
+                  },
+                },
+                SimilarityThreshold: 90, // Set a suitable similarity threshold
+              };
+        
+              const compareData = await rekognition.compareFaces(compareFacesParams).promise();
+              const faceMatches = compareData.FaceMatches;
+        
+              if (faceMatches.length > 0) {
+                // A match is found, retrieve the matched image
+                const matchedImageKey = objectKeys[index];
+                const s3ImageParams = {
+                  Bucket: 'smrft-facial-recognition',
+                  Key: matchedImageKey,
+                };
+        
+                const s3ImageData = await s3.getObject(s3ImageParams).promise();
+                const matchedImageBytes = s3ImageData.Body;
+        
+                // Construct the URL dynamically using the retrieved image key
+                const imageUrl = `https://smrft-facial-recognition.s3.us-west-2.amazonaws.com/${matchedImageKey}`;
+                console.log('matchedImageKey:', matchedImageKey);       
+                const splitValues = matchedImageKey.split('_');
+                const nameOfEmployee = splitValues[0]; 
+                const empId = splitValues[1].split('.')[0]; 
+                console.log('Name of Employee:', nameOfEmployee);
+                console.log('Employee ID:', empId);
+        
+                try {
+                  const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
                     method: "POST",
-                    headers: {
-                        "x-api-key": "55d4267d-da5f-4194-832c-9e2504002c56",
-                    },
-                    body: formData,
-                }
-            )
-                .then((r) => r.json())
-                .then(function (data) {
-                    var nameEmp = data.result.map(function (recognizedEmp) {
-                        const nameOfLoggedInEmp = recognizedEmp.subjects[0].subject;
-
-                        const empId = nameOfLoggedInEmp.split("_");
-
-                        const res = fetch("https://smrftadmin.onrender.com/attendance/showempById", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ id: empId[1] }),
-                        })
-                            .then((res) => res.json())
-                            .then(
-                                (data) => {
-                                    setEmployees(data);
-                                    console.log(data)
-                                },
-                                (error) => {
-                                    console.log("Error");
-                                }
-                            );
-
-
-
-
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: empId }),
+                  });
+                  if (response.ok) {
+                    const data = await response.json();
+                        ////employee time format change
                         const Emplogout = fileData.lastModifiedDate;
-
-
                         let logouttime = moment(Emplogout)
-
                         let time = moment(logouttime).format(' hh:mm a')
                         logouttime = moment(logouttime).format('YYYY-MM-DD hh:mm a')
-
-
                         let log = moment(Emplogout)
-
-
                         let logout = log.format('HH:mm')
                         setLogout(time)
-
-
                         let date = log.format('YYYY-MM-DD')
 
-
-                        const empLogoutResultSet = fetch("https://smrftadmin.onrender.com/attendance/lunchhourslogout", {
+                        await fetch("http://127.0.0.1:7000/attendance/lunchhourslogout", {
                             method: "Post",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
-                                id: empId[1],
-                                name: nameOfLoggedInEmp,
+                                id: empId,
+                                name: nameOfEmployee,
                                 lunchEnd: logouttime,
                                 date: date
                             }),
                         })
-                            .then((empLogoutResultSet) => {
-                                if (empLogoutResultSet.status === 200) {
-                                    setMessage(Myconstants.lunchlogin);
-                                    return fetch("https://smrftadmin.onrender.com/attendance/breakhours", {
+                        .then((response) => {
+                            if (response.ok) {
+                                setMessage(Myconstants.lunchlogin);
+                                    return fetch("http://127.0.0.1:7000/attendance/breakhours", {
                                         method: "Post",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({
-                                            id: empId[1],
+                                            id: empId,
                                             date: date
                                         }),
                                     })
@@ -122,7 +142,6 @@ const WebcamCaptureLogout = () => {
                                         .then((data) => {
                                             setBreakhours(data);
                                             console.log(data)
-
                                         })
                                         .catch((error) => {
                                             console.error("Error fetching breakhours data: ", error);
@@ -130,16 +149,24 @@ const WebcamCaptureLogout = () => {
                                 } else {
                                     setMessage(Myconstants.Webcamnotlogin);
                                 }
-
                             })
-                    });
-                })
-                .catch(function (error) {
-
-                });
-        });
-    }, [webcamRef, setImgSrc]);
-
+                            setEmployees(data);
+                        } else {
+                          console.log("Error: Failed to retrieve employee details.");
+                        }
+                      } catch (error) {
+                        console.log("Error:", error);
+                      }
+                    } else {
+                      // No match found, compare with the next image
+                      compareFace(index + 1);
+                    }
+                  };
+                  await compareFace(0);
+                } catch (error) {
+                  console.error("Error:", error);
+                }
+              }, [webcamRef, setImgSrc]);
 
     function refreshPage() {
         {
@@ -172,11 +199,7 @@ const WebcamCaptureLogout = () => {
         }
         return new File([u8arr], filename);
     }
-    // console.log("employee details:" + JSON.stringify(employee));
-    // const break1 = breakhours
-    // console.log(break1)
-    // const breakhour = break1[0].Breakhour;
-    // console.log(breakhour)
+
     return (
         <React.Fragment>
             <div>
@@ -224,9 +247,10 @@ const WebcamCaptureLogout = () => {
                     <div>
                         {breakhours.map(item => (
                             <div key={item.id}>
-                                {/* <p style={{ fontWeight: "bold", marginLeft: "40px" }}>logout time: {item.lunchstart}</p> */}
+                                <p style={{ fontWeight: "bold", marginLeft: "30px" }}>
+                                    logout time: {moment(item.lunchstart).format("hh:mm a")}
+                                </p>
                                 <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Breakhour: {item.Breakhour}</p>
-                                {/* <p style={{ fontWeight: "bold", marginLeft: "40px" }}>Date: {item.date}</p> */}
                             </div>
                         ))}
                     </div>
@@ -238,7 +262,7 @@ const WebcamCaptureLogout = () => {
                     </button>
                 </div>
             </div>
-            <Footer />
+            {/* <Footer /> */}
         </React.Fragment >
     );
 };
