@@ -25,7 +25,7 @@ class EmployeeShowSerializer(serializers.ModelSerializer):
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin
-        fields = '__all__'
+        fields = ['name', 'email', 'password','role','mobile']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -37,11 +37,6 @@ class AdminSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
-
-class AdminregSerializer(serializers.ModelSerializer):
-    class Meta:
-        model =Admin
-        fields = '__all__'
 
 class EmployeedesignationSerializer(serializers.ModelSerializer):
     class Meta:

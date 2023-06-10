@@ -490,7 +490,7 @@ state = {
         
             <div className='normal-container' style={{ display: 'flex', flexDirection: 'column' }}>
             <img style={{ width:"2.3cm",height:"2.3cm",borderRadius:60,marginLeft:"20px", marginTop: "30px"}}
-                src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${employee.name+"_"+employee.id+"_"+"profile"+".jpg"}`}
+                src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${name+"_"+"profile"+".jpg"}`}
                 alt="profile"
             />    
             {employee && (

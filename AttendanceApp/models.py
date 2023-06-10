@@ -77,17 +77,15 @@ class DeletedEmployee(models.Model):
 
 # Admin Login
 
-
 class Admin(AbstractUser):
     name = models.CharField(max_length=500)
-    email = models.CharField(max_length=500, unique=True)
+    email = models.EmailField(max_length=500, unique=True)
     password = models.CharField(max_length=500)
     role = models.CharField(max_length=100)
     mobile = models.CharField(max_length=100)
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
 # Designation count details
 
 

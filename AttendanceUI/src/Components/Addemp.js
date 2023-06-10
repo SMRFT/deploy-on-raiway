@@ -134,7 +134,7 @@ function Addemp() {
   const handleImageSelect = (event) => {
     setImgSrc(event.target.files[0]);
   };
-  const handleRemoveImage = () => {
+  const handleRemoveImage2 = () => {
     setImgSrc(null);
     document.getElementById("selectImage").value = "";
   };
@@ -142,7 +142,7 @@ function Addemp() {
     setProof(e.target.files[0]);
   };
 
-  const handleRemoveFile = () => {
+  const handleRemoveFile2 = () => {
     setProof(null);
     document.getElementById("selectFile").value = "";
   };
@@ -520,7 +520,18 @@ function Addemp() {
       setProfileImageFile(file);
     }
   };
-
+  const handleRemoveFile = () => {
+    setProofFile(null);
+    document.getElementById("selectFile").value = "";
+  };
+  const handleRemoveFile3 = () => {
+    setCertificatesFile(null);
+    document.getElementById("selectFile").value = "";
+  };
+  const handleRemoveImage = () => {
+    setProfileImageFile(null);
+    document.getElementById("selectImage").value = "";
+  };
   const handleSubmit2 = async (event) => {
     event.preventDefault();
 
@@ -530,7 +541,6 @@ function Addemp() {
     formData.append('proof', proofFile);
     formData.append('certificates', certificatesFile);
     formData.append('imgSrc', profileImageFile);
-     console.log("profileImageFile:",profileImageFile);
 
     try {
       await axios.post('https://smrftadmin.onrender.com/attendance/upload_file/', formData);
@@ -1023,38 +1033,39 @@ function Addemp() {
             </div>
             <br />
             <div className="col-sm-6">
-        <div className="mx-5 form-group">
-          <input
-            id="formFileMultiple"
-            type="file"
-            accept=".pdf"
-            onChange={handleFileChange}
-            multiple
-            hidden
-            name="certificates"
-          />
-          <b>Choose Certificates (multiple file select):</b>
-          <label
-            htmlFor="formFileMultiple"
-            className="mx-4 bi bi-folder-plus"
-            style={{
-              fontSize: "40px",
-              color: "#00A693",
-              opacity: "9.9",
-              WebkitTextStroke: "2.0px",
-              cursor: "pointer",
-            }}
-          ></label>
-          {certificatesFile && (
-            <>
-              <span className="mx-3">{certificatesFile.name}</span>
-              <button className="btn btn-danger" onClick={() => setCertificatesFile(null)}>
-                <i className="fa fa-times"></i>
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+  <div className="mx-5 form-group">
+    <input
+      id="formFileMultiple"
+      type="file"
+      accept=".pdf"
+      onChange={handleFileChange}
+      multiple
+      hidden
+      name="certificates"
+    />
+    <b>Choose Certificates (multiple file select):</b>
+    <label
+      htmlFor="formFileMultiple"
+      className="mx-4 bi bi-folder-plus"
+      style={{
+        fontSize: "40px",
+        color: "#00A693",
+        opacity: "9.9",
+        WebkitTextStroke: "2.0px",
+        cursor: "pointer",
+      }}
+    ></label>
+    {certificatesFile && (
+      <>
+        <span className="mx-3">{certificatesFile.name}</span>
+        <button className="btn btn-danger" onClick={handleRemoveFile3}>
+          <i className="fa fa-times"></i>
+        </button>
+      </>
+    )}
+  </div>
+</div>
+
 </div>
 <br/>
               <div className="row">
@@ -1106,7 +1117,7 @@ function Addemp() {
           {proofFile && (
             <>
               <span className="mx-3">{proofFile.name}</span>
-              <button className="btn btn-danger" onClick={() => setProofFile(null)}>
+              <button className="btn btn-danger" onClick={handleRemoveFile}>
                 <i className="fa fa-times"></i>
               </button>
             </>
@@ -1156,37 +1167,38 @@ function Addemp() {
                 </div>
               </Col>
             </Form.Field>
-
             <div className="row">
-            <div className="col-sm-6"> 
-            <div className="mx-5 container" style={{ height: "250px", width: "300px", borderRadius: 40 }}>
-              <Webcam style={{ height: "220px", width: "270px", borderRadius: 60 }} audio={false} ref={webcamRef} screenshotFormat="image/jpg" />
-            </div>
-            <button style={{ marginLeft: "170px", marginTop: "-100px", borderColor: "#B9ADAD" }} className="Click" onClick={Capture}>
-              <i className="fa fa-2x fa-camera" aria-hidden="true"></i>
-            </button><br /><br />
-            </div>
-
-            <div className="col-sm-6">
-            <div style={{ marginLeft: "-100px", marginTop: "130px" }}><b>(or)</b></div>
-
-            <Col>
-            <div style={{ marginTop:"-60px" }} className="mx-5 form-group">
-  <input id="selectImage" type="file" onChange={handleImageSelect} hidden />
-  <b >Choose image:</b>
-  <label htmlFor="selectImage" className="mx-4 bi bi-cloud-arrow-up" style={{ fontSize: "50px", color: "#00A693", opacity: "9.9", WebkitTextStroke: "2.0px", cursor: "pointer" }}></label>
-  {imgSrc && (
-    <>
-      <span className="mx-3">{imgSrc.name}</span>
-      <button className="btn btn-danger" onClick={handleRemoveImage}>
-        <i className="fa fa-times"></i>
-      </button>
-    </>
-  )}
-</div>
-  </Col>
+  <div className="col-sm-6"> 
+    <div className="mx-5 container" style={{ height: "250px", width: "300px", borderRadius: 40 }}>
+      <Webcam style={{ height: "220px", width: "270px", borderRadius: 60 }} audio={false} ref={webcamRef} screenshotFormat="image/jpg" />
+    </div>
+    <button style={{ marginLeft: "170px", marginTop: "-100px", borderColor: "#B9ADAD" }} className="Click" onClick={Capture}>
+      <i className="fa fa-2x fa-camera" aria-hidden="true"></i>
+    </button>
+    <br /><br />
   </div>
-   </div>
+
+  <div className="col-sm-6">
+    <div style={{ marginLeft: "-100px", marginTop: "130px" }}><b>(or)</b></div>
+
+    <Col>
+      <div style={{ marginTop:"-60px" }} className="mx-5 form-group">
+        <input id="selectImage" type="file" name="imgSrc" onChange={handleFileChange} hidden />
+        <b>Choose image:</b>
+        <label htmlFor="selectImage" className="mx-4 bi bi-cloud-arrow-up" style={{ fontSize: "50px", color: "#00A693", opacity: "9.9", WebkitTextStroke: "2.0px", cursor: "pointer" }}></label>
+        {profileImageFile && (
+          <>
+            <span className="mx-3">{profileImageFile.name}</span>
+            <button className="btn btn-danger" onClick={handleRemoveImage}>
+              <i className="fa fa-times"></i>
+            </button>
+          </>
+        )}
+      </div>
+    </Col>
+  </div>
+</div>
+
    <br />
  <button onClick={prevPage} className="pre-button">
   <i className="fa fa-arrow-left"></i>

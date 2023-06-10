@@ -20,11 +20,11 @@ from gridfs import GridFS
 from pymongo import MongoClient
 from django.core.files.storage import default_storage
 from django.http import HttpResponse
-
+from bson import ObjectId
 import boto3
 from botocore.exceptions import NoCredentialsError
-
-import io
+from rest_framework import status
+from djongo import models
 
 @csrf_exempt
 def upload_file(request):
@@ -120,14 +120,18 @@ class AdminLogin(APIView):
         }
         return response
 
-
 class AdminReg(APIView):
     @csrf_exempt
     def post(self, request):
         serializer = AdminSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save() 
         return Response(serializer.data)
+
+
+
+
+
 
 
 class UserDetails(APIView):

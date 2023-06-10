@@ -305,7 +305,7 @@ useEffect(() => {
       <br />
       <div className="profile">
   <img
-    src={`https://smrftadmin.onrender.com/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
+   src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${name+"_"+"profile"+".jpg"}`}
     className="center"
     alt="profile"
   />
