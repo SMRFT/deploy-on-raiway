@@ -73,7 +73,6 @@ class DeletedEmployee(models.Model):
     ValidlityDate = models.DateField(blank=True, null=True)
     dateofjoining = models.DateField()
     bankaccnum = models.IntegerField()
-    profile_picture_id = models.CharField(max_length=24, null=True, blank=True)
 
 
 # Admin Login

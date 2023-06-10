@@ -293,7 +293,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
         </Link><br/>
         </div> )}
         </div><br/><br/>
-        <img src={`https://smrftadmin.onrender.com/attendance/get_file?=${user_name + '_' + user_id + '_profile.jpg'}`}   style={{
+        <img src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${user.name + '_' + user.id+"_"+"profile"+".jpg"}`}   style={{
             display: "block",
             margin: "auto",
             width: "80px",

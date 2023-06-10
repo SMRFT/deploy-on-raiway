@@ -149,7 +149,7 @@ function DownloadButton(props) {
           // Make a POST request to the server to get the file as a blob
           axios
             .post(
-              `http://localhost:7000/attendance/get_file?filename=${name}_proof.pdf`,
+              `https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_proof.pdf`,
               {
                 filename: `${name}_proof.pdf`,
               },
@@ -195,7 +195,7 @@ function DownloadButton(props) {
         const queryParams = new URLSearchParams();
 
         // Make a POST request to the server to get the file as a blob
-        axios.post(`http://localhost:7000/attendance/get_file?filename=${name}_certificate.pdf`, {
+        axios.post(`https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_certificates.pdf`, {
             filename: `${name}_certificate.pdf`,
         }, {
             responseType: "blob"
@@ -252,7 +252,7 @@ function DownloadButton(props) {
     };
       
     useEffect(() => {
-        const apiUrl = `http://127.0.0.1:7000/attendance/showemp?id=${id}`;
+        const apiUrl = `https://smrftadmin.onrender.com/attendance/showemp?id=${id}`;
         fetch(apiUrl)
             .then((res) => res.json())
             .then(
@@ -326,7 +326,7 @@ function DownloadButton(props) {
   
     useEffect(() => {
         const getuserdata = async () => {
-          fetch("http://127.0.0.1:7000/attendance/EmployeeExport", {
+          fetch("https://smrftadmin.onrender.com/attendance/EmployeeExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -355,7 +355,7 @@ function DownloadButton(props) {
     const [userexportdata, setExportdata] = useState([]);
     useEffect(() => {
         const getexportdata = async () => {
-          fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
+          fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -390,7 +390,7 @@ const [error, setError] = useState(null);
 const [isLoaded, setIsLoaded] = useState(false);
 
 const fetchData = useCallback(() => {
-  fetch("http://127.0.0.1:7000/attendance/breakdetails")
+  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {
@@ -490,7 +490,7 @@ state = {
         
             <div className='normal-container' style={{ display: 'flex', flexDirection: 'column' }}>
             <img style={{ width:"2.3cm",height:"2.3cm",borderRadius:60,marginLeft:"20px", marginTop: "30px"}}
-                src={`http://localhost:7000/attendance/profile_image?profile_picture_id=${employee?.profile_picture_id}`}
+                src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${employee.name+"_"+employee.id+"_"+"profile"+".jpg"}`}
                 alt="profile"
             />    
             {employee && (

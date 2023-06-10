@@ -103,7 +103,7 @@ const WebcamCaptureLogin = () => {
                 console.log('Employee ID:', empId);
         
                 try {
-                  const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
+                  const response = await fetch("https://smrftadmin.onrender.com/attendance/showempById", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ id: empId }),
@@ -133,7 +133,7 @@ const WebcamCaptureLogin = () => {
 
                         let takentime = '0'
                         await fetch(
-                            "http://127.0.0.1:7000/attendance/lunchhourslogin",
+                            "https://smrftadmin.onrender.com/attendance/lunchhourslogin",
                             {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },

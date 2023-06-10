@@ -117,7 +117,7 @@ const WebcamCaptureLogout = () => {
                         setLogout(time)
                         let date = log.format('YYYY-MM-DD')
 
-                        await fetch("http://127.0.0.1:7000/attendance/lunchhourslogout", {
+                        await fetch("https://smrftadmin.onrender.com/attendance/lunchhourslogout", {
                             method: "Post",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -130,7 +130,7 @@ const WebcamCaptureLogout = () => {
                         .then((response) => {
                             if (response.ok) {
                                 setMessage(Myconstants.lunchlogin);
-                                    return fetch("http://127.0.0.1:7000/attendance/breakhours", {
+                                    return fetch("https://smrftadmin.onrender.com/attendance/breakhours", {
                                         method: "Post",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({
