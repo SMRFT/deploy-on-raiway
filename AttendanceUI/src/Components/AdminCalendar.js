@@ -16,6 +16,7 @@ import "../Components/AdminCalendar.css";
 import { DayPilot, DayPilotScheduler } from "daypilot-pro-react";
 import Fade from '@material-ui/core/Fade';
 import "./NavbarComp.css";
+import Adduploadfile from './Adduploadfile'
 function Admincalendar() {
 
   //Getting id and name from another file using params
@@ -292,15 +293,16 @@ useEffect(() => {
           </Nav>
         </Navbar.Collapse>
       </Navbar>
-      <div class="page-heading">
+      {/* <div class="page-heading">
         <h1>Summary Of Employee</h1>
-      </div>
+      </div> */}
       {/* <div className="col-md-6 col-sm-12 text-md-end text-center">
         <i>
           <CSVLink data={userdata} filename={name} class="buttonDownload"></CSVLink>
         </i>
       </div> */}
 
+<Adduploadfile/>
 
       <br />
       <div className="profile">

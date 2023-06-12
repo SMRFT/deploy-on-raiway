@@ -359,6 +359,7 @@ function DownloadButton(props) {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              
               month: myDay.getMonth() + 1,
               year: myDay.getFullYear(),
             }),
@@ -833,7 +834,7 @@ state = {
                 <div className="details-row">
                     <div className="details-heading">Languages Known</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.languages}</div>
+                    <div className="details-value">{employee.selectedLanguages}</div>
                 </div>
                 </div>
                         <div style={{marginLeft:"-12%",marginTop:"2%"}}>

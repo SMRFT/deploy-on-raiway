@@ -86,7 +86,23 @@
 
 
 
-
+.day {
+    font-weight: bold;
+    padding: 5px;
+  }
+  
+  .payable {
+    background-color: #e6f3ff; /* Light blue */
+  }
+  
+  .present {
+    background-color: #b3ffb3; /* Light green */
+  }
+  
+  .leave {
+    background-color: #ffe6e6; /* Light red */
+  }
+  
 
 
 

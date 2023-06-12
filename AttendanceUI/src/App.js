@@ -1,5 +1,3 @@
-//The component is rendering a header section that includes a logo image of smrft and 
-//Buttons which navigates to Admin page,Login page,Logout page and Break
 import "./App.css";
 import profile from "./images/smrft.png";
 import { useNavigate } from "react-router-dom";
@@ -22,9 +20,8 @@ function App() {
     navigate("/Break");
   };
   return (
-
     <div className="row">
-      <div className="col-lg-12">
+      <div className="col-sm-3">
         <style>{'body { background-color: rgb(255, 255, 255); }'}</style>
         <header>
         <div className='main'></div>
@@ -33,32 +30,30 @@ function App() {
         </div>
         </header>
       </div>
-     
       <br />
-
       <div body>
-        <Row>
-          <Col xs={8} md={3}>
-            <button className="Admin" onClick={navigateToAdmin}>
+      <div className="row">
+          <div class="col-sm-3">
+            <button className="landingPageButtons" onClick={navigateToAdmin}>
               <h1><b>Admin</b></h1>
             </button>
-          </Col>
-          <Col xs={8} md={3}>
-            <button className="Login" onClick={navigateToLogin}>
+          </div>
+          <div class="col-sm-3">
+            <button className="landingPageButtons" onClick={navigateToLogin}>
               <h1><b>Login</b></h1>
             </button>
-          </Col>
-          <Col xs={8} md={3}>
-            <button className="Logout" onClick={navigateToLogout}>
+          </div>
+          <div class="col-sm-3">
+            <button className="landingPageButtons" onClick={navigateToLogout}>
               <h1><b>Logout</b></h1>
             </button>
-          </Col>
-          <Col xs={8} md={3}>
-            <button className="Break" onClick={navigateToBreak}>
+          </div>
+          <div class="col-sm-3">
+            <button className="landingPageButtons" onClick={navigateToBreak}>
               <h1><b>Break</b></h1>
             </button>
-          </Col>
-        </Row>
+          </div>
+        </div>
       </div>
     </div>
   );

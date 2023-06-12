@@ -266,11 +266,12 @@ function Addemp() {
    function validateName(name) {
     let error = "";
     const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
-    if (!capitalized.match(/^[a-zA-Z]*$/)) {
-      error = "*Name should only contain letters";
+    if (!capitalized.match(/^[a-zA-Z\s.]*$/)) {
+      error = "*Name should only contain letters, spaces, and periods";
     }
     return error;
   }
+  
   function validateId(id) {
     let error = "";
     if (!id.match(/^[0-9]*$/)) {
@@ -287,12 +288,18 @@ function Addemp() {
   }
 
   function validateDesignation(designation) {
-    let error = "";
-    if (!designation.match(/^[a-zA-Z]*$/)) {
-      error = "*Designation should only contain letters";
+    if (!designation) {
+      return "*Designation is required";
     }
-    return error;
+  
+    if (!designation.match(/^[a-zA-Z\s]*$/)) {
+      return "*Designation should only contain letters and spaces";
+    }
+  
+    return "";
   }
+  
+  
   function validatePanNo(PanNo) {
     let error = "";
     if (PanNo !== "" && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(PanNo)) {
@@ -734,7 +741,7 @@ function Addemp() {
                         <option value="B-">B-</option>
                         <option value="AB+">AB+</option>
                         <option value="AB-">AB-</option>
-                        <option value="O+">O-</option>
+                        <option value="O+">O+</option>
                         <option value="O-">O-</option>
                       </select>
                     </label>
@@ -895,26 +902,38 @@ function Addemp() {
           
               <div className="row">
              <div className="col-sm-6">   
-            <Form.Field>
-              <Col>
-                <div className="mb-3">
-                  <label className=" mx-3 form-label"><div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>Designation</div></label>
-                  <div className="col-sm-7">
-                    <input style={{ borderRadius: 40,width:"100%" }}
-                      className=" mx-4 form-control"
-                      type="text"
-                      value={designation}
-                      placeholder="Enter your designation"
-                      ref={register("designation", { pattern: /^[a-zA-Z]*$/ })}
-                      required
-                      autoComplete="off"
-                      onChange={e => { setDesignation(e.target.value); validateDesignation(e.target.value); }}
-                    />
-                    <div style={{ color: "red", marginLeft: "55%", marginTop: "-4%" }}>{validateDesignation(designation) ? <p>{validateDesignation(designation)}</p> : null}</div>
-                  </div>
-                </div>
-              </Col>
-             </Form.Field>
+         <Form.Field>
+  <Col>
+    <div className="mb-3">
+      <label className=" mx-3 form-label">
+        <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>
+          Designation
+        </div>
+      </label>
+      <div className="col-sm-7">
+        <input
+          style={{ borderRadius: 40, width: "100%" }}
+          className=" mx-4 form-control"
+          type="text"
+          value={designation}
+          placeholder="Enter your designation"
+          ref={register("designation", { pattern: /^[a-zA-Z]*$/ })}
+          required
+          autoComplete="off"
+          onChange={(e) => {
+            setDesignation(e.target.value);
+          }}
+        />
+        <div style={{ color: "red", marginLeft: "55%", marginTop: "-4%" }}>
+          {validateDesignation(designation) && (
+            <p>{validateDesignation(designation)}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  </Col>
+</Form.Field>
+
             </div>   
            
             <div className="col-sm-6">
@@ -1391,7 +1410,17 @@ function Addemp() {
   </div>
   
   
-  <button className="button-71 Add-employee-button" role="button" type="submit" onClick={() => { handleClick();}}>ADD EMPLOYEE</button>
+  <div>
+      <button
+        className="button-71 Add-employee-button"
+        role="button"
+        type="submit"
+        onClick={handleClick}
+      >
+        ADD EMPLOYEE
+      </button>
+      <p>{message}</p> 
+    </div>
 
    <div>
       <button className="button-71 Add-employee-button upload-profile-btn" type="submit" onClick={handleSubmit2}>
