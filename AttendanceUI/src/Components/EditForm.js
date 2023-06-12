@@ -26,14 +26,13 @@ const EditForm = ({ theuser }) => {
   const [showTable, setShowTable] = useState(false);
   const [dataArray, setDataArray] = useState(JSON.parse(educationData));
   const [showMessage, setShowMessage] = useState(false);
-  const { register,handleSubmit,formState: { errors } } = useForm();
+  const { register,handleSubmit,formState: { errors },resetField } = useForm();
   const [proof, setProof] = useState(theuser.proof);
   const [certificates, setCertificate] = useState(theuser.certificates);
   const [dob, setDob] = useState(theuser.dob ? new Date(theuser.dob) : null);
   const [age, setAge] = useState(theuser.age);
   const [tab1Message, setTab1Message] = useState("");
   const [tab2Message, setTab2Message] = useState("");
-  // const [activeTab, setActiveTab] = useState(1);
   
   const handleDobChange = (date) => {
     if (date instanceof Date && !isNaN(date.getTime())) {
@@ -176,11 +175,12 @@ const EditForm = ({ theuser }) => {
       formData.append("proof", proof);
       formData.append("certificates", certificates);
       
-      const res = await fetch(`https://smrftadmin.onrender.com/attendance/editemp`, {
+      const res = await fetch(`http://localhost:7000/attendance/editemp`, {
         method: "PUT",
         body: formData,
       });
       handleUpdateResponse(res,tab);
+      resetField();
     } catch (error) {
       console.error(error);
     }
@@ -267,7 +267,7 @@ const EditForm = ({ theuser }) => {
                     <option style={{ textAlign: "center" }} value="DENSIST CONSULTANT">DENSIST CONSULTANT</option>
                     <option style={{ textAlign: "center" }} value="COOK">COOK</option>
                   </select>
-                  <i style={{ position: 'absolute', color: "gray", display: "flex", top: "45%",left:"240px", transform: "translateY(-50%)" }} className="fas fa-caret-down form-control-icon"></i>
+                  <i style={{ position: 'absolute', color: "gray", display: "flex", top: "45%",left:"100%", transform: "translateY(-50%)" }} className="fas fa-caret-down form-control-icon"></i>
               </div>
               </div>
               </div>
@@ -489,7 +489,7 @@ const EditForm = ({ theuser }) => {
                 <option value="yes">Yes</option>
                 <option value="no">No</option>
               </Form.Control>
-              <i className="fas fa-caret-down form-control-icon"></i>
+              <i style={{ position: 'absolute', color: "gray", display: "flex", top: "45%",left:"25%", transform: "translateY(-50%)" }} className="fas fa-caret-down form-control-icon"></i>
             </div>
           </Form.Group>
         </div>
@@ -510,7 +510,7 @@ const EditForm = ({ theuser }) => {
                 <option value="O+">O+</option>
                 <option value="O-">O-</option>
               </Form.Control>
-              <i className="fas fa-caret-down form-control-icon"></i>
+              <i style={{ position: 'absolute', color: "gray", display: "flex", top: "45%",left:"25%", transform: "translateY(-50%)" }} className="fas fa-caret-down form-control-icon"></i>
             </div>
           </Form.Group>
         </div>

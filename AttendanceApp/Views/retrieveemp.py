@@ -76,8 +76,7 @@ class RetriveEmpById(APIView):
 
 
 class EmployeeEditView(APIView):
-    @csrf_exempt
-    def put(self, request, *args, **kwargs):
+      def put(self, request, *args, **kwargs):
         data = request.data
         employee = Employee.objects.get(id=data["id"])
         employee.name = data["name"]
@@ -88,10 +87,21 @@ class EmployeeEditView(APIView):
         employee.email = data["email"]
         employee.Aadhaarno = data["Aadhaarno"]
         employee.PanNo = data["PanNo"]
-        employee.RNRNO = data["RNRNO"]
-        employee.TNMCNO = data["TNMCNO"]
-        employee.ValidlityDate = data["ValidlityDate"]
         employee.educationData = data["educationData"]
+        employee.bankaccnum = data["bankaccnum"]
+        employee.Maritalstatus = data["Maritalstatus"]
+        employee.BloodGroup = data["BloodGroup"]
+        if employee.department == "Nurse":
+            employee.RNRNO = data.get("RNRNO")
+            employee.ValidlityDate = data.get("ValidlityDate")
+        if employee.department == "Doctor":
+            employee.TNMCNO = data.get("TNMCNO")
+        dob = data.get("dob")
+        if dob is not None:
+            employee.dob = dob
+        age = data.get("age")
+        if age is not None:
+            employee.age = age
 
         # Get the GridFS instance
         client = MongoClient(
@@ -115,7 +125,7 @@ class EmployeeEditView(APIView):
             certificates_file = request.FILES['certificates']
             file_contents = certificates_file.read()
             existing_certificates_file = fs.find_one(
-                {"employee_id": employee.id, "filename": employee.name + "_" + employee.id + "_certificate.pdf"})
+                {"employee_id": employee.id, "filename": employee.name + "_" + employee.id + "_certificates.pdf"})
             if existing_certificates_file:
                 fs.delete(existing_certificates_file._id)
             certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id +
