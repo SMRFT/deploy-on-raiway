@@ -15,13 +15,14 @@ import MUIButton from '@material-ui/core/Button';
 import Summary from "./Summary";
 import { IconButton } from '@material-ui/core';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { red } from "@material-ui/core/colors";
 ///view employee
 const Home = () => {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [users, setUsers] = useState({ blogs: [] });
   useEffect(() => {
-    fetch("https://smrftadmin.onrender.com/attendance/showemp")
+    fetch("http://127.0.0.1:7000/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
@@ -74,10 +75,7 @@ const handleShowModal = () => {
 const handleCloseModal = () => {
   setShowModal(false);
 };
-//Navigate to EditForm
-const EditForm = useNavigate();
-const navigateToEditForm = () => {
-};
+
   //Navigate to Calendar
   const navigate = useNavigate();
   const navigateToCalendar = () => {
@@ -89,7 +87,7 @@ const navigateToEditForm = () => {
   ///delete employee
   const deleteEmployee = async (e) => {
     if (window.confirm("Are you sure you want to delete this employee?"))
-      await fetch("https://smrftadmin.onrender.com/attendance/delemp", {
+      await fetch("http://127.0.0.1:7000/attendance/delemp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -105,7 +103,7 @@ const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
 const [employeesActive, setEmployeesActive] = useState([]);
 const [employeesNotActive, setEmployeesNotActive] = useState([]);
 const fetchData = useCallback(() => {
-  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
+  fetch("http://127.0.0.1:7000/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {
@@ -121,10 +119,15 @@ const fetchData = useCallback(() => {
       }
     );
 }, []);
-
+ // initially set to "active"
+// Call the fetchData function when the component mounts
+// refresh the details every 3 minutes
 useEffect(() => {
   fetchData();
-
+  const interval = setInterval(() => {
+    fetchData();
+  }, 10000); // 3 minutes = 180000 milliseconds
+  return () => clearInterval(interval);
 }, [fetchData]);
    ///search employee
   const [listType, setListType] = useState("all");
@@ -148,14 +151,8 @@ useEffect(() => {
     }
   });
   
-  
-  
-  
   const countFilteredResults = filteredResults.length;
   const countData = users.blogs.length;
-
-
-
 
 // State to keep track of the current page
 const [activePage, setActivePage] = useState(1);
@@ -189,52 +186,56 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     return (
       <body  className="viewemp">
         <br />
-        <div className="input-group">
+<div className="row">
+  <div  className="col-lg-4">
+    <label htmlFor="listType" style={{color:"rgb(103, 180, 204)",fontWeight:"bold",fontFamily:"-moz-initial"}}> Employee: </label>
+    <select style={{ marginLeft:"5px",borderRadius: '10px',fontSize:"14px",fontFamily:"serif",height:"1cm",textAlign:"center",borderColor:"rgb(103, 180, 204)",borderWidth:"2px",color:'rgb(145, 180, 204)'}} 
+    id="listType"  value={listType} onChange={(e) => setListType(e.target.value)}>
+      <option value="all">All Employees</option>
+      <option value="active">Active Employees</option>
+      <option value="notActive">Not Active Employees</option>
+      <option value="break"> break Employees</option>
+    </select>
+  </div>
+
+  <button className="col-lg-2 viewEmp-button" 
+  color="primary"
+  onClick={handleShowModal}
+  title="Overall employee Summary download">
+<CloudDownloadIcon/>
+</button>
+<button className="col-lg-2 viewEmp-button" onClick={handleclicktoaddemp} title="Adding New Employee">
+  <PersonAddIcon/>
+</button>
+
+<div className="col-lg-4">
       <div className="form-outline">
-        <input type="search" id="form1" className="form-control" value={searchString}
+        <input style={{ borderRadius: '10px',height:"1.1cm",borderColor:"rgb(103, 180, 204)",borderRadius:10,
+        borderWidth:"2px",color:'rgb(145, 180, 204)',marginLeft:"2%",paddingLeft:"2.5rem"}} 
+        type="search" id="form1" className="form-control" value={searchString}
             onChange={(e) => setSearchString(e.target.value)} />
-        <button type="button" className="search-button">
+        <button type="button" style={{position: 'absolute',left: '1rem',top: '0.6rem',
+        backgroundColor: 'transparent',border: 'none',outline: 'none',color:"rgb(103, 180, 204)"}}>
           <i className="fas fa-search"></i>
         </button>
       </div>
     </div>
-<div className="employee-count">
-  {filteredResults.length > 0 ? (
-    <>{countFilteredResults} Employees</>
-  ) : (
-    <>0 Employees</>
-  )}
+
+<div className="col-lg-2 employee-count">
+    {filteredResults.length > 0 ? (
+      <>{countFilteredResults} Employees</>
+    ) : (
+      <>0 Employees</>
+    )}
+  </div>
 </div>
 
-<div className="filter">
-  <label htmlFor="listType" style={{color:"rgb(103, 180, 204)",fontWeight:"bold",fontFamily:"-moz-initial"}}> Employee: </label>
-  <select style={{ marginLeft:"5px",borderRadius: '10px',fontSize:"14px",fontFamily:"serif",height:"1cm",textAlign:"center",borderColor:"rgb(103, 180, 204)",borderWidth:"2px",color:'rgb(145, 180, 204)'}} 
-  id="listType"  value={listType} onChange={(e) => setListType(e.target.value)}>
-    <option value="all">All Employees</option>
-    <option value="active">Active Employees</option>
-    <option value="notActive">Not Active Employees</option>
-    <option value="break"> break Employees</option>
-  </select>
-</div>
-<button className="summary-button"
-  color="primary"
-  onClick={handleShowModal}
-  title="Overall employee Summary download"
->
-<CloudDownloadIcon style={{ fontSize: 40 }} />
-  <span style={{ marginLeft: '5px' }}></span>
-</button>
-<button className="add-emp-button" onClick={handleclicktoaddemp} title="Adding New Employee">
-  <PersonAddIcon style={{ fontSize: 40 }} />
-</button>
-
-<br/>
    <div className="row">
     {paginatedResults.map((user) => (
    <div className="col-md-3 mb-3" key={user.id} style={{  padding: "10px", borderRadius: "5px" }}>
-    <Card md={4} className="employee"><br/>
+    <Card md={3} className="employee"><br/>
    <div><i style={{float:"right",marginRight:'5%',marginTop:"-4%",cursor:"pointer"}} onClick={() => handleHide(user)} className="fa fa-ellipsis-h"></i>
-   <div style={{ float: "right", marginRight: "5%",marginTop:"-5%" }}>
+   <div style={{ float: "left", marginRight: "5%",marginTop:"-5%" }}>
   {employeesOnBreak.some((breakUser) => breakUser.id === user.id) ? (
     <button className="break-btn">Break</button>
   ) : employeesActive.some((activeUser) => activeUser.id === user.id) ? (
@@ -260,22 +261,22 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     >
         <button
           onClick={() => deleteEmployee(user)}
-          className="btn text-danger btn-act"
+          className="btn btn-act"
           data-toggle="modal"
-          style={{border:"none"}}
+          style={{border:"none",color:'red'}}
         >
-        <i className="bi bi-trash-fill"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px"}}> Delete</div>
+        <i className="bi bi-trash-fill"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}> Delete</div>
       </button><br/>
       <Link
           to={`/AdminCalendar/${user.name + '_' + user.id}`}
           activeClassName="current">
           <button
             onClick={() => navigateToCalendar(user)}
-            className="btn text-primary btn-act"
+            className="btn btn-act"
             data-toggle="modal"
-            style={{border:"none"}}
+            style={{border:"none",color:"blue"}}
           >
-          <i className="bi bi-calendar3-week"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px"}}> Calendar</div>
+          <i className="bi bi-calendar3-week"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}> Calendar</div>
           </button>
         </Link><br/>
         <Link
@@ -284,11 +285,11 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
           >
           <button
             onClick={() => navigateToFileviewer(user)}
-            className="btn text-primary btn-act"
+            className="btn btn-act"
             data-toggle="modal"
-            style={{border:"none"}}
+            style={{border:"none",color:"ThreeDDarkShadow"}}
           >
-          <i className="bi bi-file-earmark-text"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px"}}>Files</div>
+          <i className="bi bi-eye"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}>View more</div>
           </button>
         </Link><br/>
         </div> )}
@@ -328,20 +329,20 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     ))}
     </div>
     <>
-      <Modal show={showModal} onHide={handleCloseModal} className="summary-modal">
-        <Modal.Header closeButton>
-          <Modal.Title>Summary</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Summary />
-        </Modal.Body>
-        <Modal.Footer style={{ height: "40px" }}>
-  <Button variant="danger" onClick={handleCloseModal} style={{ width: "100px", fontSize: "15px", marginTop:"-18px" }}>
-    Close
-  </Button>
-</Modal.Footer>
+    <Modal show={showModal} onHide={handleCloseModal} className="summary-modal">
+  <Modal.Header closeButton>
+    <Modal.Title>Summary</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{ marginLeft:"-30%",display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <Summary />
+  </Modal.Body>
+  <Modal.Footer style={{ height: "5%" }}>
+    <Button variant="danger" onClick={handleCloseModal} style={{ width: "30%", fontSize: "15px", marginTop:"1%" }}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
 
-      </Modal>
     </>
     <div style={{float:"left",marginTop:"10px"}}>
       <span style={{fontSize:"18px",color: 'rgb(103, 180, 204)',fontFamily:"cursive"}}>Views per page: </span>

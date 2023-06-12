@@ -7,7 +7,7 @@ function ApexChart() {
 
   useEffect(() => {
     axios
-      .get('https://smrftadmin.onrender.com/attendance/showemp')
+      .get('http://127.0.0.1:7000/attendance/showemp')
       .then((res) => {
         const data = res.data;
         const employees = {};
@@ -36,13 +36,12 @@ function ApexChart() {
       const chartOptions = {
         chart: {
           id: 'chartyear',
-          type: 'pie',
-          height: 400,
-          // background: '#F6F8FA',
+          type: 'bar',
+          height: 300,
           toolbar: {
             show: true,
             tools: {
-              download: true,
+              download: false,
               selection: true,
               zoom: true,
               zoomin: true,
@@ -50,48 +49,56 @@ function ApexChart() {
               pan: true,
             },
           },
-          title: {
-            text: 'Employee Count by Month',
-            align: 'center',
-            margin: 10,
-            style: {
-              fontSize: '18px',
-              fontWeight: 'bold',
-              color: '#333',
-            },
-          },
         },
-        
-        // theme: {
-        //   monochrome: {
-        //     enabled: true
-        //   }
-        // },
         plotOptions: {
-          pie: {
-            colors: ['#000000'],
-            dataLabels: {
-              enabled: true,
-              formatter: (value, { seriesIndex, dataPointIndex, w }) => {
-                const employeeCount = employeeData[dataPointIndex].count;
-                const employeeNames = employeeData[dataPointIndex].employees;
-                return `${employeeCount} employees: ${employeeNames}`;
-              },
-              style: {
-                fontSize: '14px',
-              },
-            },
+          bar: {
+            horizontal: false,
+            endingShape: 'flat',
+            columnWidth: '30%',
           },
         },
-        
-        series: employeeData.map((e) => e.count),
-        labels: employeeData.map((e) => e.month),
+        dataLabels: {
+          enabled: false,
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent'],
+        },
+        series: [
+          {
+            name: 'Employees',
+            data: employeeData.map((e) => e.count),
+          },
+        ],
+        xaxis: {
+          categories: employeeData.map((e) => e.month),
+          title: {
+            text: 'Month',
+          },
+        },
+        yaxis: {
+          title: {
+            text: 'Number of Employees',
+          },
+        },
         tooltip: {
           y: {
-            formatter: (value, { series, seriesIndex, dataPointIndex, w }) => {
-              const employeeNames = employeeData[dataPointIndex].employees;
-              return `${value} employees: ${employeeNames}`;
-            },
+            formatter: (value) => value + ' employees',
+          },
+          x: {
+            formatter: (value) => value,
+          },
+          marker: {
+            show: false,
+          },
+        custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+            const employeeCount = employeeData[dataPointIndex].count;
+            const employeeNames = employeeData[dataPointIndex].employees;
+            return `<div class="apexcharts-tooltip-custom">
+              <div class="employee-count">${employeeCount} employees</div>
+              <div class="employee-names">${employeeNames}</div>
+            </div>`;
           },
         },
       };
@@ -100,10 +107,9 @@ function ApexChart() {
     }
   }, [employeeData]);
 
-  
-  
-
-  return <div id="chart" style={{width:"45%",marginLeft:"50%",marginTop:"-30%"}}></div>;
+  return <div id="chart" style={{ backgroundColor:"#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent:"center", position:"relative", display: "flex", alignItems: "center", flexDirection: "column"}}>
+  <div style={{fontSize:"100%", fontFamily:"cursive",whiteSpace:"nowrap"}}><br/>Number Of Employees Joined</div><br/>
+  </div>;
 }
 
 export default ApexChart;

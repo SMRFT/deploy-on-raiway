@@ -1,25 +1,22 @@
 .viewemp{
-  margin-left: 14%;
+  margin-left: 15.5%;
 }
 .employee {
   display: inline-block;
   box-shadow: 2px 5px #e0e0e0;
   padding: 10px;
   border-radius: 5%;
-  background-color: white !important;
+  background-color: rgb(255, 255, 255) !important;
   height: 100% !important;
   width: 100% !important;
 }
 
 .App {
-  background-color: rgb(199, 218, 221);
+  background-color:rgb(255, 255, 255);
+  margin-left: 15%;
+  width: 80%;
 }
-.modal-100w{
-  position: relative;
-  overflow-y: auto;
-  min-height: 100% !important;
-  max-height: 100% !important;
-}
+
 .profile {
   margin-left: -50px;
 }
@@ -42,7 +39,7 @@
 }
 
 .emptable {
-  background-color: rgb(194, 220, 228);
+  background-color: rgb(196, 232, 235);
 }
 
 .modal-100w {
@@ -55,6 +52,15 @@
   font-style: normal;
   font-weight: 400;
   src: url('https://fonts.gstatic.com/s/opensans/v23/mem8YaGs126MiZpBA-UFVZ0e.ttf') format('truetype');
+}
+.form-control-with-icon {
+  position: relative;
+}
+
+.form-control-icon { 
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: gray;
 }
 
 .active-btn,
@@ -72,23 +78,21 @@
 .active-btn{
   border-color: rgb(156, 224, 156) !important;
   background-color: rgb(228, 255, 243) !important;
-  color: green;
+  color: rgb(0, 0, 0);
 }
 .break-btn {
   border-color: rgb(157, 189, 250) !important;
   background-color: rgb(189, 212, 255) !important;
-  color: blue !important;
+  color: rgb(0, 0, 0) !important;
 }
 .not-active-btn {
   border-color: rgb(236, 87, 87) !important;
   background-color: rgb(255, 196, 196) !important;
-  color: red !important;
+  color: rgb(0, 0, 0) !important;
 }
 
 .container-input {
-  position: relative;
-  
-  
+  position: relative; 
 }
 
 .input {
@@ -114,38 +118,14 @@
 }
 
 .filter{
-  position: absolute;
+  /* position: absolute; */
   margin-left: 2%;
   margin-top: -3%;
 }
 
-.add-emp-button {
-  position: absolute;
-  height: 1.1cm;
-  width: 8%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px 1px;
-  background-color: rgb(103, 180, 204);
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
-  border: none;
-  border-radius: 0.2cm;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-left: 55%;
-  margin-top: -3%;
-}
-.add-emp-button:hover {
-  background-color: #8ED0E4;
-}
 
-.summary-button {
-  position: absolute;
-  height: 1.1cm;
-  width: 8%;
+.viewEmp-button {
+  width: 5%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -155,43 +135,27 @@
   font-size: 14px;
   font-weight: bold;
   border: none;
-  border-radius: 0.2cm !important;
+  border-radius: 0.3cm !important;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-left:45%;
-  margin-top: -3%;
+  margin-right: 1%
+  
 }
-.summary-button:hover {
+.viewEmp-button:hover {
   background-color: #8ED0E4;
 }
 .add-icon {
   margin-right: 10px;
   font-size: 24px;
 }
-.input-group {
-  position: relative;
-  margin-left: 75%;
-  margin-top: 3.5%;
-}
+
 
 .form-outline {
   position: relative;
-  
-}
-
-.form-control {
-  padding-left: 2.5rem; /* Adjust this value to add some space between the icon and text */
-  margin-left: 2%;
-  border-color:rgb(103, 180, 204);
-  border-radius: 10;
-  border-width: 2px;
-  text-align: start;
 }
 
 .search-button {
-  position: absolute;
-  right: 202px;
-  top: 4px;
+
   height: 80%;
   width: 2.5rem; /* Adjust this value as needed */
   background-color: rgb(103, 180, 204);
@@ -203,12 +167,10 @@
 
 /* CSS for styling the employee count element */
 .employee-count {
-  position: absolute;
-  font-size: 22px;
+  
+  font-size: 120%;
   font-weight: bold;
   color: rgb(103, 180, 204);
-  margin-top: -2.8%;
-  margin-left: 22%;
   font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif!important;
 }
 
