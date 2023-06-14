@@ -22,7 +22,7 @@ const Donut = () => {
   const [malePercentage, setMalePercentage] = useState(0);
 const [femalePercentage, setFemalePercentage] = useState(0);
 const fetchChartData = useCallback(() => {
-  fetch("http://127.0.0.1:7000/attendance/showemp")
+  fetch("https://smrftadmin.onrender.com/attendance/showemp")
     .then((res) => res.json())
     .then((data) => {
       setEmployee(data);
@@ -63,7 +63,7 @@ const [chart, setChart] = useState([]);
 const reactdonutcharthandleclick = useCallback((selectedDepartmentIndex) => {
   console.log("test", departments);
   if (selectedDepartmentIndex >= 0) {
-    fetch("http://127.0.0.1:7000/attendance/empbydesignation", {
+    fetch("https://smrftadmin.onrender.com/attendance/empbydesignation", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -204,7 +204,7 @@ const breakEmployeesCount = breakEmployees.length;
     
     useEffect(() => {
       axios
-        .get("http://127.0.0.1:7000/attendance/deleted-employees/")
+        .get("https://smrftadmin.onrender.com/attendance/deleted-employees/")
         .then((res) => {
           const employees = res.data;
           const months = Array.from({ length: 12 }, (_, i) => {
@@ -300,7 +300,7 @@ const breakEmployeesCount = breakEmployees.length;
     });
     useEffect(() => {
       axios
-        .get("http://127.0.0.1:7000/attendance/showemp")
+        .get("https://smrftadmin.onrender.com/attendance/showemp")
         .then((res) => {
           // Map the data to an object with month and employee name properties
           const employeeData = res.data.map((employee) => {
@@ -365,7 +365,7 @@ const breakEmployeesCount = breakEmployees.length;
     
     useEffect(() => {
       const getExportData = async () => {
-        fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
+        fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
           method: "post",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

@@ -22,7 +22,7 @@ const Home = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [users, setUsers] = useState({ blogs: [] });
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp")
+    fetch("https://smrftadmin.onrender.com/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
@@ -87,7 +87,7 @@ const handleCloseModal = () => {
   ///delete employee
   const deleteEmployee = async (e) => {
     if (window.confirm("Are you sure you want to delete this employee?"))
-      await fetch("http://127.0.0.1:7000/attendance/delemp", {
+      await fetch("https://smrftadmin.onrender.com/attendance/delemp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -103,7 +103,7 @@ const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
 const [employeesActive, setEmployeesActive] = useState([]);
 const [employeesNotActive, setEmployeesNotActive] = useState([]);
 const fetchData = useCallback(() => {
-  fetch("http://127.0.0.1:7000/attendance/breakdetails")
+  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {

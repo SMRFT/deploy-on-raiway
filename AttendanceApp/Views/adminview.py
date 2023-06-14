@@ -25,6 +25,7 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from rest_framework import status
 from djongo import models
+from django.contrib.auth.decorators import login_required
 
 # @csrf_exempt
 # def upload_file(request):

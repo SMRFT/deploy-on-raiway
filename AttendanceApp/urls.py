@@ -6,7 +6,7 @@ from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
 from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails,upload_file
-from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours, get_profile_image
+from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static
@@ -47,10 +47,7 @@ urlpatterns = [
     path('permanentdelete', PermanentDeleteEmp.as_view()),
     path('restore-employee/', RestoreEmployee.as_view()),
     path("UserDetails", UserDetails.as_view()),
-    path('profile_image', get_profile_image, name='profile_image'),
-   
- 
-    # path('message/', send_whatsapp, name='message')
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

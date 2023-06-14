@@ -175,7 +175,7 @@ const EditForm = ({ theuser }) => {
       formData.append("proof", proof);
       formData.append("certificates", certificates);
       
-      const res = await fetch(`http://localhost:7000/attendance/editemp`, {
+      const res = await fetch(`https://smrftadmin.onrender.com/attendance/editemp`, {
         method: "PUT",
         body: formData,
       });

@@ -27,6 +27,7 @@
     .button-71.Add-employee-button {
       position: absolute;
       right: 0;
+      
     }
 /* .Addemp {
 
@@ -87,7 +88,7 @@
     outline: 0;
     padding: 16px 21px;
     position: relative;
-    margin-left: 50px;
+    margin-left: 40px;
     text-align: center;
     text-decoration: none;
     transition: all .3s;
@@ -101,7 +102,7 @@
     background-image: linear-gradient(#fff 0, rgba(255, 255, 255, 0) 100%);
     border-radius: 125px;
     content: "";
-    height: 50%;
+    height: 40%;
     left: 4%;
     opacity: .5;
     position: absolute;
@@ -290,15 +291,13 @@ th {
       padding: 30px;
     }
   }
-  
-
 
   .upload-profile-btn {
     /* Add your desired styles here */
-    background-color: #f0f0f0;
+    background-color: rgba(163, 225, 209, 0.818);
     color: #333;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 25px;
     margin-right: 20%;
     /* Add more styles as needed */
   }

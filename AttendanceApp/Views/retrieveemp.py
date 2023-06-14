@@ -129,7 +129,7 @@ class EmployeeEditView(APIView):
             if existing_certificates_file:
                 fs.delete(existing_certificates_file._id)
             certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id +
-                                          "_certificate.pdf", employee_id=employee.id, employee_name=employee.name)
+                                          "_certificates.pdf", employee_id=employee.id, employee_name=employee.name)
 
         employee.save()
         return Response("Updated Successfully")
@@ -639,29 +639,7 @@ def get_file(request):
         return HttpResponse(status=404)
 
 
-@csrf_exempt
-def get_profile_image(request):
-    # Connect to MongoDB
-    client = MongoClient(
-        'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-    db = client['data']
-    fs = GridFS(db)
 
-    # Get the employee's profile_picture_id from the request
-    profile_picture_id = request.GET.get('profile_picture_id')
-
-    # Look up the corresponding file in GridFS
-    file = fs.find_one(ObjectId(profile_picture_id))
-
-    if file is not None:
-        # Return the file contents as an HTTP response
-        response = HttpResponse(file.read())
-        response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment; filename=%s' % file.filename
-        return response
-    else:
-        # Return a 404 error if the file is not found
-        return HttpResponse(status=404)
 
 
 class RetrieveEmployeehours(APIView):

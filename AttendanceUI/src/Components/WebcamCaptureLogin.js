@@ -234,7 +234,6 @@ const WebcamCaptureLogin = () => {
           compareFace(index + 1);
         }
       };
-  
       await compareFace(0);
     } catch (error) {
       console.error("Error:", error);
@@ -286,12 +285,12 @@ const WebcamCaptureLogin = () => {
         </div>
       </div>
 
-      <Navbar style={{ width: '500px', marginLeft: '250px', marginTop: '-90px' }}>
+      <Navbar style={{ width: '50%', marginLeft: '20%', marginTop: '-7%' }}>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
           <Nav
             className="mr-auto my-2 my-lg"
-            style={{ marginLeft: '100px'}}
+            style={{ marginLeft: '15%'}}
             navbarScroll>
             <Nav.Link as={Link}  to="/" >
               <div className="nav_link1" style={{ color: "cadetblue", fontFamily: "cursive", ':hover': { background: "blue" } }}>Home</div></Nav.Link>
@@ -301,11 +300,10 @@ const WebcamCaptureLogin = () => {
 
       <div className="container">
         <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
-      </div>
-
-      <button className="In" onClick={() => { capture(); handleClick(); }}>
+        <button className="In" onClick={() => { capture(); handleClick(); }}>
         <i className="bi bi-camera2"> Check In</i>
       </button>
+      </div>
 
       {imgSrc && (
         <img
@@ -318,19 +316,13 @@ const WebcamCaptureLogin = () => {
       <div className="empdetails" style={{ display: isShown ? "none" : "block" }}>
         <div>
           <br/>
-          {employee.id && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>ID: {employee.id}</p>}
-          {employee.name && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Name: {employee.name}</p>}
-          {employee.designation && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Designation: {employee.designation}</p>}
-          {login && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Logintime: {login}</p>}
-          {/* {latelogin && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>latelogin: {latelogin}</p>} */}
+          {employee.id && <p style={{ fontWeight: "bold"}}>ID: {employee.id}</p>}
+          {employee.name && <p style={{ fontWeight: "bold"}}>Name: {employee.name}</p>}
+          {employee.designation && <p style={{ fontWeight: "bold"}}>Designation: {employee.designation}</p>}
+          {login && <p style={{ fontWeight: "bold" }}>Logintime: {login}</p>}
           <br/>
         </div>
-        <div className="message" style={{ marginLeft: "30px", marginTop: "10px" }}>{message ? <p>{message}</p> : null}</div>
-          <div className="col-lg" style={{ marginLeft: "80px", marginTop: "10px" }}>
-          <button className="btn btn-outline-success" onClick={() => { refreshPage(); }} variant="danger" type="submit" block="true">
-            <i className="bi bi-check-circle"> Done</i>
-          </button>
-        </div>
+        <div className="message" style={{ marginLeft: "0.5%", marginTop: "3%" }}>{message ? <p>{message}</p> : null}</div><br/>
       </div>
       {/* <Footer /> */}
     </React.Fragment >

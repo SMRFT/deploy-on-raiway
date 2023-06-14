@@ -1,4 +1,3 @@
-
 import "../Components/Break.css";
 import profile from "../images/smrft.png";
 import NavbarComp from "../Components/NavbarComp";
@@ -23,32 +22,33 @@ function Break() {
                     <img src={profile} className="smrft_logo" alt="logo" />
                 </div>
             </div>
-            <Navbar style={{ width: '500px', marginLeft: '250px', marginTop: '-90px' }}>
-                <Navbar.Toggle aria-controls="navbarScroll" />
-                <Navbar.Collapse id="navbarScroll">
-                    <Nav
-                        className="mr-auto my-2 my-lg"
-                        style={{ marginLeft: '100px' }}
-                        navbarScroll>
-                        <Nav.Link as={Link} to="/" className='nav_link1'>Home</Nav.Link>
-                    </Nav>
-                </Navbar.Collapse>
-            </Navbar>
+            <Navbar style={{ width: '50%', marginLeft: '20%', marginTop: '-7%' }}>
+        <Navbar.Toggle aria-controls="navbarScroll" />
+        <Navbar.Collapse id="navbarScroll">
+          <Nav
+            className="mr-auto my-2 my-lg"
+            style={{ marginLeft: '15%'}}
+            navbarScroll>
+            <Nav.Link as={Link}  to="/" >
+              <div className="nav_link1" style={{ color: "cadetblue", fontFamily: "cursive", ':hover': { background: "blue" } }}>Home</div></Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
             <br />
 
             <div body>
-                <Row>
-                    <Col xs={4} md={2}>
-                        <button className="Breakstart" onClick={navigateToBreakstart}>
-                            <b style={{ color: "white" }}>Break Logout</b>
-                        </button>
-                    </Col>
-                    <Col xs={4} md={2}>
-                        <button className="BreakEnd" onClick={navigateToBreakend}>
-                            <b style={{ color: "white" }}>Break Login</b>
-                        </button>
-                    </Col>
-                </Row>
+            <div className="row">
+                <div class="col-sm-4">
+                    <button className="BreakButton" onClick={navigateToBreakstart}>
+                        <b>Break Out</b>
+                    </button>
+                </div>
+            <div class="col-sm-4">
+                <button className="BreakButton" onClick={navigateToBreakend}>
+                    <b>Break In</b>
+                </button>
+            </div>
+            </div>
             </div>
         </div>
     );

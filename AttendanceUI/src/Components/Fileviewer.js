@@ -804,7 +804,7 @@ state = {
                 <div className="details-row">
                     <div className="details-heading">Dob</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.dob.substring(4, 16)}</div>
+                    <div className="details-value">{employee.dob.substring(0, 16)}</div>
                 </div>
                 <div className="details-row">
                     <div className="details-heading">Maritalstatus</div>

@@ -229,33 +229,33 @@ const WebcamCaptureLogout = () => {
 
   return (
     <React.Fragment>
-      <div>
-        <style>{'body { background-color: rgb(255, 255, 255); }'}</style>
-        <div className='main'></div>
-        <div className='logo'>
-          <img src={profile} className="smrft_logo" alt="logo" />
-        </div>
+    <div>
+      <style>{'body { background-color: rgb(255, 255, 255); }'}</style>
+      <div className='main'></div>
+      <div className='logo'>
+        <img src={profile} className="smrft_logo" alt="logo" />
       </div>
+    </div>
 
-      <Navbar style={{ width: '500px', marginLeft: '250px', marginTop: '-90px' }}>
+    <Navbar style={{ width: '50%', marginLeft: '20%', marginTop: '-7%' }}>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
           <Nav
             className="mr-auto my-2 my-lg"
-            style={{ marginLeft: '100px' }}
+            style={{ marginLeft: '15%'}}
             navbarScroll>
-            <Nav.Link as={Link} to="/" className='nav_link1'>Home</Nav.Link>
+            <Nav.Link as={Link}  to="/" >
+              <div className="nav_link1" style={{ color: "cadetblue", fontFamily: "cursive", ':hover': { background: "blue" } }}>Home</div></Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
 
-      <div className="container">
-        <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
-      </div>
-
+    <div className="container">
+      <Webcam audio={false} ref={webcamRef} screenshotFormat="image/jpeg" />
       <button className="Out" onClick={() => { capture(); handleClick(); }}>
-        <i class="bi bi-camera2">CheckOut</i>
-      </button>
+      <i className="bi bi-camera2"> Check Out</i>
+    </button>
+    </div>
 
       {imgSrc && (
         <img
@@ -267,19 +267,14 @@ const WebcamCaptureLogout = () => {
 
       <div className="empdetails" style={{ display: isShown ? "none" : "block" }}>
         <div>
-          <br />
-          {employee.id && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>ID: {employee.id}</p>}
-          {employee.name && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Name: {employee.name}</p>}
-          {employee.designation && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Designation: {employee.designation}</p>}
-          {logout && <p style={{ fontWeight: "bold", marginLeft: "30px" }}>Logouttime: {logout}</p>}
-          <br />
+          <br/>
+          {employee.id && <p style={{ fontWeight: "bold"}}>ID: {employee.id}</p>}
+          {employee.name && <p style={{ fontWeight: "bold"}}>Name: {employee.name}</p>}
+          {employee.designation && <p style={{ fontWeight: "bold"}}>Designation: {employee.designation}</p>}
+          {logout && <p style={{ fontWeight: "bold" }}>Logouttime: {logout}</p>}
+          <br/>
         </div>
-        <div className="message" style={{ marginLeft: "30px", marginTop: "10px" }}>{message ? <p>{message}</p> : null}</div>
-        <div className="col-lg" style={{ marginLeft: "80px", marginTop: "10px" }}>
-          <button className="btn btn-outline-success" onClick={() => { refreshPage(); }} variant="danger" type="submit" block>
-            <i class="bi bi-check-circle"> Done</i>
-          </button>
-        </div>
+        <div className="message" style={{ marginLeft: "0.5%", marginTop: "3%" }}>{message ? <p>{message}</p> : null}</div><br/>
       </div>
       {/* <Footer /> */}
     </React.Fragment>

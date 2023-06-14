@@ -134,6 +134,7 @@ class Hour(models.Model):
     barColor = models.CharField(max_length=500)
     text = models.CharField(max_length=500)
     leavetype = models.CharField(max_length=500)
+    
 # Summary calendar model
 
 
@@ -151,7 +152,7 @@ class Summary(models.Model):
 
 # Employee calendar export model for single employee
 
-# Employee calendar export model for single employee
+
 
 
 class Employeeexport(models.Model):
