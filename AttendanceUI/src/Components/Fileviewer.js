@@ -196,7 +196,7 @@ function DownloadButton(props) {
 
         // Make a POST request to the server to get the file as a blob
         axios.post(`https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_certificates.pdf`, {
-            filename: `${name}_certificate.pdf`,
+            filename: `${name}_certificates.pdf`,
         }, {
             responseType: "blob"
         })

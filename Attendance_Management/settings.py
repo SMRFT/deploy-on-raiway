@@ -207,13 +207,3 @@ VONAGE_API_KEY = '4be358a0'
 VONAGE_API_SECRET = '6GF9TK0JGgbe4V0A'
 VONAGE_BRAND_NAME = 'parthiban'
 
-
-
-AWS_ACCESS_KEY_ID = 'AKIA2N5OVS4K7RY5MBWN'
-AWS_SECRET_ACCESS_KEY = '0N1IuuY8Kl0sNvca886pVSm4KIXJMJfMiKYrXy1Y'
-AWS_BUCKET_NAME = 'employee-images-files'
-AWS_S3_REGION_NAME = 'ap-south-1'  # Replace with the appropriate region code, e.g., 'us-west-2'
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_BUCKET_NAME}.s3.amazonaws.com'
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
