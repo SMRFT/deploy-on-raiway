@@ -1,5 +1,16 @@
+.container3 {
+  position: relative;
+  margin-left: 2%;
+  margin-top: 2%;
+  width: 40%;
+  height: 100%;
+  border-width: 2px;
+  border-radius: 15%;
+}
 
-
+.wecam{
+  margin-left: 40%;
+}
 
 .logo {
   max-width: 100%;

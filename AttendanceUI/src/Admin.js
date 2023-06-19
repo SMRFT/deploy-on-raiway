@@ -7,6 +7,7 @@ import Footer from './Components/Footer';
 import './Components/Footer.css';
 import React, { useState, useEffect  } from 'react';
 import axios from 'axios';
+// import FacialRecognitionView from './Components/Adduploadfile';
 // import Admin2 from "./Admin2";
 // import NavbarComp from './Components/NavbarComp';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -73,9 +74,10 @@ function Admin(props) {
         
   <style>{'body { background-color: rgb(255, 255, 255); }'}</style>
   <div className='main'></div>
-  {/* <div className='logo'>
-    <img src={profile1} className="smrft_logo" alt="logo" />
-  </div> */}
+  {/* <div>
+      <h1>Facial Recognition</h1>
+      <FacialRecognitionView />
+    </div> */}
   <div className="employee-container">
     <div
       className="profile-pic"

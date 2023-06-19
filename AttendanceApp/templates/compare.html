@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Comparison</title>
+</head>
+<body>
+    <h1>Face Comparison</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image1"><br><br>
+        <input type="file" name="image2"><br><br>
+        <input type="submit" value="Compare">
+    </form>
+
+    {% if result is not None %}
+        {% if result %}
+            <h2>The faces in the two images match!</h2>
+        {% else %}
+            <h2>The faces in the two images do not match!</h2>
+        {% endif %}
+    {% endif %}
+</body>
+</html>

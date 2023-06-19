@@ -5,7 +5,7 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails,upload_file
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails,upload_file,aws_config_view,facial_recognition_view
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
@@ -47,7 +47,9 @@ urlpatterns = [
     path('permanentdelete', PermanentDeleteEmp.as_view()),
     path('restore-employee/', RestoreEmployee.as_view()),
     path("UserDetails", UserDetails.as_view()),
-
+    path('aws-config/', aws_config_view, name='aws-config'),
+    path('facial-recognition/', facial_recognition_view, name='recognize_faces'),
+    # path('compare/',face_comparison_view, name='compare'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

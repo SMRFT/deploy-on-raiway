@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Recognition Results</title>
+</head>
+<body>
+    {% if recognized %}
+        <h1>Face Recognized!</h1>
+        <p>Name: {{ name }}</p>
+    {% else %}
+        <h1>Face Not Recognized!</h1>
+    {% endif %}
+    <a href="/">Back to Home</a>
+</body>
+</html>
