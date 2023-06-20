@@ -31,71 +31,33 @@ const WebcamCaptureLogout = () => {
         setIsShown((current) => !current);
     };
 
-    AWS.config.update({
-        region: 'us-west-2',
-        accessKeyId: 'AKIA2N5OVS4KY4HBQX5U',
-        secretAccessKey: '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',
-      });
 
       const capture = React.useCallback(async () => {
         const imageSrc = webcamRef.current.getScreenshot();
         setImgSrc(imageSrc);
         try {
-            const dataUrl = await toDataURL(imageSrc);
-            const fileData = dataURLtoFile(dataUrl, 'imageName.jpg');
+          const dataUrl = await toDataURL(imageSrc);
+          const fileData = dataURLtoFile(dataUrl, 'imageName.jpg');
+      
+          // Compare the captured image with the images on the server using the API endpoint
+          const formData = new FormData();
+          formData.append('image', fileData);
         
             // Retrieve the list of objects in the S3 bucket
-            const s3 = new AWS.S3();
-            const listParams = {
-              Bucket: 'smrft-facial-recognition', // Replace with your S3 bucket name
-            };
+            const response = await fetch('http://127.0.0.1:7000/attendance/facial-recognition/', {
+              method: 'POST',
+              body: formData
+            });
         
-            const listData = await s3.listObjectsV2(listParams).promise();
-            const objectKeys = listData.Contents.map((object) => object.Key);
-        
-            // Initialize the AWS Rekognition client
-            const rekognition = new AWS.Rekognition();
-        
-            // Compare the captured image with the images in the S3 bucket
-            const compareFace = async (index) => {
-              if (index >= objectKeys.length) {
-                console.log('No matching face found in the S3 bucket.');
-                return;
-              }
-        
-              const compareFacesParams = {
-                SourceImage: {
-                  Bytes: new Uint8Array(await fileData.arrayBuffer()),
-                },
-                TargetImage: {
-                  S3Object: {
-                    Bucket: 'smrft-facial-recognition',
-                    Name: objectKeys[index],
-                  },
-                },
-                SimilarityThreshold: 90, // Set a suitable similarity threshold
-              };
-        
-              const compareData = await rekognition.compareFaces(compareFacesParams).promise();
-              const faceMatches = compareData.FaceMatches;
-        
-              if (faceMatches.length > 0) {
-                // A match is found, retrieve the matched image
-                const matchedImageKey = objectKeys[index];
-                const s3ImageParams = {
-                  Bucket: 'smrft-facial-recognition',
-                  Key: matchedImageKey,
-                };
-        
-                const s3ImageData = await s3.getObject(s3ImageParams).promise();
-                const matchedImageBytes = s3ImageData.Body;
-        
-                // Construct the URL dynamically using the retrieved image key
-                const imageUrl = `https://smrft-facial-recognition.s3.us-west-2.amazonaws.com/${matchedImageKey}`;
-                console.log('matchedImageKey:', matchedImageKey);       
-                const splitValues = matchedImageKey.split('_');
-                const nameOfEmployee = splitValues[0]; 
-                const empId = splitValues[1].split('.')[0]; 
+            if (response.ok) {
+              const result = await response.json();
+              if (result.recognized) {
+                const recognizedName = result.name;
+                console.log('Recognized Name:', recognizedName);
+                setEmployees(recognizedName);
+                const splitValues = recognizedName.split('_');
+                const nameOfEmployee = splitValues[0];
+                const empId = splitValues[1].split('.')[0];
                 console.log('Name of Employee:', nameOfEmployee);
                 console.log('Employee ID:', empId);
         
@@ -199,12 +161,12 @@ const WebcamCaptureLogout = () => {
         }
         return new File([u8arr], filename);
     }
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        window.location.reload();
-      }, 20000);
-      return () => clearTimeout(timeout);
-    }, []);
+    // useEffect(() => {
+    //   const timeout = setTimeout(() => {
+    //     window.location.reload();
+    //   }, 20000);
+    //   return () => clearTimeout(timeout);
+    // }, []);
     return (
         <React.Fragment>
         <div>
