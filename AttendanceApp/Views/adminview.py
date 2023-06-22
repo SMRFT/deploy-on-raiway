@@ -368,10 +368,10 @@ def upload_file(request):
             'employee_id': employee_id
         })
         # Save image to AWS S3 bucket
-        s3 = boto3.client('s3', aws_access_key_id='AKIA2N5OVS4K7RY5MBWN',
-                          aws_secret_access_key='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')
-        bucket_name = 'smrft-facial-recognition'
-        s3_filename = f'{employee_name}_{employee_id}_profile.jpg'
+        # s3 = boto3.client('s3', aws_access_key_id='AKIA2N5OVS4K7RY5MBWN',
+        #                   aws_secret_access_key='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')
+        # bucket_name = 'smrft-facial-recognition'
+        # s3_filename = f'{employee_name}_{employee_id}_profile.jpg'
         try:
             s3.upload_fileobj(io.BytesIO(file_contents3), bucket_name, s3_filename)
         except NoCredentialsError:
