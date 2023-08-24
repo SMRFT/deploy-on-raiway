@@ -10,23 +10,33 @@ import EmployeeHours from './EmployeeHours';
 import AdminReg from '../Adminreg';
 import Deleteemp from './Deleteemp';
 import profile from "../images/smrft(1).png";
-import './NavbarComp.css';
+
 import { useNavigate } from "react-router-dom";
 import "./Fileviewer.css";
 import { CSVLink } from 'react-csv';
-import "./NavbarComp.css";
+
 import Footer from './Footer';
 import EditForm from "./EditForm";
 import DatePicker from "react-datepicker";
 import { BrowserRouter as Router, Routes, Route, Link, useParams } from "react-router-dom";
 import moment from 'moment';
-
+import Select from 'react-select';
+import NavbarComp from './NavbarComp';
 function DownloadButton(props) {
     // Set up state variables
     const [isLoading, setIsLoading] = useState(false);
     const [activeIcon, setActiveIcon] = useState("");
     const [isIframeVisible, setIsIframeVisible] = useState(false);
     const [message, setMessage] = useState("");
+    const [Userdata, setUserempdata] = useState([]);
+    const [selectedMonthYear, setSelectedMonthYear] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [day, setDay] = useState(null);
+    const [month, setMonth] = useState(null);
+    const [year, setYear] = useState(null);
+    const [selectedId, setSelectedId] = useState("");
+    const [users, setUsers] = useState([]);
+    const options = users.map(user => ({value: user.id, label: user.name}));
 
     // Get the name parameter from the URL
     const params = useParams();
@@ -55,7 +65,11 @@ function DownloadButton(props) {
                 toggleOvertimePicker(); // close overtime content
             } else if (activeIcon === "table") {
                 toggleTables(); // close Table content
-            }
+            } else if (activeIcon === "payroll") {
+              togglePayrollPicker(); // close Table content
+            } else if (activeIcon === "EmployeeHours") {
+              toggleEmployeeHoursPicker();
+          }
             }
         };
          // Click event handler for the proof icon
@@ -63,6 +77,7 @@ function DownloadButton(props) {
             setShowAttendanceTable(false);
             setShowOvertimeTable(false);
             setShowTable(false);
+            setShowPayrollTable(false);
             closePreviousContent(); // close previous content
             setActiveIcon("proof"); // set active icon
             viewFile1(); 
@@ -74,6 +89,7 @@ function DownloadButton(props) {
             setShowAttendanceTable(false);
             setShowOvertimeTable(false);
             setShowTable(false);
+            setShowPayrollTable(false);
             closePreviousContent(); 
             setActiveIcon("certificates"); 
             viewFile(); 
@@ -84,6 +100,7 @@ function DownloadButton(props) {
         const handleSummaryIconClick = () => {
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
+        setShowPayrollTable(false);
         closePreviousContent(); 
         setActiveIcon("summary"); 
         toggleSummaryPicker(); 
@@ -94,6 +111,7 @@ function DownloadButton(props) {
         const handleAttendanceIconClick = () => {
         setShowOvertimeTable(false);
         setShowTable(false);
+        setShowPayrollTable(false);
         closePreviousContent();
         setActiveIcon("attendance"); 
         toggleAttendancePicker(); 
@@ -102,6 +120,7 @@ function DownloadButton(props) {
 
         // Click event handler for the overtime icon
         const handleOvertimeIconClick = () => {
+        setShowPayrollTable(false);
         setShowAttendanceTable(false);
         setShowTable(false);
         closePreviousContent(); 
@@ -110,14 +129,39 @@ function DownloadButton(props) {
         closeIframe(); 
         };
 
+        // Click event handler for the payroll icon
+        const handlePayrollIconClick = () => {
+          setShowAttendanceTable(false);
+          setShowOvertimeTable(false);
+          setShowTable(false);
+          closePreviousContent(); 
+          setActiveIcon("payroll"); 
+          togglePayrollPicker(); 
+          closeIframe(); 
+          };
+
+        // Click event handler for the EmployeeHours icon
+          const handleEmployeeHoursIconClick = () => {
+            setShowAttendanceTable(false);
+            setShowOvertimeTable(false);
+            setShowTable(false);
+            setShowPayrollTable(false);
+            closePreviousContent(); // close previous content
+            setActiveIcon("EmployeeHours"); // set active icon
+            toggleEmployeeHoursPicker(); 
+            closeIframe(); 
+            };
+
         // Click event handler for the employee details icon
         const handleTableIconClick = () => {
             setShowAttendanceTable(false);
             setShowOvertimeTable(false);
             setShowTable(false);
+            setShowPayrollTable(false);
+            setShowEmployeeHoursTable(false);
             closePreviousContent(); // close previous content
             setActiveIcon("table"); // set active icon
-            toggleTables(); // open overtime content
+            toggleTables(); 
             closeIframe(); // close the iframe
             };
 
@@ -126,6 +170,8 @@ function DownloadButton(props) {
       setShowAttendanceTable(false);
       setShowOvertimeTable(false);
       setShowTable(false);
+      setShowPayrollTable(false);
+      setShowEmployeeHoursTable(false);
       closePreviousContent();
       setActiveIcon("edit");
       
@@ -137,36 +183,81 @@ function DownloadButton(props) {
       }
     };
     
-    
-     //View the file in an iframe when the View button is clicked
-     const viewFile1 = () => {
-          setIsLoading(true);
-          setShowAttendanceTable(false);
-          setShowOvertimeTable(false);
-          setShowTable(false);
-          const queryParams = new URLSearchParams();
-      
-          // Make a POST request to the server to get the file as a blob
-          axios
-            .post(
-              `https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_proof.pdf`,
-              {
-                filename: `${name}_proof.pdf`,
-              },
-              {
-                responseType: "blob",
-              }
-            )
-            .then((response) => {
+
+      //View the file in an iframe when the View button is clicked
+      const viewFile1 = () => {
+        setIsLoading(true);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
+        setShowTable(false);
+        setShowPayrollTable(false);
+        const queryParams = new URLSearchParams();
+
+        // Make a POST request to the server to get the file as a blob
+        axios
+          .post(
+            `http://127.0.0.1:7000/attendance/get_file?filename=${name}_proof.pdf`,
+            {
+              filename: `${name}_proof.pdf`,
+            },
+            {
+              responseType: "blob",
+            }
+          )
+          .then((response) => {
+            // Remove the previously created iframe, if it exists
+            const oldIframe = document.querySelector("iframe");
+            if (oldIframe) {
+              oldIframe.remove();
+            }
+            // Create a new iframe and set its source to the blob URL
+            const file = new Blob([response.data], { type: "application/pdf" });
+            const fileURL = URL.createObjectURL(file);
+            const iframe = document.createElement("iframe");
+            iframe.src = fileURL;
+            iframe.style.width = "50%";
+            iframe.style.marginLeft = "30%"
+            iframe.style.marginTop = "-10%"
+            iframe.style.height = `${window.innerHeight}px`;
+            document.body.appendChild(iframe);
+            setIsLoading(false);
+            setIsIframeVisible(true);
+          })
+          .catch((error) => {
+            console.error(error);
+            setIsLoading(false);
+            setMessage(
+              error.response && error.response.status === 404
+                ? "File not found."
+                : "An error occurred while retrieving the file."
+            );
+          });
+      };
+      // View the file in an iframe when the View button is clicked
+      const viewFile = () => {
+      setIsLoading(true);
+      setShowAttendanceTable(false);
+      setShowOvertimeTable(false);
+      setShowTable(false);
+      setShowPayrollTable(false);
+      const queryParams = new URLSearchParams();
+
+      // Make a POST request to the server to get the file as a blob
+      axios.post(`http://127.0.0.1:7000/attendance/get_file?filename=${name}_certificates.pdf`, {
+          filename: `${name}_certificate.pdf`,
+      }, {
+          responseType: "blob"
+      })
+          .then(response => {
               // Remove the previously created iframe, if it exists
-              const oldIframe = document.querySelector("iframe");
+              const oldIframe = document.querySelector('iframe');
               if (oldIframe) {
-                oldIframe.remove();
+                  oldIframe.remove();
               }
               // Create a new iframe and set its source to the blob URL
-              const file = new Blob([response.data], { type: "application/pdf" });
+              const file = new Blob([response.data], { type: 'application/pdf' });
               const fileURL = URL.createObjectURL(file);
-              const iframe = document.createElement("iframe");
+              const iframe = document.createElement('iframe');
               iframe.src = fileURL;
               iframe.style.width = "50%";
               iframe.style.marginLeft = "30%"
@@ -175,60 +266,17 @@ function DownloadButton(props) {
               document.body.appendChild(iframe);
               setIsLoading(false);
               setIsIframeVisible(true);
-            })
-            .catch((error) => {
+          })
+          .catch((error) => {
               console.error(error);
               setIsLoading(false);
               setMessage(
-                error.response && error.response.status === 404
-                  ? "File not found."
-                  : "An error occurred while retrieving the file."
+                  error.response && error.response.status === 404
+                      ? "File not found."
+                      : "An error occurred while retrieving the file."
               );
-            });
+          });
       };
-    // View the file in an iframe when the View button is clicked
-    const viewFile = () => {
-        setIsLoading(true);
-        setShowAttendanceTable(false);
-        setShowOvertimeTable(false);
-        setShowTable(false);
-        const queryParams = new URLSearchParams();
-
-        // Make a POST request to the server to get the file as a blob
-        axios.post(`https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_certificates.pdf`, {
-            filename: `${name}_certificates.pdf`,
-        }, {
-            responseType: "blob"
-        })
-            .then(response => {
-                // Remove the previously created iframe, if it exists
-                const oldIframe = document.querySelector('iframe');
-                if (oldIframe) {
-                    oldIframe.remove();
-                }
-                // Create a new iframe and set its source to the blob URL
-                const file = new Blob([response.data], { type: 'application/pdf' });
-                const fileURL = URL.createObjectURL(file);
-                const iframe = document.createElement('iframe');
-                iframe.src = fileURL;
-                iframe.style.width = "50%";
-                iframe.style.marginLeft = "30%"
-                iframe.style.marginTop = "-10%"
-                iframe.style.height = `${window.innerHeight}px`;
-                document.body.appendChild(iframe);
-                setIsLoading(false);
-                setIsIframeVisible(true);
-            })
-            .catch((error) => {
-                console.error(error);
-                setIsLoading(false);
-                setMessage(
-                    error.response && error.response.status === 404
-                        ? "File not found."
-                        : "An error occurred while retrieving the file."
-                );
-            });
-    };
       
     const [educationData, setEducationData] = useState([]);
     const [experienceData, setExperienceData] = useState(null);
@@ -252,7 +300,7 @@ function DownloadButton(props) {
     };
       
     useEffect(() => {
-        const apiUrl = `https://smrftadmin.onrender.com/attendance/showemp?id=${id}`;
+        const apiUrl = `http://127.0.0.1:7000/attendance/showemp?id=${id}`;
         fetch(apiUrl)
             .then((res) => res.json())
             .then(
@@ -271,6 +319,8 @@ function DownloadButton(props) {
     const [showSummaryPicker, setShowSummaryPicker] = useState(false);
     const [showAttendancePicker, setShowAttendancePicker] = useState(false);
     const [showOvertimePicker, setShowOvertimePicker] = useState(false);
+    const [showPayrollPicker, setShowPayrollPicker] = useState(false);
+    const[showEmpolyeeHours,setShowEmpolyeeHourspicker]= useState(false);
     const [userdata, setUserdata] = useState([]);
     const [myMonth, setMyMonth] = useState(new Date());
     const [myYear, setMyYear] = useState(new Date());
@@ -281,11 +331,14 @@ function DownloadButton(props) {
     const [showTable, setShowTable] = useState(false);
     const [showAttendanceTable, setShowAttendanceTable] = useState(false);
     const [showOvertimeTable, setShowOvertimeTable] = useState(false);
-
+    const [showPayrollTable, setShowPayrollTable] = useState(false);
+    const [showEmployeeHoursTable, setShowEmployeeHoursTable] = useState(false);
+    
     const toggleSummaryPicker = () => {
         setShowSummaryPicker(!showSummaryPicker);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
+        setShowPayrollTable(false);
         closeIframe();
       };
 
@@ -293,12 +346,31 @@ function DownloadButton(props) {
         setShowAttendancePicker(!showAttendancePicker);
         setShowOvertimeTable(false);
         setShowTable(false);
+        setShowPayrollTable(false);
         closeIframe();
       };
 
       const toggleOvertimePicker = () => {
         setShowOvertimePicker(!showOvertimePicker);
         setShowAttendanceTable(false);
+        setShowTable(false);
+        setShowPayrollTable(false);
+        closeIframe();
+      };
+
+      const togglePayrollPicker = () => {
+        setShowPayrollPicker(!showPayrollPicker);
+        setShowOvertimeTable(false);
+        setShowAttendanceTable(false);
+        setShowTable(false);
+        closeIframe();
+      };
+
+      const toggleEmployeeHoursPicker = () => {
+        setShowEmpolyeeHourspicker(!showEmpolyeeHours);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
+        setShowPayrollTable(false);
         setShowTable(false);
         closeIframe();
       };
@@ -307,6 +379,7 @@ function DownloadButton(props) {
         setShowTable(!showTable);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
+        setShowPayrollTable(false);
         closeIframe();
       };    
 
@@ -314,19 +387,38 @@ function DownloadButton(props) {
         setShowOvertimeTable(!showOvertimeTable);
         setShowAttendanceTable(false);
         setShowTable(false);
+        setShowPayrollTable(false);
         closeIframe();
       };   
 
       const handleAttendanceClick = () => {
         setShowAttendanceTable(!showAttendanceTable);
         setShowOvertimeTable(false);
+        setShowPayrollTable(false);
         setShowTable(false);
         closeIframe();
       }; 
+
+      const handlePayrollClick = () => {
+        setShowPayrollTable(!showPayrollTable);
+        setShowOvertimeTable(false);
+        setShowAttendanceTable(false);
+        setShowTable(false);
+        closeIframe();
+      }; 
+
+      const handleEmployeeHoursClick = () => {
+        setShowEmployeeHoursTable(!showEmployeeHoursTable);
+        setShowTable(false);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
+        setShowPayrollTable(false);
+        closeIframe();
+      };
   
     useEffect(() => {
         const getuserdata = async () => {
-          fetch("https://smrftadmin.onrender.com/attendance/EmployeeExport", {
+          fetch("http://127.0.0.1:7000/attendance/EmployeeExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -355,11 +447,10 @@ function DownloadButton(props) {
     const [userexportdata, setExportdata] = useState([]);
     useEffect(() => {
         const getexportdata = async () => {
-          fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
+          fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              
               month: myDay.getMonth() + 1,
               year: myDay.getFullYear(),
             }),
@@ -382,37 +473,9 @@ function DownloadButton(props) {
         return <span>{date.getDate()}</span>;
     };
 
-    // fetch the data from the server and update the state
-const [breakusers, setBreakusers] = useState([]);
-const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
-const [employeesActive, setEmployeesActive] = useState([]);
-const [employeesNotActive, setEmployeesNotActive] = useState([]);
+
 const [error, setError] = useState(null);
 const [isLoaded, setIsLoaded] = useState(false);
-
-const fetchData = useCallback(() => {
-  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
-    .then((res) => res.json())
-    .then(
-      (data) => {
-        setIsLoaded(true);
-        setBreakusers(data);
-        setEmployeesOnBreak(data.employees_on_break);
-        setEmployeesActive(data.employees_active);
-        setEmployeesNotActive(data.employees_not_active);
-      },
-      (error) => {
-        setIsLoaded(true);
-        setError(error);
-      }
-    );
-}, []);
-
-// Call the fetchData function when the component mounts
-useEffect(() => {
-  fetchData();
-}, [fetchData]);
-
 let [ state, setState] = useState("");
 state = {
     activeLink: '',
@@ -421,98 +484,87 @@ state = {
     setState({ activeLink: linkName });
   };
 
+  useEffect(() => {
+    fetch("http://127.0.0.1:7000/attendance/showemp")
+      .then((res) => res.json())
+      .then(
+        (data) => {
+          setIsLoaded(true);
+          setUsers(data);
+        },
+        (error) => {
+          setIsLoaded(true);
+          setError(error);
+        }
+      );
+  }, []);
+
+  const handleEmpIdChange = (selectedOption) => {
+    setSelectedId(selectedOption);
+  };
+  const handleMonthYearChange = (date) => {
+    setSelectedMonthYear(date);
+    if (date) {
+      setMonth(date.getMonth() + 1);
+      setYear(date.getFullYear());
+    }
+  };
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    if (date) {
+      setDay(date.getDate());
+      setMonth(date.getMonth() + 1);
+      setYear(date.getFullYear());
+    } else {
+      setDay(null);
+      setMonth(null);
+      setYear(null);
+    }
+  };
+  useEffect(() => {
+    const getuserdata = async () => {
+      fetch("http://127.0.0.1:7000/attendance/Employeehours", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          day: day,
+          month: month,
+          year: year,
+          id: selectedId.value
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setUserempdata(data);
+        });
+    };
+    getuserdata();
+  }, [day, month, year, selectedId]);
+
     return (
+      
         <React.Fragment>
-        <div className="wrapper">
-        <div className="sidenav" style={{height: '100%',width: '14%',position: 'fixed',zIndex: 1,top: 0,left: 0,backgroundColor: '#232323',
-        transition: '.5s ease',overflowX: 'hidden',paddingTop: '1%',display: 'flex',flexDirection: 'column',alignItems: 'center',
-        }}>
-            <div className="sidebar-wrapper">
-              <div className="sidebar-menu">
-              <div className='logo'>
-                <img src={profile} className="smrft_logo" alt="logo" />
-              </div><br/>
-                <ul className="sidebar-nav">
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/" className={`nav_link1 ${state.activeLink === 'home' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('home')}
-                    >Home</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/Viewemp" className={`nav_link2 ${state.activeLink === 'employeedetails' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('employeedetails')}
-                    >Employee</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/Addemp" className={`nav_link3 ${state.activeLink === 'addemployee' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('addemployee')}
-                    >Add Employee</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/Summary" className={`nav_link5 ${state.activeLink === 'Summary' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('Summary')}
-                    > Summary</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/Dashboard" className={`nav_link4 ${state.activeLink === 'dashboard' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('dashboard')}
-                    > Dashboard</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/EmployeeHours" className={`nav_link6 ${state.activeLink === 'EmployeeHours' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('EmployeeHours')}
-                    >EmployeeHours</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/Deleteemp" className={`nav_link8 ${state.activeLink === 'Deleteemp' ? 'active' : ''}`}
-                      onClick={() => handleNavItemClick('Deleteemp')}
-                    >Pending Approvals</Nav.Link>
-                  </li>
-                  <li className="sidebar-nav-item">
-                    <Nav.Link as={Link} to="/Admin/AdminReg" className={`nav_link8 ${state.activeLink === 'AdminReg' ? 'active' : ''}`}onClick={() => handleNavItemClick('AdminReg')}
-                    >Admin</Nav.Link>
-                  </li>
-                </ul>
-                </div>
-            </div>
-        </div>
-            <main>
-            <Routes>
-                <Route exact path='/Viewemp' element={<Viewemp />} ></Route>
-                <Route exact path='/Addemp' element={<Addemp />} ></Route>
-                <Route exact path='/Dashboard' element={<Dashboard />} ></Route>
-                <Route exact path='/Summary' element={<Summary />} ></Route>
-                <Route exact path='/EmployeeHours' element={<EmployeeHours/>} ></Route>   
-                <Route exact path='/Deleteemp' element={<Deleteemp/>} ></Route>
-                <Route exact path='/AdminReg' element={<AdminReg/>} ></Route>
-            </Routes>
-            </main>
-        </div>
+     <NavbarComp />
+
         
             <div className='normal-container' style={{ display: 'flex', flexDirection: 'column' }}>
-            <img style={{ width:"2.3cm",height:"2.3cm",borderRadius:60,marginLeft:"20px", marginTop: "30px"}}
-                src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${name+"_"+"profile"+".jpg"}`}
+            <img style={{ width:"1.8cm",height:"1.8cm",borderRadius:60,marginLeft:"20px", marginTop: "10px"}}
+                src={`http://127.0.0.1:7000/attendance/get_file?filename=${name1 + '_' + id+"_"+"profile"+".jpg"}`}
                 alt="profile"
             />    
+            <div className="employee-name">{name1}</div>
+
             {employee && (
-                <div style={{ position: "relative" }}>
-                    <div>
-                    <div className="employee-name">{employee.name}</div>
-                    <div className='id'>Employee Id</div><div className="employee-id">{employee.id}</div>
-                    <div className='department'>Department</div><div className="employee-department">{employee.department}</div>
-                    </div>
-                    <div style={{ float: "right", marginRight:"20%",marginTop:"-7.5%"}}>
-                    {employeesOnBreak.some((breakUser) => breakUser.id === employee.id) ? (
-                        <button className="break-btn">Break</button>
-                    ) : employeesActive.some((activeUser) => activeUser.id === employee.id) ? (
-                        <button className="active-btn">Active</button>
-                    ) : (
-                        <button className="not-active-btn">Not Active</button>
-                    )}
+                <div>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div style={{alignItems:"center",justifyContent:"center"}} className='id'>Employee Id : {employee.id}</div>
+                    {/* <div className="divider" style={{height:"1.5cm"}}></div> */}
+                    <div style={{alignItems:"center",justifyContent:"center"}} className='department'>Department : {employee.department}</div>
+                    {/* <div className="divider" style={{height:"1.5cm"}}></div> */}
+                    <div style={{alignItems:"center",justifyContent:"center"}} className='salary'>Salary : {employee.salary}</div>
                     </div>
                     <button
-                    style={{ color: "teal", marginRight:"5%", float:"right",marginTop: "-85px", fontSize: "16px", 
-                    borderColor: "darkcyan", width: '3cm', height: "40px", backgroundColor: "white",borderRadius: 10 }}
+                    className='edit-button'
                     onClick={() => {handleEditIconClick();setEditMode(!editMode)}}
                     data-toggle="modal"
                     >
@@ -536,33 +588,40 @@ state = {
                 <div style={{marginLeft:'5%',marginTop:"10%",color:'red'}} className="message">
                     {message ? <p>{message}</p> : null}
                 </div>
-                <a onClick={() =>{handleTableIconClick();closeIframe();}} className="view-link" style={{ marginLeft: '5px',marginTop:"1%",cursor: "pointer"}} >
+                <a onClick={() =>{handleTableIconClick();closeIframe();}} className="view-link" style={{ marginLeft: '-10px',marginTop:"-1%",cursor: "pointer"}} >
                 <i style={{fontSize:"45px",color:"darkolivegreen"}} className="bi bi-person-lines-fill"></i>
                 {showTables ? "" : ""} 
                 </a>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-75px',marginTop:"80px"}}>Employee Details</div>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-80px',marginTop:"50px",whiteSpace:"nowrap"}}>Employee Details</div>
                 <div className="divider"></div>
-                <a onClick={handleProofIconClick} className="view-link" style={{marginLeft: '5px',marginTop:"1%",cursor: "pointer"}} disabled={isLoading}>
+                <a onClick={handleProofIconClick} className="view-link" style={{ marginLeft: '-8px',marginTop:"-0.5%",cursor: "pointer"}} disabled={isLoading}>
                    {isLoading && activeIcon === "proof" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"40px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
                 </a>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-40px',marginTop:"80px"}}>Proof</div>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-40px',marginTop:"50px"}}>Proof</div>
                 <div className="divider"></div>
-                <a onClick={handleCertificatesIconClick} className="view-link" disabled={isLoading} style={{ marginLeft: '5px',marginTop:"1%",cursor: "pointer" }}>
+                <a onClick={handleCertificatesIconClick} className="view-link" disabled={isLoading} style={{ marginTop:"-0.5%",cursor: "pointer" }}>
                     {isLoading && activeIcon === "certificates" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"40px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
                 </a>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-55px',marginTop:"80px"}}>Certificates</div>  
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-55px',marginTop:"50px"}}>Certificates</div>  
                 <div className="divider"></div>
-                <i  onClick={() => {navigateToCalendar(employee);closeIframe();}} style={{fontSize:"40px",color:"darkblue",marginTop:"1%",cursor:"pointer"}} className="bi bi-calendar-week"></i>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-45px',marginTop:"80px"}}>Calendar</div>
+                <i  onClick={() => {navigateToCalendar(employee);closeIframe();}} style={{fontSize:"40px",color:"darkblue",marginTop:"-0.5%",cursor:"pointer"}} className="bi bi-calendar-week"></i>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-45px',marginTop:"50px"}}>Calendar</div>
                 <div className="divider"></div>
-                <i onClick={() => {handleSummaryIconClick();closeIframe();}} className="bi bi-journal-text" style={{fontSize:"40px",color:"darkmagenta",marginTop:"1%",cursor:"pointer"}}></i>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-50px',marginTop:"80px"}}>Summary</div> 
+                <i onClick={() => {handleSummaryIconClick();closeIframe();}} className="bi bi-journal-text" style={{fontSize:"40px",color:"darkmagenta",marginTop:"-0.5%",cursor:"pointer"}}></i>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-50px',marginTop:"50px"}}>Summary</div> 
                 <div className="divider"></div>
-                <i onClick={() => {handleAttendanceIconClick();closeIframe();}} style={{fontSize:"50px",color:"darkslategrey",marginTop:"0.5%",marginLeft: '5px',cursor:"pointer"}} className="bi bi-person-check-fill"></i>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-60px',marginTop:"80px"}}>Attendance</div>
+                <i onClick={() => {handleAttendanceIconClick();closeIframe();}} style={{fontSize:"50px",color:"darkslategrey",marginTop:"-1%",marginLeft: '5px',cursor:"pointer"}} className="bi bi-person-check-fill"></i>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-60px',marginTop:"50px"}}>Attendance</div>
                 <div className="divider"></div>
-                <i onClick={() => {handleOvertimeIconClick();closeIframe();}} style={{fontSize:"40px",color:"darkslateblue",marginTop:"1%",cursor:"pointer"}} className="bi bi-calendar-plus"></i>
-                <div style={{fontSize:"14px",color:"gray",marginLeft: '-50px',marginTop:"80px"}}>Over Time</div>
+                <i onClick={() => {handleOvertimeIconClick();closeIframe();}} style={{fontSize:"40px",color:"darkslateblue",marginTop:"-0.5%",cursor:"pointer"}} className="bi bi-calendar-plus"></i>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-50px',marginTop:"50px",whiteSpace:"nowrap"}}>Over Time</div>
+                <div className="divider"></div>
+               <i onClick={() => {handleEmployeeHoursIconClick();closeIframe();}} class="fa fa-exclamation-circle fa-3x" aria-hidden="true" style={{fontsize:"40px",color:"darkslateblue",marginTop:"0.2%",cursor:"pointer"}}></i>
+               <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-60px',marginTop:"50px",whiteSpace:"nowrap"}}>Late & Early</div>
+                <div className="divider"></div>
+                <i onClick={() => {handlePayrollIconClick();closeIframe();}} style={{fontSize:"40px",color:"darkslateblue",marginTop:"0.2%",marginLeft: '-1%',cursor:"pointer"}} className="fa fa-dollar"></i>
+                <div style={{fontSize:"14px",color:"whitesmoke",marginLeft: '-35px',marginTop:"50px",whiteSpace:"nowrap"}}>Pay roll</div>
+
             </div>
 
                 {showSummaryPicker && (
@@ -614,7 +673,7 @@ state = {
                             <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.end.substring(11, 16)}</td> {/* Extract time from datetime string */}
                             <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.shift}</td>
                             <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.workedhours}</td>
-                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.Breakhour}</td>
+                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.breakhour}</td>
                             <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.overtimehours}</td>
                             <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.Total_hours_worked}</td>
                             <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.leavetype}</td>
@@ -652,6 +711,7 @@ state = {
                         <th>Present Days</th>
                         <th>CL Taken</th>
                         <th>SL Taken</th>
+                        <th>Weekoff Used</th>
                         <th>Remaining week0ff</th>
                         <th>Absent Days</th>
                         </tr>
@@ -671,6 +731,7 @@ state = {
                                 <td>{data.workingdays}</td>
                                 <td>{data.CL_Taken}</td>
                                 <td>{data.SL_Taken}</td>
+                                <td>{data.weekoff_used}</td>
                                 <td>{data.remaining_weekoff}</td>
                                 <td>{data.loss_of_pay}</td>
                             </tr>
@@ -738,6 +799,156 @@ state = {
                     )}
                 </div>
                 )}
+
+              {showPayrollPicker && (
+                 <div className='payroll-container'>
+                 <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Payroll Report</div><br/>
+                 <DatePicker
+                   selected={myDay}
+                   onChange={(date) => setMyDay(date)}
+                   dateFormat='MM/yyyy'
+                   showMonthYearPicker
+                 />
+                 <div style={{marginLeft:'26%',marginTop:"10%"}}>
+                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+                   onClick={handlePayrollClick}>View</button>
+                </div>
+                </div>
+              )}
+
+            {showPayrollTable && (
+              <div className='payroll-table-container'>
+                <div style={{fontFamily:"-moz-initial",fontSize:"22px",color:"darkcyan",whiteSpace:"nowrap"}}>Salary Summary</div><br/>
+                {userexportdata.map((data) => {
+                        // Specify the ID for which you want to display the attendance report
+                        const targetId = id;
+                        // Display the attendance report only for the specified ID
+                        if (data.id === targetId) {
+                            return (
+                              <div>
+                              <div className="details-row">
+                              <div className="details-heading">No.Of Working Days </div>
+                              <div className="colon">:</div>
+                              <div className="details-value">{data.workingdays}</div>
+                            </div>
+                            <div className="details-row">
+                              <div className="details-heading">No.Of Leave Days </div>
+                              <div className="colon">:</div>
+                              <div className="details-value">{data.loss_of_pay}</div>
+                            </div>
+                            <div className="details-row">
+                              <div className="details-heading">Overtime in Hrs </div>
+                              <div className="colon">:</div>
+                              {/* {userdata.map((user) => {
+                                const targetId = id;
+                                if (data.id === targetId) {
+                              const lastTotalOvertimeHrs = userdata[userdata.length - 1].Total_overtime_hrs;
+                                    return (
+                              <div className="details-value">{lastTotalOvertimeHrs}</div>
+                                    )
+                                }
+                              })} */}
+                              <div className="details-value">{data.Total_overtime_hrs}</div>
+                            </div>
+                            <div className="details-row">
+                              <div className="details-heading" style={{whiteSpace:"pre-wrap"}}>Late login and early logout in Hrs</div>
+                              <div className="colon">:</div>
+                              <div className="details-value">{data.Total_overtime_hrs}</div>
+                            </div>
+                            <div className="details-row">
+                              <div className="details-heading">Basic Salary</div>
+                              <div className="colon">:</div>
+                              <div className="details-value">{employee.salary}</div>
+                            </div>
+                            <div className="details-row">
+                              <div className="details-heading">Net Salary</div>
+                              <div className="colon">:</div>
+                              <div className="details-value">{420}</div>
+                              {/* <div className="details-value">{1860}</div> */}
+                            </div>
+                            </div>
+                            );
+                        }
+                        return null; 
+                      })
+                    }
+              </div>
+            )}
+
+            {showEmpolyeeHours && (
+            <div className="EmployeeHours-container">
+              <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Employee Hours Report</div><br/>
+            <div className="monthyear">
+            <label htmlFor="id">Employee Id & Name:</label>
+            <Select
+              value={selectedId}
+              onChange={handleEmpIdChange}
+              options={options}
+            />
+            <label htmlFor="date">Select Month & Year:</label>
+            <DatePicker
+              selected={selectedMonthYear}
+              onChange={handleMonthYearChange}
+              dateFormat="MM/yyyy"
+              showMonthYearPicker
+              popperClassName="some-custom-class"
+              popperPlacement="bottom"
+              popperModifiers={[
+                {
+                  name: "offset",
+                  options: {
+                    offset: [5, 10],
+                  },
+                },
+                {
+                  name: "preventOverflow",
+                  options: {
+                    rootBoundary: "viewport",
+                    tether: false,
+                    altAxis: true,
+                  },
+                },
+              ]}
+            />
+          </div>
+          <div className="daymonthyear">
+            <label htmlFor="date">Select Date:</label>
+            <DatePicker
+              style={{ fontWeight: "bold" }}
+              selected={selectedDate}
+              onChange={handleDateChange}
+              dateFormat="dd/MM/yyyy"
+              className="centered-datepicker"
+              popperClassName="some-custom-class"
+              popperPlacement="bottom"
+              popperModifiers={[
+                {
+                  name: "offset",
+                  options: {
+                    offset: [5, 10],
+                  },
+                },
+                {
+                  name: "preventOverflow",
+                  options: {
+                    rootBoundary: "viewport",
+                    tether: false,
+                    altAxis: true,
+                  },
+                },
+              ]}
+            />
+          </div>
+          <div style={{marginLeft:'15%',marginTop:"10%"}}>
+            <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+              onClick={handleEmployeeHoursClick}>View</button>
+          </div>
+          <div style={{marginLeft:'55%',marginTop:"-17%"}}>
+            <button title="Download CSV" style={{backgroundColor:"powderblue",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}}>
+              <CSVLink style={{fontSize:'30px',color:"white",fontWeight:"bold",textAlign:"center"}} className="bi bi-download" data={Userdata} filename={name1}></CSVLink></button>
+          </div>
+        </div>
+        )}
 
                 <div >    
                 {showTables && (
@@ -834,7 +1045,7 @@ state = {
                 <div className="details-row">
                     <div className="details-heading">Languages Known</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.selectedLanguages}</div>
+                    <div className="details-value">{employee.languages}</div>
                 </div>
                 </div>
                         <div style={{marginLeft:"-12%",marginTop:"2%"}}>
@@ -937,7 +1148,8 @@ state = {
                     </>
                 )}
             </div>
-        {/* <Footer /> */}
+            
+            
         </React.Fragment >
     );
 }

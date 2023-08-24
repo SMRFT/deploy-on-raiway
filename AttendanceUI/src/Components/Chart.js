@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import ApexCharts from 'apexcharts';
+import ReactApexChart from 'react-apexcharts';
 
 function ApexChart() {
   const [employeeData, setEmployeeData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [availableYears, setAvailableYears] = useState([]);
 
   useEffect(() => {
     axios
-      .get('https://smrftadmin.onrender.com/attendance/showemp')
+      .get('http://127.0.0.1:7000/attendance/showemp')
       .then((res) => {
         const data = res.data;
         const employees = {};
@@ -17,22 +19,31 @@ function ApexChart() {
           if (!employees[month]) {
             employees[month] = [];
           }
-          employees[month].push(employee.name);
+          employees[month].push(employee);
         });
         const employeeData = Object.keys(employees).map((month) => ({
           month,
           count: employees[month].length,
-          employees: employees[month].join(', '),
+          employees: employees[month].map(emp => emp.name).join(', '),
+          dateofjoining: employees[month][0].dateofjoining,
         }));
-        setEmployeeData(employeeData);
+        const yearsWithData = [...new Set(employeeData.map(entry => new Date(entry.dateofjoining).getFullYear()))];
+        setAvailableYears(yearsWithData);
+        const filteredData = employeeData.filter((entry) => {
+          const entryYear = new Date(entry.dateofjoining).getFullYear();
+          return entryYear === selectedYear;
+        });
+        setEmployeeData(filteredData);
       })
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [selectedYear]);
 
-  useEffect(() => {
-    if (employeeData.length) {
+  // const selectedYearData = employeeData.filter(entry => new Date(entry.dateofjoining).getFullYear() === selectedYear);
+
+
+    
       const chartOptions = {
         chart: {
           id: 'chartyear',
@@ -53,12 +64,12 @@ function ApexChart() {
         plotOptions: {
           bar: {
             horizontal: false,
-            endingShape: 'flat',
-            columnWidth: '30%',
+            endingShape: "rounded",
+            columnWidth: '20%',
           },
         },
         dataLabels: {
-          enabled: false,
+          enabled: true,
         },
         stroke: {
           show: true,
@@ -68,6 +79,10 @@ function ApexChart() {
         series: [
           {
             name: 'Employees',
+            style: {
+              fontFamily:' Helvetica, Arial, sans-serif',
+              fontSize: "14px",
+            },
             data: employeeData.map((e) => e.count),
           },
         ],
@@ -75,11 +90,20 @@ function ApexChart() {
           categories: employeeData.map((e) => e.month),
           title: {
             text: 'Month',
+            style: {
+              fontFamily:' Helvetica, Arial, sans-serif',
+              fontSize: "14px",
+            },
+            
           },
         },
         yaxis: {
           title: {
-            text: 'Number of Employees',
+            text: 'Employees',
+            style: {
+              fontFamily:' Helvetica, Arial, sans-serif',
+              fontSize: "14px",
+            },
           },
         },
         tooltip: {
@@ -104,12 +128,27 @@ function ApexChart() {
       };
       const chart = new ApexCharts(document.querySelector('#chart'), chartOptions);
       chart.render();
-    }
-  }, [employeeData]);
+ 
 
-  return <div id="chart" style={{ backgroundColor:"#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent:"center", position:"relative", display: "flex", alignItems: "center", flexDirection: "column"}}>
-  <div style={{fontSize:"100%", fontFamily:"cursive",whiteSpace:"nowrap"}}><br/>Number Of Employees Joined</div><br/>
-  </div>;
+  return (
+    <div style={{ backgroundColor: "#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent: "center", position: "relative", display: "flex", alignItems: "center", flexDirection: "column" }}>
+    <div style={{ fontSize: "100%", fontFamily: " Helvetica, Arial, sans-serif", whiteSpace: "nowrap" }}>
+      <br />Employees Joined
+    </div>
+    <br />
+    <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+      {availableYears.map((year) => (
+        <option key={year} value={year}>
+          {year}
+        </option>
+      ))}
+    </select>
+
+    {employeeData.length > 0 && (
+      <ReactApexChart options={chartOptions} series={[{ data: employeeData.map((e) => e.count) }]} type="bar" height={300}width={800} />
+    )}
+  </div>
+  );
 }
 
 export default ApexChart;

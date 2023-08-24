@@ -1,14 +1,9 @@
-.navbar {
-  position: sticky;
- }
-.nav_link1,
-.nav_link2,
-.nav_link3,
-.nav_link4,
-.nav_link5,
-.nav_link6 ,
-.nav_link7,
-.nav_link8{
+.home,
+.employeedetails,
+.addemployee,
+.dashboard,
+.Deleteemp,
+.AdminReg{
   display: block; /* new property */
   padding: 10px;
   margin: 8% 0;
@@ -18,24 +13,20 @@
   font-style: unset;
   white-space: nowrap;
 }
-.nav_link1:hover,
-.nav_link2:hover,
-.nav_link3:hover,
-.nav_link4:hover,
-.nav_link5:hover,
-.nav_link6:hover,
-.nav_link7:hover,
-.nav_link8:hover  {
-  color: #7FC8D4;
+.home:hover,
+.employeedetails:hover,
+.addemployee:hover,
+.dashboard:hover,
+.Deleteemp:hover,
+.AdminReg:hover {
+  color: #085C69;
 }
-.nav_link1.active,
-.nav_link2.active,
-.nav_link3.active,
-.nav_link4.active,
-.nav_link5.active,
-.nav_link6.active ,
-.nav_link7.active,
-.nav_link8.active
+.home.active,
+.employeedetails.active,
+.addemployee.active,
+.dashboard.active,
+.Deleteemp.active,
+.AdminReg .active
 {
   color:rgb(255, 255, 255)!important;
   font-weight:bold !important;

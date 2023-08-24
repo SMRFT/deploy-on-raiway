@@ -105,6 +105,7 @@ function Addemp() {
   };
 
   const handleClick = (event) => {
+    console.log("handleClick called");
     setIsShown((current) => !current);
   };
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -186,7 +187,7 @@ function Addemp() {
     try {
       const res = await axios({
         method: "post",
-        url: "https://smrftadmin.onrender.com/attendance/addemp/",
+        url: "http://127.0.0.1:7000/attendance/addemp/",
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -291,13 +292,13 @@ function Addemp() {
     return error;
   }
 
-  function validateDateOfJoining(dateofjoining) {
-    let error = "";
-    if (dateofjoining !== "" && !/^\d{4}-\d{2}-\d{2}$/.test(dateofjoining)) {
-      error = "*Invalid date format. Please use YYYY-MM-DD";
-    }
-    return error;
-  }
+  // function validateDateOfJoining(dateofjoining) {
+  //   let error = "";
+  //   if (dateofjoining !== "" && !/^\d{4}-\d{2}-\d{2}$/.test(dateofjoining)) {
+  //     error = "*Invalid date format. Please use YYYY-MM-DD";
+  //   }
+  //   return error;
+  // }
 
   function validateBankAccNum(bankaccnum) {
     let error = "";
@@ -470,6 +471,7 @@ function Addemp() {
       return null;
     }
   }
+  const DEPARTMENT_OPTIONS = Myconstants.departments;
   const [employeeName, setEmployeeName] = useState('');
   const [employeeId, setEmployeeId] = useState('');
   const [proofFile, setProofFile] = useState(null);
@@ -518,18 +520,16 @@ function Addemp() {
     setProfileImageFile(null);
     document.getElementById("selectImage").value = "";
   };
-  const handleSubmit2 = async (event) => {
-    event.preventDefault();
-
+  const handleSubmit2 = async () => {
     const formData = new FormData();
     formData.append('employee_name', name);
     formData.append('employee_id', id);
     formData.append('proof', proofFile);
     formData.append('certificates', certificatesFile);
     formData.append('imgSrc', profileImageFile);
-
+  
     try {
-      await axios.post('https://smrftadmin.onrender.com/attendance/upload_file/', formData);
+      await axios.post('http://127.0.0.1:7000/attendance/upload_file/', formData);
       // Handle successful file upload
       console.log('Files uploaded successfully');
       setUploadSuccess(true);
@@ -538,6 +538,14 @@ function Addemp() {
       console.error('File upload failed:', error);
     }
   };
+  
+  const handleCombinedClick = async () => {
+    console.log("handleCombinedClick called");
+    await handleSubmit2();
+    handleClick();
+  };
+  
+  
   const nextPage = () => {
     setPage(page + 1);
   };
@@ -582,25 +590,33 @@ function Addemp() {
             <br/>
             <div className="col-sm-6">
             <Form.Field>
-                <Col>
-                  <div className="mb-3">
-                    <label className="mx-3 form-label"><div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>Date Of Joining</div></label>
-                    <div className="col-sm-7">
-                      <input style={{ borderRadius: 40 ,width:"100%"}}
-                        className="mx-4 form-control"
-                        type="text"
-                        value={dateofjoining}
-                        placeholder="Enter your Date Of Joining"
-                        ref={register("dateofjoining", { pattern: /^\d{4}-\d{2}-\d{2}$/ })}
-                        required
-                        autoComplete="off"
-                        onChange={e => { setDateOfJoining(e.target.value); validateDateOfJoining(e.target.value); }}
-                      />
-                      <div style={{ color: "red", marginLeft: "20%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateDateOfJoining(dateofjoining) ? validateDateOfJoining(dateofjoining) : null}</div>
-                    </div>
-                  </div>
-                </Col>
-              </Form.Field>
+      <Col>
+        <div className="mb-3">
+          <label className="mx-3 form-label">
+            <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>
+              Date Of Joining
+            </div>
+          </label>
+          <div className="col-sm-7">
+          <DatePicker
+  style={{ borderRadius: 140, width: "100%" }}
+  customInput={<input style={{ borderRadius: '40px' }} />}
+  selected={dateofjoining}
+  placeholderText="Enter your Date Of Joining"
+  onChange={date => { setDateOfJoining(date); }}
+  required
+  autoComplete="off"
+  dateFormat="yyyy-MM-dd" // Use lowercase 'yyyy' for the year
+  showMonthDropdown // Display month dropdown
+  showYearDropdown  // Display year dropdown
+  dropdownMode="select" // Use select for dropdowns
+  selects="day" // Enable selecting day only
+/>
+
+          </div>
+        </div>
+      </Col>
+    </Form.Field>
               </div>
               </div>
             <div className="row">   
@@ -809,7 +825,7 @@ function Addemp() {
                     {/* <div className="col-sm-7"> */}
                       <select className="w-60 mx-4" form-control style={{ borderRadius: 40 }} value={selectedDepartment} onChange={handleChange}>
                         <option style={{ textAlign: "center" }} value="" disabled>Select department</option>
-                        {departments.map((department, index) => (
+                        {DEPARTMENT_OPTIONS.map((department, index)=> (
                           <option style={{ textAlign: "center" }} key={index} value={department}>
                             {department}
                           </option>
@@ -1348,22 +1364,16 @@ function Addemp() {
    </table>
      <button class="button25 " onClick={handleAddRow}>Add Row</button>
     </div>
-  <div>
+    <div>
       <button
         className="button-71 Add-employee-button"
         role="button"
         type="submit"
-        onClick={handleClick}
+        onClick={handleCombinedClick} // Use the combined handler for the button click
       >
         ADD EMPLOYEE
       </button>
       <p>{message}</p> 
-    </div>
-
-   <div>
-      <button className="button-71 Add-employee-button upload-profile-btn" type="submit" onClick={handleSubmit2}>
-        Upload Image
-      </button>
       {uploadSuccess && <p>Upload successful!</p>}
     </div>
 

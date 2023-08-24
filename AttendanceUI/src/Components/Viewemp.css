@@ -1,5 +1,8 @@
+
+
+
 .viewemp{
-  margin-left: 15.5%;
+  margin-left: 10.5%;
 }
 .employee {
   display: inline-block;
@@ -63,33 +66,48 @@
   color: gray;
 }
 
+.button-container {
+  height: 2cm; /* Adjust the height as per your needs */
+}
+
+
 .active-btn,
-.break-btn,
-.not-active-btn {
-  height: 0.6cm !important;
-  width:2cm !important;
-  line-height: 0.1 !important;
-  font-size: 12px !important;
-  font-weight: bold;
-  border-radius:0.2cm !important;
-  border-style:outset !important;
-  font-family:cursive
-}
-.active-btn{
-  border-color: rgb(156, 224, 156) !important;
-  background-color: rgb(228, 255, 243) !important;
-  color: rgb(0, 0, 0);
-}
+.not-active-btn,
 .break-btn {
-  border-color: rgb(157, 189, 250) !important;
-  background-color: rgb(189, 212, 255) !important;
-  color: rgb(0, 0, 0) !important;
+  font-size: 80% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40% !important;
+  font-weight: bold;
+  font-family: cursive;
+  white-space: nowrap;
+  border: none;
+  border-radius: 25px 0 50px 0;
+  color: white;
 }
+
+.active-btn {
+  width: 430%;
+  margin-left: -24%;
+  background-color: rgb(57, 155, 101);
+  /* box-shadow: 0 0 8px 0 rgba(57, 155, 101, 0.8), 4px 4px 8px 0 rgba(57, 155, 101, 0.8); */
+}
+
 .not-active-btn {
-  border-color: rgb(236, 87, 87) !important;
-  background-color: rgb(255, 196, 196) !important;
-  color: rgb(0, 0, 0) !important;
+  width: 250%;
+  margin-left: -15%;
+  background-color: rgb(243, 55, 55);
+  /* box-shadow: 0 0 8px 0 rgba(236, 98, 98, 0.8), 4px 4px 8px 0 rgba(236, 98, 98, 0.8); */
 }
+
+.break-btn {
+  width: 430%;
+  margin-left: -24%;
+  background-color: rgb(73, 160, 201);
+  /* box-shadow: 0 0 8px 0 rgba(86, 154, 199, 0.8), 4px 4px 8px 0 rgba(58, 159, 206, 0.8); */
+}
+
 
 .container-input {
   position: relative; 
@@ -167,7 +185,6 @@
 
 /* CSS for styling the employee count element */
 .employee-count {
-  
   font-size: 120%;
   font-weight: bold;
   color: rgb(103, 180, 204);
@@ -227,4 +244,70 @@
   .pagination-container .page-item {
     margin: 5px 0;
   }
+}
+
+
+.active-icon {
+  color: green; 
+  font-size: 30px; 
+}
+
+.not-active-icon {
+  color: red; 
+  font-size: 30px; 
+}
+
+hr.solid {
+  border-top: 1px solid rgb(167, 165, 165);
+}
+.employee-select {
+  width: 150px; /* Adjust the width as needed */
+  height: 30px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 2px solid rgb(103, 180, 204);
+  color: rgb(145, 180, 204);
+  background-color: white;
+  margin-top: 10px;
+  /* Other styles you want to apply */
+}
+
+.employee-select {
+  position: absolute;
+  top: 5%;
+  left: 20%; /* Adjust left value to change the horizontal position */
+}
+/* CSS */
+.active-icon {
+  color: green; 
+  font-size: 30px; 
+}
+
+.not-active-icon {
+  color: red; 
+  font-size: 30px; 
+}
+
+hr.solid {
+  border-top: 1px solid rgb(167, 165, 165);
+}
+ 
+
+/* Add this to your CSS */
+.emp-active .profile-picture {
+  border: 3px solid green;
+}
+
+.emp-non-active .profile-picture {
+  border: 3px solid red;
+}
+
+
+.pagination-container-top {
+  position: sticky;
+  top: 0 !important;
+  background-color: white;
+  z-index: 1;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }

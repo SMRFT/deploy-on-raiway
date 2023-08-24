@@ -1,5 +1,3 @@
-//This components renders a Caendar which has employee image,name,
-//Download button for exporting payoff details of an employee using id per month
 import React, { useEffect, useState } from 'react';
 import * as ReactBootStrap from "react-bootstrap";
 import { Modal, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
@@ -16,40 +14,20 @@ import "../Components/AdminCalendar.css";
 import { DayPilot, DayPilotScheduler } from "daypilot-pro-react";
 import Fade from '@material-ui/core/Fade';
 import "./NavbarComp.css";
-import Adduploadfile from './Adduploadfile'
-function Admincalendar() {
 
+function Admincalendar() {
   //Getting id and name from another file using params
   const params = useParams();
   const name = params.name;
   const sub = name.split('_');
   const id = sub[1]
   const name1 = sub[0]
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [error, setError] = useState(null);
-  const [employee, setEmployee] = useState(null);
- 
-  useEffect(() => {
-    const apiUrl = `https://smrftattendance.onrender.com/attendance/showemp?id=${id}`;
+  console.log(name1)
+  let image = ''
 
-    fetch(apiUrl)
-      .then((res) => res.json())
-      .then(
-        (data) => {
-          console.log(data);
-          setEmployee(data);
-          setIsLoaded(true);
-        },
-        (error) => {
-          console.error(error);
-          setError(error);
-          setIsLoaded(true);
-        }
-      );
-  }, [id]);
   let [summarydata, setSummaryData] = useState([
     { workingdays: ' ', leavedays: ' ', overtime: ' ' }
-  ]);
+]);
 
   const [show, setShow] = useState(false);
   const [Otbox, setOtbox] = useState(false);
@@ -65,6 +43,7 @@ function Admincalendar() {
   let [calendarData, setCalendarData] = useState([]);
   let [eventDates, setEventDates] = useState([]);
   let [sundayDates, setSundayDates] = useState([]);
+  let[summarydetails,setSummarydetails]=useState([]);
 
   //Onclick functions for summary modal
   const handleOpen = () => {
@@ -80,11 +59,12 @@ function Admincalendar() {
     handleleaveDialog();
   }, []);
 
-  //Timesheet function (Inbuilt)
-  const timesheetRef = React.createRef();
-  function timesheet() {
-    return timesheetRef.current.control;
-  }
+    //Timesheet function (Inbuilt)
+    const timesheetRef = React.createRef();
+    function timesheet() {
+      return timesheetRef.current.control;
+    }
+
   //Calendar inbuilt parameters and should be mentioned in the Daypilot component to perform this actions
   let events = {
     locale: "en-us",
@@ -103,18 +83,24 @@ function Admincalendar() {
         }
       }
     },
+    
+
     onTimeRangeSelected: async (args) => {
       const dp = args.control;
-      const existingEvent = dp.events.list.some(event => {
-        return event.resource === args.resource && new DayPilot.Date(event.start).getDatePart() === new DayPilot.Date(args.start).getDatePart();
-      });
-      // If there's an existing event, do not show the modal
-      if (existingEvent) {
-        dp.clearSelection();
-        return;
-      }
+
+     // Check if there's an existing event for the user on the selected day
+  const existingEvent = dp.events.list.some(event => {
+    return event.resource === args.resource && new DayPilot.Date(event.start).getDatePart() === new DayPilot.Date(args.start).getDatePart();
+  });
+
+  // If there's an existing event, do not show the modal
+  if (existingEvent) {
+    dp.clearSelection();
+    return;
+  }
       const form = [
-        { name: "LeaveType", id: "leaveType", options: [{ name: "SL", id: "SL" }, { name: "CL", id: "CL" }] }
+        { name: "LeaveType", id: "leaveType", options: [{ name: "SL", id: "SL" }, { name: "CL", id: "CL" },] }
+
       ];
       const modal = await DayPilot.Modal.form(form);
       const leaveType = { leavetype: String(Object.values(modal.result)) };
@@ -133,6 +119,9 @@ function Admincalendar() {
       const today = DayPilot.Date.today()
       const month = today.getMonth()+1;
       let shift="None";
+      let day = dateObj.getDay();
+      let latelogin = "00:00:00";
+      let earlyLogout = "00:00:00";
       dp.events.add({
         start: args.start,
         end: args.end,
@@ -141,12 +130,13 @@ function Admincalendar() {
         text: Object.values(modal.result)
       });
       try {
-        const response = await fetch('https://smrftadmin.onrender.com/attendance/admincalendarlogin', {
+        const response = await fetch('http://127.0.0.1:7000/attendance/admincalendarlogin', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ ...leaveType,id:id,date:date,name:name1 + '_' + id,month:month,year:year,start:start,end:end,iddate:iddate,shift:shift})
+          body: JSON.stringify({ ...leaveType,id:id,date:date,name:name1,month:month,year:year,start:start,
+          end:end,iddate:iddate,shift:shift,day:day,latelogin:latelogin,earlyLogout:earlyLogout})
         });
         const data = await response.json();
         console.log(data);
@@ -169,6 +159,7 @@ function Admincalendar() {
     allowAllEvent: true,
     timeRangeSelectedHandling: "Enabled",
   }
+
 // Function to fetch the event data (working days) for the current month (as displayed on the timesheet calendar)
 async function fetchCalendarData() {
   const today = DayPilot.Date.today();
@@ -179,7 +170,7 @@ async function fetchCalendarData() {
     month: month,
     year: year
   };
-  const { data: calendarData } = await DayPilot.Http.post("https://smrftadmin.onrender.com/attendance/EmpcalendarId", currentMonthPayload);
+  const { data: calendarData } = await DayPilot.Http.post("http://127.0.0.1:7000/attendance/EmpcalendarId", currentMonthPayload);
   const eventDatesArr = calendarData.map(item => item.date);
   setEventDates(eventDatesArr);
   setCalendarData(calendarData);
@@ -191,17 +182,18 @@ async function fetchCalendarData() {
   });
   // Fetch the user data for the current month
   getuserdata(month, year);
+  summaryUserData(month,year);
 }
+
 // Call fetchCalendarData when the component mounts
 useEffect(() => {
   fetchCalendarData();
 }, []);
 
-
   // Function to get the user data (export details) for a specific month and year
   const getuserdata = async (month, year) => {
     try {
-      const response = await fetch("https://smrftadmin.onrender.com/attendance/EmployeeExport", {
+      const response = await fetch("http://127.0.0.1:7000/attendance/EmployeeExport", {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -212,12 +204,32 @@ useEffect(() => {
       });
       const data = await response.json();
       setUserdata(data);
+      console.log('User Data:', userdata);
     } catch (error) {
       // handle error
     }
   };
-
-  // Function to handle the "previous" button click
+  //summary export for singleEmpolyee calculations
+  const summaryUserData = async (month, year) => {
+    try {
+      const response = await fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          month: month,
+          year: year
+        }),
+      });
+      const data = await response.json();
+  
+      setSummarydetails(data);
+      console.log("Summarydetails:", data);
+    } catch (error) {
+      // handle error
+    }
+  };
+  
+   // Function to handle the "previous" button click
   // Fetches the event data (working days) and user data for the previous month, and updates the timesheet calendar and user data accordingly
   async function previous() {
     const currentmonthstartdate = timesheet().visibleStart();
@@ -229,8 +241,7 @@ useEffect(() => {
       month: prevMonth,
       year: prevMonthYear
     };
-
-    const { data: calendarData } = await DayPilot.Http.post("https://smrftadmin.onrender.com/attendance/EmpcalendarId", prevMonthPayload);
+    const { data: calendarData } = await DayPilot.Http.post("http://127.0.0.1:7000/attendance/EmpcalendarId", prevMonthPayload);
     timesheet().update({
       startDate: prevmonthstartdate,
       days: prevmonthstartdate.daysInMonth(),
@@ -238,8 +249,8 @@ useEffect(() => {
     });
     // Fetch the user data for the previous month
     getuserdata(prevMonth, prevMonthYear);
+    summaryUserData(prevMonth, prevMonthYear);
   }
-
   // Function to handle the "next" button click
   // Fetches the event data (working days) and user data for the next month, and updates the timesheet calendar and user data accordingly
   async function next() {
@@ -252,8 +263,7 @@ useEffect(() => {
       month: nextMonth,
       year: nextMonthYear
     };
-
-    const { data: calendarData } = await DayPilot.Http.post("https://smrftadmin.onrender.com/attendance/EmpcalendarId", nextMonthPayload);
+    const { data: calendarData } = await DayPilot.Http.post("http://127.0.0.1:7000/attendance/EmpcalendarId", nextMonthPayload);
     timesheet().update({
       startDate: nextmonthstartdate,
       days: nextmonthstartdate.daysInMonth(),
@@ -261,10 +271,11 @@ useEffect(() => {
     });
     // Fetch the user data for the next month
     getuserdata(nextMonth, nextMonthYear);
+    summaryUserData(nextMonth, nextMonthYear);
   }
-  
-  // const image = "http://localhost:7000/attendance/profile_image" + employee.profile_picture_id;
-  //Active link function to keep the navlink active when clicked
+ ////retrive image of an employee
+ image = "http://localhost:7000/media/my_Employee/picture/" + name1 + "_"+ id + ".jpg"
+ console.log('5' - - '2');
 
   return (
     <div>
@@ -275,70 +286,115 @@ useEffect(() => {
           <img src={profile} className="smrft_logo" alt="logo" />
         </div>
       </div>
-      
-      <Navbar style={{ width: '500px', marginLeft: '250px', marginTop: '-90px' }}>
+      <Navbar style={{ width: '50%', marginLeft: '20%', marginTop: '-7%' }}>
         <Navbar.Toggle aria-controls="navbarScroll" />
         <Navbar.Collapse id="navbarScroll">
           <Nav
             className="mr-auto my-2 my-lg"
-            style={{ marginLeft: '100px' }}
+            
+            style={{ marginLeft: '15%'}}
             navbarScroll>
             <Nav.Link as={Link}  to="/" >
-              <div className="nav_link1" style={{ color: "green", fontFamily: "cursive", ':hover': { background: "blue" } }}>Home</div></Nav.Link>
-
-
-            <Nav.Link as={Link} to="/Admin/Viewemp">
-              <div  className="nav_link2"style={{ color: "green", fontFamily: "cursive" }}>Employee Details</div>
+              <div className="nav_link1" style={{ color: "green", fontFamily: "cursive",marginTop:"17%" }}>Home</div></Nav.Link>
+              <Nav.Link as={Link} to="/Admin/Viewemp">
+              <div  className="nav_link2"style={{ color: "green", fontFamily: "cursive",marginTop:"9%"}}>Employee Details</div>
             </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
-      {/* <div class="page-heading">
-        <h1>Summary Of Employee</h1>
-      </div> */}
-      {/* <div className="col-md-6 col-sm-12 text-md-end text-center">
-        <i>
-          <CSVLink data={userdata} filename={name} class="buttonDownload"></CSVLink>
-        </i>
-      </div> */}
+      <div className="page-heading">
+      <center><h4><em>Summary Of Employee</em></h4></center>
 
-<Adduploadfile/>
-
-      <br />
+      </div>
       <div className="profile">
-  <img
-   src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${name+"_"+"profile"+".jpg"}`}
-    className="center"
-    alt="profile"
-  />
-  <div className="name">{name1}</div>
+    <div className="name">{name1}</div>
+    <img
+        src={`http://127.0.0.1:7000/attendance/get_file?filename=${name1 + '_' + id+"_"+"profile"+".jpg"}`}
+        className="center"
+        alt="profile"
+        style={{ maxWidth: '120px', maxHeight: '100px' }}
+    />
 </div>
 
       <br />
-
       <br />
-      <div class="csv">
+   <div className="col-sm-12" style={{ marginTop: '0.5px' }}>
+  <div className="row">
+    <div className="col d-flex align-items-center">
+      <button className="btn btn-primary previous" type="button" onClick={ev => previous()}>Previous</button>
+      <button className="btn btn-primary next ml-2" type="button" onClick={ev => next()}>Next</button>
+    </div>
+    <div className="col d-flex justify-content-end align-items-center">
+      <div className="csv ml-auto">
         <i>
           <CSVLink
-            class="fa fa-download"
+            className="fa fa-download"
             data={userdata}
             filename={name}
             title="Download CSV"
           ></CSVLink>
         </i>
       </div>
-      <div className={"toolbar"}>
-        <button style={{ borderRadius: 10 }} class="previous" type="button" onClick={ev => previous()}>PREVIOUS</button>
-        <button style={{ borderRadius: 10 }} class="next" type="button" onClick={ev => next()}>NEXT</button>
-      </div>
-
+    </div>
+  </div>
+</div>
       <div className='AdminCalendar'>
         <DayPilotScheduler
           {...events}
           ref={timesheetRef}
+          className='DayPilotSchedulerCustom'
         />
       </div>
-    </div >
-  );
+      <div>
+  <br/>
+  <center>
+  {summarydetails.map((data) => {
+    // Specify the ID for which you want to display the attendance report
+    const targetId = id;
+    // Display the attendance report only for the specified ID
+    if (data.id === targetId) {
+      return (
+        <div>
+  {/* <div className="divider" ></div> */}
+    <span>
+      Payable Days: 
+      {data.payable_days} Day(s)
+    </span>
+    <div className="divider" style={{ backgroundColor: 'red' , height: '50px'}}></div>
+
+    <span>
+      Present Day(s): {data.workingdays} Day(s)
+    </span>
+    <div className="divider" style={{ backgroundColor: 'red', height: '50px' }}></div>
+    <span>
+      OverTime: {data.overtimedays} Day(s)
+    </span>
+    <div className="divider" style={{ backgroundColor: 'red', height: '50px' }}></div>
+    <span>
+      Paid Leave: {data.paid_leave_days} Day(s)
+    </span>
+    <div className="divider" style={{ backgroundColor: 'red' , height: '50px'}}></div>
+    <span>
+      Loss of Pay: {data.loss_of_pay}Day(s)
+    </span>
+    <div className="divider" style={{ backgroundColor: 'red', height: '50px' }}></div>
+    <span>
+      Weekend: {data.total_weekoff} Day(s)
+    </span>
+  </div>
+    );
+    }
+    return null; // Skip rendering for other IDs
+  })}
+</center>
+
+
+</div>
+
+
+
+
+</div>
+  )
 }
 export default Admincalendar;

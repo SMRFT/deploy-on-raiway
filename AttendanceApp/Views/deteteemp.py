@@ -12,6 +12,8 @@ from AttendanceApp.serializers import DeletedEmployeeSerializer
 from django.core.mail import send_mail
 from rest_framework import status
 # from .models import Employee, DeletedEmployee
+
+
 class DeleteEmp(APIView):
     @csrf_exempt
     def post(self, request):

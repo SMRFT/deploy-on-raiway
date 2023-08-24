@@ -27,7 +27,7 @@ from rest_framework.decorators import api_view
 from .constants import Login, Logout
 from django.db.models.functions import TruncDate
 from AttendanceApp.models import Employee, Admincalendarlogin, Hour, Breakhours, DeletedEmployee
-from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer
+from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer,EmployeeShowbydepartmentSerializer, EmployeedepartmentSerializer
 from django.db.models import Q
 import json
 import calendar
@@ -39,10 +39,11 @@ from django.http import HttpResponse
 from pymongo import MongoClient
 from gridfs import GridFS
 from bson import ObjectId
-
+import cv2
 # Retrieve Employee
-
-
+import face_recognition
+import os
+from rest_framework.permissions import AllowAny
 class RetriveEmp(APIView):
     @csrf_exempt
     def get(self, request):
@@ -65,6 +66,7 @@ class RetriveEmp(APIView):
 
 
 class RetriveEmpById(APIView):
+    permission_classes = [AllowAny]
     @csrf_exempt
     def post(self, request):
         data = request.data
@@ -72,9 +74,67 @@ class RetriveEmpById(APIView):
         serializer = EmployeeShowSerializer(emp)
         return Response(serializer.data)
 
+import os
+import cv2
+import numpy as np
+import face_recognition
+import datetime
+
+
+
+
+
+# Load known faces and names only once when the server starts
+known_faces_dir = 'images'  # Update this to the directory containing known faces
+known_faces = []
+known_names = []
+
+for filename in os.listdir(known_faces_dir):
+    if filename.endswith('.jpg') or filename.endswith('.png'):
+        known_image = face_recognition.load_image_file(os.path.join(known_faces_dir, filename))
+        known_face_encoding = face_recognition.face_encodings(known_image)[0]
+        known_faces.append(known_face_encoding)
+        known_names.append(filename.split('.')[0])  # Extract the name from the file name
+
+@csrf_exempt
+def facial_recognition_view(request):
+    if request.method == 'POST':
+        # Get the uploaded image from the request
+        image = request.FILES.get('image')
+
+        if image:
+            # Load the unknown image
+            unknown_image = face_recognition.load_image_file(image)
+            unknown_face_encodings = face_recognition.face_encodings(unknown_image)
+
+            # Check if any faces are found in the unknown image
+            if unknown_face_encodings:
+                face_distances = face_recognition.face_distance(known_faces, unknown_face_encodings[0])
+                min_distance_index = face_distances.argmin()
+                min_distance = face_distances[min_distance_index]
+                recognized_name = known_names[min_distance_index]
+
+                # Compare the distance to a threshold value to determine if it's a match
+                if min_distance < 0.6:
+                    # Face recognized
+                    response_data = {'recognized': True, 'name': recognized_name}
+                else:
+                    # Face not recognized
+                    response_data = {'recognized': False}
+            else:
+                # No faces found in the unknown image
+                response_data = {'recognized': False}
+        else:
+            # Handle the case where no image is provided in the request
+            response_data = {'recognized': False}
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'recognized': False})
+
+
+
 # Edit Employee
-
-
 class EmployeeEditView(APIView):
       def put(self, request, *args, **kwargs):
         data = request.data
@@ -196,30 +256,25 @@ class AdmincalendarlogoutView(APIView):
 
 # Retrieve Data By Designation
 
-
-class RetriveEmpBydesignation(APIView):
+class RetriveEmpBydepartment(APIView):
     @csrf_exempt
     def post(self, request):
         data = request.data
-        Empbydesignation = Employee.objects.filter(
-            designation=data["designation"]).values()
-        serializer = EmployeeShowbydesignationSerializer(
-            Empbydesignation, many=True)
+        Empbydepartment = Employee.objects.filter(department=data["department"]).values()
+        serializer = EmployeeShowbydepartmentSerializer(Empbydepartment, many=True)
         return Response(serializer.data)
-
-# Retrieve Designation Count
-
-
-class RetriveEmpdesignationCount(APIView):
+# Retrieve Designation Count (Donut chart get method)
+# This view retrieves the count of employees for each designation and returns it in a serialized format.
+class RetriveEmpdepartmentCount(APIView):
     @csrf_exempt
     def get(self, request):
-        empdsg = Employee.objects.values("designation").annotate(
-            value=Count('designation')).order_by()
+        empdsg = Employee.objects.values("department").annotate(value=Count('department')).order_by()
         # To Count Designation and name it as label and dumps the data into json_object
-        for designations in empdsg:
-            designations["label"] = designations.pop("designation")
-            json_object = json.dumps(designations)
-        serializer = EmployeedesignationSerializer(empdsg, many=True)
+        for department in empdsg:
+            department["label"] = department.pop("department")
+            json_object = json.dumps(department)
+        print(empdsg)
+        serializer = EmployeedepartmentSerializer(empdsg, many=True)
         return Response(serializer.data)
 
 # Retrieve Calendar data By Id
@@ -416,31 +471,27 @@ class RetriveEmployeeexport(APIView):
 # Export Calendar Details (Summary export for download outside the calendar(Employee details))
 # This view is for exporting overall employee details per month
 
-
 class RetriveSummaryExport(APIView):
     def post(self, request):
         data = request.data
         month = data["month"]
         year = data["year"]
-        # get the selected department value
         selected_department = data.get("department", "")
-        # Get all employees who have logged in during the specified month and year
-        emp_data = Admincalendarlogin.objects.filter(
-            Q(month=month) & Q(year=year)).values()
+
+        emp_data = Admincalendarlogin.objects.filter(Q(month=month) & Q(year=year)).values()
         emp_ids = emp_data.values_list("name", flat=True).distinct()
-        # Define an empty queryset
+
         queryset = Employee.objects.none()
         if selected_department:
             queryset = queryset.filter(department=selected_department)
-        emp_ids = emp_data.values_list("name", flat=True).distinct()
-        # Create a list to store the details for each employee
+
         emp_details = []
         for emp_id in emp_ids:
-            # Split the name and id of the employee
             emp_id_split = emp_id.split("_")
-            id = emp_id_split[1] if len(emp_id_split) >= 2 else None
             name = emp_id_split[0] if len(emp_id_split) >= 1 else None
-            # Initialize variables for calculating the different values
+            employee = Employee.objects.filter(name=name).first()
+            id = employee.id if employee else None
+
             working_days = 0
             loss_of_pay = 0
             overtime_days = 0
@@ -448,45 +499,47 @@ class RetriveSummaryExport(APIView):
             weekoff_used = 0
             cl_taken = 0
             sl_taken = 0
-            # Loop through the filtered queryset for the employee and calculate the values
+
             for employee in emp_data.filter(name=emp_id):
-                if employee["leavetype"] == "None":
+                if employee["leavetype"] == "none":
                     start_time = employee["start"]
                     end_time = employee["end"]
                     hour = end_time - start_time
                     if hour > timedelta(hours=8):
-                        overtime_days += (hour - timedelta(hours=8)
-                                          ).total_seconds() / 3600
-                    # Check if the event occurred on a Sunday
+                        overtime_days += (hour - timedelta(hours=8)).total_seconds() / 3600
+
                     if start_time.weekday() == 6:
                         working_days += 1
-                        weekoff_used += 1  # Increment weekoff_used since it's a working day on Sunday
+                        weekoff_used += 1
                     else:
                         working_days += 1
                 elif employee["leavetype"] == "CL":
                     cl_taken += 1
                 elif employee["leavetype"] == "SL":
                     sl_taken += 1
-             # Get the number of days in the specified month and year
+
             days_in_month = calendar.monthrange(year, month)[1]
-            # Calculate the total number of Sundays in the month
             month_calendar = calendar.monthcalendar(year, month)
             total_sundays = sum(1 for week in month_calendar if week[6] != 0)
-            # Get the number of days in the specified month and year
             month_days = calendar.monthrange(year, month)[1]
             today = datetime.date.today()
             if month == today.month and year == today.year:
                 month_days = today.day
-            # # Update the total_weekoff and weekoff_used variables
+
             total_weekoff += total_sundays
             remaining_weekoff = total_weekoff - weekoff_used
-            # Calculate the number of leave days
-            loss_of_pay = days_in_month - \
-                (working_days + cl_taken + sl_taken + remaining_weekoff)
-            # Add the details for the employee to the list
+            current_date = datetime.date.today().day
+            print("current_date:",current_date )
+           # Include weekoffs until the current date
+            weekoff_until_current_date = min(current_date, remaining_weekoff)
+            print("@@@:",weekoff_until_current_date)
+            loss_of_pay = current_date - (working_days + cl_taken + sl_taken + weekoff_until_current_date)
+
+            print("current_date:", current_date)
+            print("loss_of_pay:", loss_of_pay)
+
             if id:
-                emp_det = Employee.objects.filter(
-                    id=id).values('department', 'designation')
+                emp_det = Employee.objects.filter(id=id).values('department', 'designation')
                 if emp_det:
                     department = emp_det[0]['department']
                     designation = emp_det[0]['designation']
@@ -496,9 +549,11 @@ class RetriveSummaryExport(APIView):
             else:
                 department = None
                 designation = None
-            # add the employee details only if they belong to the selected department or if no department is selected
+
             if not selected_department or department == selected_department:
-                # Create a dictionary to store the details for the employee
+                payable_days = working_days + cl_taken + sl_taken
+                paid_leave_days = cl_taken + sl_taken
+
                 emp_dict = {
                     "id": id,
                     "name": name,
@@ -514,14 +569,15 @@ class RetriveSummaryExport(APIView):
                     "total_weekoff": total_weekoff,
                     "weekoff_used": weekoff_used,
                     "remaining_weekoff": remaining_weekoff,
-                    "Days_in_a_month": days_in_month
+                    "Days_in_a_month": days_in_month,
+                    "payable_days": payable_days,
+                    "paid_leave_days": paid_leave_days
                 }
-                # Add the details for the employee to the list
+
                 emp_details.append(emp_dict)
-        # Serialize the employee details list and return the response
+
         serializer = SummaryexportSerializer(emp_details, many=True)
         return Response(serializer.data)
-
 
 class BreakhoursView(APIView):
     @ csrf_exempt

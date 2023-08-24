@@ -21,7 +21,7 @@ function Adminlogin() {
     const submit = async (e) => {
         e.preventDefault();
     
-        const response = await fetch('https://smrftadmin.onrender.com/attendance/adminlog', {
+        const response = await fetch('http://127.0.0.1:7000/attendance/adminlog', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -73,14 +73,15 @@ function Adminlogin() {
                     <br />
                     <div className='col-sm'>
                         <div className="row d-flex justify-content-center">
-                            <input type={"email"} className="form-input" placeholder='Email address' required
+                       
+                            <input  className="form-input centered-text" type={"email"}  placeholder='Email address' required
                                 onChange={e => setEmail(e.target.value)}
                             />
                         </div>
                         <br />
 
                         <div className="row d-flex justify-content-center">
-                            <input type={"password"} className="form-input" placeholder='Password' required
+                            <input type={"password"}  className="form-input centered-text" placeholder='Password' required
                                 onChange={e => setPassword(e.target.value)}
                             />
                         </div>

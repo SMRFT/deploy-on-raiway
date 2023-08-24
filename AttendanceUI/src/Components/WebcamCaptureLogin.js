@@ -60,7 +60,7 @@ const WebcamCaptureLogin = () => {
           console.log('Employee ID:', empId);
   
           try {
-            const response = await fetch("https://smrftadmin.onrender.com/attendance/showempById", {
+            const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ id: empId }),
@@ -71,6 +71,7 @@ const WebcamCaptureLogin = () => {
               //Formatting time, date, month for posting
               const empLogin = fileData.lastModifiedDate;
               const logintime = moment(empLogin).format('YYYY-MM-DD HH:mm');
+              setLogin(logintime)
               const year = moment(logintime).format('YYYY');
               const date = moment(logintime).format('YYYY-MM-DD');
               const day = moment(logintime).format('DD');
@@ -120,7 +121,7 @@ const WebcamCaptureLogin = () => {
                 leavetype: leavetype
               };
   
-              await fetch("https://smrftadmin.onrender.com/attendance/admincalendarlogin", {
+              await fetch("http://127.0.0.1:7000/attendance/admincalendarlogin", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -148,7 +149,7 @@ const WebcamCaptureLogin = () => {
               const email = data.email;
               setEmail(email);
   
-              await fetch("https://smrftadmin.onrender.com/attendance/send-email/", {
+              await fetch("http://127.0.0.1:7000/attendance/send-email/", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

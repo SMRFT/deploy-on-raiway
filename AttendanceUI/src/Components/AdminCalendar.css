@@ -12,7 +12,7 @@
     justify-content: center;
     cursor: pointer;
     margin: auto;
-    margin-top: 10px;
+    margin-top: 50px;
     padding: 10px;
     border-radius: 3px;
 }
@@ -36,7 +36,7 @@
 }
 
 
-.profile {
+.container1 {
     width: 100%;
 }
 
@@ -84,28 +84,6 @@
     }
 }
 
-
-
-.day {
-    font-weight: bold;
-    padding: 5px;
-  }
-  
-  .payable {
-    background-color: #e6f3ff; /* Light blue */
-  }
-  
-  .present {
-    background-color: #b3ffb3; /* Light green */
-  }
-  
-  .leave {
-    background-color: #ffe6e6; /* Light red */
-  }
-  
-
-
-
 .previous,
 .next {
     background-color: #fff;
@@ -121,11 +99,13 @@
     text-decoration: none;
     transition: all 0.3s ease;
     user-select: none;
+    margin-left: 1%;
+    margin-top: 50;
 }
 
 .previous:hover,
 .next:hover {
-    background-color: #41fb59;
+    background-color: #005fe4;
     border-color: #aaa;
     color: #fff;
 }
@@ -133,60 +113,73 @@
 
 .name {
     display: inline-block;
-    position: absolute;
+    position: fixed;
     padding: 20px 25px;
-    margin-left: 1650px;
-    margin-top: 200px;
-    color: rgba(188, 242, 11, 0.787);
+    top: 110px;
+    right: 30px;
+    color: rgba(8, 87, 23, 0.787);
     font-family: Arial, sans-serif;
-    /* change font to Arial or other sans-serif font */
     text-decoration: none;
-    font-size: 1.5em;
+    font-size: 1.2em;
     text-transform: uppercase;
-    /* increase font size for better readability */
     text-align: center;
     text-indent: 15px;
-}
+  }
+  
 
-@media only screen and (max-width: 768px) {
+  .profile {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: fixed;
+    top: -13px;
+    right: 10px;
+  }
+  
+  
+
+/* @media only screen and (max-width: 768px) {
     .name {
         margin-left: 50%;
         /* center align for smaller screens */
-        transform: translateX(-50%);
+        /* transform: translateX(-50%);
     }
 }
 
 .profile {
     display: flex;
-    margin-top: -5%;
-    /* flex-direction: row;
-    justify-content: flex-end; */
+    justify-content: flex-end;
     align-items: center;
-}
+    margin-top: 50px;
+    margin-right: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+  } */ */
+  
 
-/* .name {
-    margin-left: auto;
-} */
-
-.csv {
+  /* /* .csv {
     position: relative;
     display: flex;
-
     align-items: center;
     justify-content: flex-end;
-}
-
-.fa-download {
+    margin-top: -5%; /* Adjust this value to move the element down */
+  /* } */ */
+   */
+  /* .fa-download {
     font-size: 40px;
     cursor: pointer;
     color: green;
     position: absolute;
     top: 0;
     right: 0;
-    margin-top: 10px;
-    margin-right: 10px;
-}
-
+    margin-top: -5%;
+    margin-right: 250px; /* Adjust this value to move the button to the left */
+  /* } */
+   */
+.scheduler_default_corner div {
+    display: none;
+  }
 @media (max-width: 768px) {
     .csv {
         justify-content: center;
@@ -197,5 +190,39 @@
         position: static;
         margin-right: 10px;
         margin-top: 0;
+       
     }
 }
+
+  span {
+    color: #884939;
+    margin: 0 0.5%;
+  }
+  .page-heading {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .page-heading h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    font-family: cursive;
+  }
+  
+  
+  .ml-auto {
+    margin-left: 50%;
+  }
+
+  .fa-download{
+    font-size:300%;
+  }
+  
+
+.scheduler_default_corner{
+   visibility: hidden !important;
+  }
+  .DayPilotSchedulerCustom {
+    background-color: white;
+  }

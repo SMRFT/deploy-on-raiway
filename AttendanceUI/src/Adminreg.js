@@ -40,7 +40,7 @@ const AdminReg = () => {
 
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post("http://localhost:7000/attendance/adminreg", {
+        const response = await axios.post("http://127.0.0.1:7000/attendance/adminreg", {
           name,
           email,
           password,

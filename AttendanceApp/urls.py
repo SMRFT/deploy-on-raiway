@@ -5,8 +5,8 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails,upload_file,aws_config_view,facial_recognition_view
-from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  RetriveEmpdesignationCount, RetriveEmpBydesignation, Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin, AdminReg, UserDetails,upload_file,aws_config_view
+from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,facial_recognition_view,RetriveEmpdepartmentCount,RetriveEmpBydepartment
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static
@@ -28,8 +28,7 @@ urlpatterns = [
     path('admincalendarlogin', AdmincalendarloginView.as_view()),
     path('admincalendarlogout', AdmincalendarlogoutView.as_view()),
     path('EmpcalendarId', RetrieveCalendarDataById.as_view()),
-    path('showempdesignation', RetriveEmpdesignationCount.as_view()),
-    path('empbydesignation', RetriveEmpBydesignation.as_view()),
+
     path('SummaryDetails', Summary.as_view()),
     path('EmployeeExport', RetriveEmployeeexport.as_view()),
     path('lunchhourslogin', BreakhoursView.as_view()),
@@ -49,6 +48,8 @@ urlpatterns = [
     path("UserDetails", UserDetails.as_view()),
     path('aws-config/', aws_config_view, name='aws-config'),
     path('facial-recognition/', facial_recognition_view, name='recognize_faces'),
+    path('showempdesignation', RetriveEmpdepartmentCount.as_view()),
+    path('empbydesignation', RetriveEmpBydepartment.as_view()),
     # path('compare/',face_comparison_view, name='compare'),
 ]
 

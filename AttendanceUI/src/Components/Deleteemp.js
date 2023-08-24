@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Card from 'react-bootstrap/Card';
-// import "./Viewemp.css";
+import Card from "react-bootstrap/Card";
+import Modal from "react-bootstrap/Modal"; // Import Modal component
+import Button from "react-bootstrap/Button"; // Import Button component
+import "./Viewemp.css";
+
 const TrashPage = () => {
   const [deletedEmployees, setDeletedEmployees] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 
   useEffect(() => {
     axios
-      .get("https://smrftadmin.onrender.com/attendance/deleted-employees/")
+      .get("http://127.0.0.1:7000/attendance/deleted-employees/")
       .then((res) => {
         setDeletedEmployees(res.data);
       })
@@ -15,124 +21,147 @@ const TrashPage = () => {
         console.log(err);
       });
   }, []);
-  
 
   const deleteEmployee = async (id) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
-      try {
-        await fetch("https://smrftadmin.onrender.com/attendance/permanentdelete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            id: id, // Use the id argument here
-          }),
-        });
-        window.location.reload();
-        // Update the deletedEmployees state or perform any other necessary actions
-      } catch (error) {
-        console.log(error);
-      }
-    }
+    setSelectedEmployeeId(id); // Store the selected employee id
+    setShowDeleteModal(true); // Show the delete modal
   };
-  
+
   const restoreEmployee = async (id) => {
-    if (window.confirm("Are you sure you want to restore this employee?")) {
-      try {
-        await fetch(`https://smrftadmin.onrender.com/attendance/restore-employee/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ id: id }),
-        });
-        window.location.reload();
-      } catch (error) {
-        console.log(error);
-      }
+    setSelectedEmployeeId(id); // Store the selected employee id
+    setShowRestoreModal(true); // Show the restore modal
+  };
+
+  const handleDeleteConfirm = async () => {
+    setShowDeleteModal(false); // Close the delete modal
+    try {
+      await fetch("http://127.0.0.1:7000/attendance/permanentdelete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          id: selectedEmployeeId,
+        }),
+      });
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
     }
   };
-  
 
-  
+  const handleRestoreConfirm = async () => {
+    setShowRestoreModal(false); // Close the restore modal
+    try {
+      await fetch(`http://127.0.0.1:7000/attendance/restore-employee/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: selectedEmployeeId }),
+      });
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <div>
-     <h1 style={{ marginLeft: "250px", color: "blue", fontSize: "30px" }}>
-    Deleted Employees
-  </h1>
-    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px",marginLeft:"250px" }}>
+    <body>
+      <br />
+      <div className="viewemp">
+      <div className="row">
       {deletedEmployees.map((employee) => (
-        <div
-          key={employee.id}
-          style={{
-            backgroundColor: "ghostwhite",
-            borderRadius: "5px",
-            boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
-            padding: "20px",
-            width: "300px",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-     
-         <img src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${employee.name+"_"+employee.id+"_"+"profile"+".jpg"}`}   style={{
-          display: "block",
-          margin: "auto",
-          width: "90px",
-          height: "90px",
-          borderRadius: "50%",
-        }} alt="Profile Picture" />
-     
-         <Card.Body>
-          <h2 style={{ marginBottom: "10px" ,fontSize:"20px"}}>ID: {employee.id}</h2>
-          <p style={{ marginBottom: "10px" }}>
-            Name: {employee.name}
-          </p>
-          <p style={{ marginBottom: "10px" }}>
-            Email: {employee.email}
-          </p>
-          <p style={{ marginBottom: "10px" }}>
-            Department: {employee.department}
-          </p>
-          <p style={{ marginBottom: "10px" }}>
-            Deleted At: {employee.deleted_at}
-          </p>
-
-          </Card.Body>
-          <div style={{ marginTop: "auto" }}>
-            <button
-              onClick={() => deleteEmployee(employee.id)}
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none",
-                cursor: "pointer",
-                marginRight: "10px",
-              }}
-            >
-              Delete 
-            </button>
-            <button
-              onClick={() => restoreEmployee(employee.id)}
-              style={{
-                backgroundColor: "#90EE90",
-                color: "black",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Restore
-            </button>
-         
+      <div className="col-md-3 mb-3" key={employee.id} style={{ borderRadius: "5px" }}>
+        <Card md={4} className="employee">
+           <Card.Body style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',marginRight:"4%"}}>
+          <img
+            src={`http://127.0.0.1:7000/attendance/get_file?filename=${employee.name + '_' + employee.id + '_' + 'profile' + '.jpg'}`}
+            style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              marginTop:'-6%'
+            }}
+            alt="Profile Picture"
+          />
+        <br/>
+        <div >
+          <div style={{ color: "#525E75", fontWeight: "bold", fontFamily: "'Latobold', sans-serif", fontSize: "14px" }}>
+            {employee.id} - {employee.name}
           </div>
+          <div style={{ color: "#BFBFBF", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+            {employee.designation}
+          </div>
+          <div style={{ color: "#525E75", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+            {employee.email}
+          </div>
+          {/* <div style={{ color: "#525E75", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+          <p>Deleted At: {employee.deleted_at}</p>
+          </div> */}
+          <br/>
+                  <div style={{ marginTop: "auto" }}>
+                    <button
+                      onClick={() => deleteEmployee(employee.id)}
+                      style={{
+                        backgroundColor: "red",
+                        color: "white",
+                        padding: "6px",
+                        borderRadius: "5px",
+                        border: "none",
+                        cursor: "pointer",
+                        marginRight: "10px",
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => restoreEmployee(employee.id)}
+                      style={{
+                        backgroundColor: "#90EE90",
+                        color: "black",
+                        padding: "6px",
+                        borderRadius: "5px",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Restore
+                    </button>
+                  </div>
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </div>
-  
+      </div>
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header style={{padding:"2%"}} closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this employee?
+        </Modal.Body>
+        <Modal.Footer style={{padding:"1%"}}>
+          <Button style={{padding:"1%"}} variant="danger" onClick={handleDeleteConfirm}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={showRestoreModal} onHide={() => setShowRestoreModal(false)}>
+        <Modal.Header style={{padding:"2%"}} closeButton>
+          <Modal.Title>Confirm Restore</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to restore this employee?
+        </Modal.Body>
+        <Modal.Footer style={{padding:"1%"}}>
+          <Button style={{padding:"1%"}} variant="success" onClick={handleRestoreConfirm}>
+            Restore
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </body>
   );
 };
 

@@ -1,15 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Face Recognition Results</title>
-</head>
-<body>
-    {% if recognized %}
-        <h1>Face Recognized!</h1>
-        <p>Name: {{ name }}</p>
-    {% else %}
-        <h1>Face Not Recognized!</h1>
-    {% endif %}
-    <a href="/">Back to Home</a>
-</body>
-</html>
+<!-- myapp/templates/myapp/face_recognition.html -->
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="image" accept="image/*">
+    <button type="submit">Recognize Faces</button>
+</form>
+
+{% if result %}
+    <!-- Display the recognition result here -->
+    {{ result }}
+{% endif %}

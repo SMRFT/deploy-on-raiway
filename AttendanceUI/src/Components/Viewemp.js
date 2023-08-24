@@ -16,13 +16,31 @@ import Summary from "./Summary";
 import { IconButton } from '@material-ui/core';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { red } from "@material-ui/core/colors";
+import Myconstants from './Myconstants';
+import { BsPersonFill, BsPersonDash, BsCheckLg } from 'react-icons/bs';
+
+
 ///view employee
 const Home = () => {
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [users, setUsers] = useState({ blogs: [] });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+
+  
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+    setIsError(true);
+  };
+
   useEffect(() => {
-    fetch("https://smrftadmin.onrender.com/attendance/showemp")
+    fetch("http://127.0.0.1:7000/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
@@ -35,10 +53,11 @@ const Home = () => {
         }
       );
   }, []);
+
+ 
+ 
   //hide and show actions
-  const showActionsBoxRef = useRef(null); // Ref for the showActionsBox element
-  // const [showActionsBox, setShowActionsBox] = useState(false);
-  // const [selectedUseraction, setSelectedUseraction] = useState(null);
+  const showActionsBoxRef = useRef(null); 
   const [showaction, setShowaction] = useState(false);
   const [showActionsBox, setShowActionsBox] = useState(false);
   const [selectedUseraction, setSelectedUseraction] = useState(null);
@@ -87,7 +106,7 @@ const handleCloseModal = () => {
   ///delete employee
   const deleteEmployee = async (e) => {
     if (window.confirm("Are you sure you want to delete this employee?"))
-      await fetch("https://smrftadmin.onrender.com/attendance/delemp", {
+      await fetch("http://127.0.0.1:7000/attendance/delemp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -103,7 +122,7 @@ const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
 const [employeesActive, setEmployeesActive] = useState([]);
 const [employeesNotActive, setEmployeesNotActive] = useState([]);
 const fetchData = useCallback(() => {
-  fetch("https://smrftadmin.onrender.com/attendance/breakdetails")
+  fetch("http://127.0.0.1:7000/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {
@@ -129,28 +148,54 @@ useEffect(() => {
   }, 10000); // 3 minutes = 180000 milliseconds
   return () => clearInterval(interval);
 }, [fetchData]);
-   ///search employee
-  const [listType, setListType] = useState("all");
 
-  const [searchString, setSearchString] = useState("");
-  const filteredResults = users.blogs && users.blogs.filter((employee) => {
-    // Check if employee name or ID matches the search string
-    const matchesSearch = Object.values(employee).some((value) =>
-      value?.toString().toLowerCase().includes(searchString?.toString().toLowerCase() ?? "")
-    );
-  
-    // Check if employee is active, not active, or on break, depending on the listType state
-    if (listType === "active") {
-      return employeesActive.some((activeEmployee) => activeEmployee.id === employee.id) && matchesSearch;
-    } else if (listType === "notActive") {
-      return employeesNotActive.some((notActiveEmployee) => notActiveEmployee.id === employee.id) && matchesSearch;
-    } else if (listType === "break") { // Added condition for "break"
-      return employeesOnBreak.some((breakEmployee) => breakEmployee.id === employee.id) && matchesSearch;
-    } else {
-      return matchesSearch;
-    }
-  });
-  
+// ///search employee
+const [listType, setListType] = useState("all");
+const DEPARTMENT_OPTIONS = Myconstants.departments.map((department) => department.toUpperCase());
+const [selectedDepartment, setSelectedDepartment] = useState("all");
+const [selectedRole, setSelectedRole] = useState("all");
+const [searchString, setSearchString] = useState("");
+
+
+
+const filterByDepartment = (employee) => {
+  if (selectedDepartment === "all") {
+    return true; // Show all employees when "All Departments" is selected
+  } else {
+    return employee.department.toUpperCase() === selectedDepartment.toUpperCase();
+  }
+};
+
+const filteredResults = useMemo(() => {
+  return (
+    users.blogs &&
+    users.blogs.filter((employee) => {
+      const matchesSearch = Object.values(employee).some((value) =>
+        value?.toString().toLowerCase().includes(searchString?.toString().toLowerCase() ?? "")
+      );
+
+      const matchesDepartment = filterByDepartment(employee);
+
+      if (listType === "active") {
+        return (
+          employeesActive.some((activeEmployee) => activeEmployee.id === employee.id) &&
+          matchesDepartment
+        );
+      } else if (listType === "all") {
+        return matchesSearch && matchesDepartment;
+      } else if (listType === "notActive") {
+        return (
+          employeesNotActive.some((notActiveEmployee) => notActiveEmployee.id === employee.id) &&
+          matchesDepartment
+        );
+      }
+    })
+  );
+}, [users.blogs, searchString, selectedRole, selectedDepartment, listType]);
+
+
+
+
   const countFilteredResults = filteredResults.length;
   const countData = users.blogs.length;
 
@@ -183,35 +228,65 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
   } else if (!isLoaded) {
     return <div>Loading...</div>;
   } else {
+
+ 
     return (
-      <body  className="viewemp">
-        <br />
+      <body><br/>
+      <div className="viewemp">
+        <Link style={{color:"rgb(103, 180, 204)"}} to="/Admin/ViewempTable">Table View</Link>
+        <br/><br/>
 <div className="row">
-  <div  className="col-lg-4">
+  <div className="col-lg-4">
     <label htmlFor="listType" style={{color:"rgb(103, 180, 204)",fontWeight:"bold",fontFamily:"-moz-initial"}}> Employee: </label>
-    <select style={{ marginLeft:"5px",borderRadius: '10px',fontSize:"14px",fontFamily:"serif",height:"1cm",textAlign:"center",borderColor:"rgb(103, 180, 204)",borderWidth:"2px",color:'rgb(145, 180, 204)'}} 
+    <select style={{ marginLeft:"5px",borderRadius: '10px',fontSize:"14px",fontFamily:"serif",height:"1cm",textAlign:"center",borderColor:"rgb(103, 180, 204)",borderWidth:"2px",color:'rgb(145, 180, 204)'}}
     id="listType"  value={listType} onChange={(e) => setListType(e.target.value)}>
       <option value="all">All Employees</option>
       <option value="active">Active Employees</option>
       <option value="notActive">Not Active Employees</option>
-      <option value="break"> break Employees</option>
     </select>
   </div>
-
-  <button className="col-lg-2 viewEmp-button" 
+  <div className="col-lg-4" style={{ marginLeft: "-10%" }}>
+  <label htmlFor="department" style={{ color: "rgb(103, 180, 204)", fontWeight: "bold", fontFamily: "-moz-initial" }}>
+    Department:
+  </label>
+  <select
+    style={{
+      marginLeft: "5px",
+      borderRadius: "10px",
+      fontSize: "14px",
+      fontFamily: "serif",
+      height: "1cm",
+      textAlign: "center",
+      borderColor: "rgb(103, 180, 204)",
+      borderWidth: "2px",
+      color: "rgb(145, 180, 204)",
+    }}
+   id="department"
+    value={selectedDepartment}
+    onChange={(e) => setSelectedDepartment(e.target.value)}
+  >
+     <option value="all">All </option>
+    {DEPARTMENT_OPTIONS.map((department) => (
+      <option key={department} value={department}>
+        {department}
+      </option>
+    ))}
+  </select>
+  </div>
+  <button className="col-lg-4 viewEmp-button"
+  style={{marginLeft:"-10%"}}
   color="primary"
   onClick={handleShowModal}
-  title="Overall employee Summary download">
+  title="Download Employee Summary">
 <CloudDownloadIcon/>
 </button>
-<button className="col-lg-2 viewEmp-button" onClick={handleclicktoaddemp} title="Adding New Employee">
+<button className="col-lg-4 viewEmp-button" onClick={handleclicktoaddemp} title="Add New Employee">
   <PersonAddIcon/>
 </button>
-
-<div className="col-lg-4">
+<div className="col-lg-4" style={{marginLeft:"2%"}}>
       <div className="form-outline">
-        <input style={{ borderRadius: '10px',height:"1.1cm",borderColor:"rgb(103, 180, 204)",borderRadius:10,
-        borderWidth:"2px",color:'rgb(145, 180, 204)',marginLeft:"2%",paddingLeft:"2.5rem"}} 
+        <input style={{ height:"1.1cm",borderColor:"rgb(103, 180, 204)",borderRadius:10,
+        borderWidth:"2px",color:'rgb(145, 180, 204)',marginLeft:"2%",paddingLeft:"2.5rem",width:"50%"}}
         type="search" id="form1" className="form-control" value={searchString}
             onChange={(e) => setSearchString(e.target.value)} />
         <button type="button" style={{position: 'absolute',left: '1rem',top: '0.6rem',
@@ -220,8 +295,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
         </button>
       </div>
     </div>
-
-<div className="col-lg-2 employee-count">
+<div className="col-lg-2 employee-count" style={{marginLeft:"-13%"}}>
     {filteredResults.length > 0 ? (
       <>{countFilteredResults} Employees</>
     ) : (
@@ -229,21 +303,23 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     )}
   </div>
 </div>
-
-   <div className="row">
-    {paginatedResults.map((user) => (
-   <div className="col-md-3 mb-3" key={user.id} style={{  padding: "10px", borderRadius: "5px" }}>
-    <Card md={3} className="employee"><br/>
-   <div><i style={{float:"right",marginRight:'5%',marginTop:"-4%",cursor:"pointer"}} onClick={() => handleHide(user)} className="fa fa-ellipsis-h"></i>
-   <div style={{ float: "left", marginRight: "5%",marginTop:"-5%" }}>
-  {employeesOnBreak.some((breakUser) => breakUser.id === user.id) ? (
-    <button className="break-btn">Break</button>
-  ) : employeesActive.some((activeUser) => activeUser.id === user.id) ? (
-    <button className="active-btn">Active</button>
-  ) : (
-    <button className="not-active-btn">Not Active</button>
-  )}
-</div>
+ <br/>    
+ <div className="row">
+  {paginatedResults.map((user) => (
+    <div className="col-md-3 mb-3" key={user.id} style={{ borderRadius: "5px" }}>
+      <Card md={2} className="employee"><br/>
+     
+      <div>
+        <i style={{ float: "right", marginRight: '5%', marginTop: "-7%", cursor: "pointer" }} onClick={() => handleHide(user)} className="fa fa-ellipsis-h"></i>
+        <div className="button-container" style={{ float: "left", marginRight: "5%", marginTop: "-7%" }}>
+          {employeesOnBreak.some((breakUser) => breakUser.id === user.id) ? (
+            <button className="break-btn">Break</button>
+          ) : employeesActive.some((activeUser) => activeUser.id === user.id) ? (
+            <BsPersonFill className="active-icon" style={{ color: "green" }} />
+          ) : (
+            <BsPersonDash className="not-active-icon" style={{ color: "red" }} />
+          )}
+        </div>
 
 {showActionsBox && selectedUseraction === user && (
   <div
@@ -255,7 +331,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
       boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
       padding: "4px 4px",
       zIndex: 1,
-      top: "50px",
+      top: "40px",
       right: 0
     }}
     >
@@ -293,38 +369,36 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
           </button>
         </Link><br/>
         </div> )}
-        </div><br/><br/>
-        <img src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${user.name + '_' + user.id+"_"+"profile"+".jpg"}`}   style={{
-            display: "block",
-            margin: "auto",
-            width: "80px",
-            height: "80px",
-            borderRadius: "50%",
-          }} alt="Profile Picture" />
-      <Card.Body>
-        <Card.Title><div><center style={{color:"#525E75",font:"caption",fontWeight:"bold",fontFamily:"sans-serif",fontSize:"14px"}}>{user.name}</center></div>
-        <div><center style={{color:"#BFBFBF",font:"caption",fontFamily:"initial"}}>{user.id}</center>
-        <center style={{color:"#BFBFBF",font:"caption",fontFamily:"initial"}}>{user.designation}</center></div></Card.Title>
-        <Card.Text>        
-        <Button style={{backgroundColor:"#ECFCFF",color:"black",width:"120%",borderColor:"#C8E6F5",marginLeft:"-45px"}}>
-        <div style={{color:"#7F8487",float:"left",font:"caption",fontFamily:"cursive",fontSize:"12px"}}>Department</div>
-        <div style={{color:"#7F8487",float:"right",font:"caption",fontFamily:"cursive",fontSize:"12px"}}>Date Hired</div><br/>
-        <div style={{float:"left",font:"caption",fontFamily:"Garamond",fontSize:"12px"}}>{user.department}</div>
-        <div style={{float:"right",font:"caption",fontFamily:"Times New Roman",fontSize:"12px"}}>{user.dateofjoining}</div><br/><br/>
-        <div style={{float:"left",font:"caption",fontFamily:"Copperplate",fontSize:"13px"}}>
-          <i style={{fontWeight:"bold",fontSize:"16px", color: "black", textShadow: "0.4px 0.4px black"}} className="bi bi-envelope"></i> {user.email}
-        </div><br/>
-        <div style={{float:"left",font:"caption",fontFamily:"Copperplate",fontSize:"14px"}}>
-          <i style={{fontWeight:"bold",fontSize:"14px", color: "black", textShadow: "0.4px 0.4px black"}} className="bi bi-telephone"></i> {user.mobile}
-        </div><br/> 
-        <center><i style={{fontWeight:"bold",fontSize:"16px", color: "black", textShadow: "0.4px 0.4px black",textAlign:"center"}} className="bi bi-house-door"></i></center>
-        <div style={{textAlign:"center",font:"caption",fontFamily:"Copperplate",fontSize:"14px"}}>
-          {user.address}
         </div>
-        </Button>
-        </Card.Text>
-      </Card.Body>
-    </Card>
+  <Card.Body style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',marginRight:"11%"}}>
+  <img
+    src={`http://127.0.0.1:7000/attendance/get_file?filename=${user.name + '_' + user.id + '_' + 'profile' + '.jpg'}`}
+    style={{
+      width: '80px',
+      height: '80px',
+      borderRadius: '50%',
+      marginTop:'-10%'
+    }}
+    alt="Profile Picture"
+  />
+
+  <div >
+    <div style={{ color: "#525E75", fontWeight: "bold", fontFamily: "'Latobold', sans-serif", fontSize: "14px" }}>
+      {user.id} - {user.name}
+    </div>
+    <div style={{ color: "#BFBFBF", fontFamily: "initial" }}>
+      {/* Content */}
+    </div>
+    <div style={{ color: "#BFBFBF", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+      {user.designation}
+    </div>
+    <div style={{ color: "#525E75", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+      {user.email}
+    </div>
+  </div>
+</Card.Body>
+
+</Card>
     </div>
     ))}
     </div>
@@ -368,6 +442,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
         nextPageText="Next"
         selectableRows
       />
+    </div>
     </div>
     </body >
     );

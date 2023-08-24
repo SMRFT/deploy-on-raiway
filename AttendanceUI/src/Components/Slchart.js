@@ -5,7 +5,7 @@ const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 
 const fetchData = async (month) => {
-  const response = await fetch("https://smrftadmin.onrender.com/attendance/EmployeeSummaryExport", {
+  const response = await fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
     method: "post",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -32,8 +32,10 @@ const BarChart = () => {
           return acc + user.SL_Taken;
         }, 0);
         const totalUsers = result.length;
-        const slTakenPercentage = (slTakenByUser / (totalUsers * 12)) * 100;
-        seriesData.push(slTakenPercentage);
+        const slTakenPercentage = totalUsers !== 0 ? ((slTakenByUser / (totalUsers * 12)) * 100).toFixed(1) : 0;
+// Round to 1 decimal place
+        console.log(totalUsers)
+        seriesData.push(parseFloat(slTakenPercentage)); // Convert to a float if needed
       }
       setChartData({
         series: [
@@ -116,12 +118,14 @@ const BarChart = () => {
             },
           },
           title: {
-            text: "SL Taken Percentage by Month",
-            floating: true,
-            offsetY: 330,
-            align: "center",
+            text: "Sick Leave",
+            floating: false,
+            offsetY: 10, // Adjust this value to position the title at the top
+            align: "center", // Adjust alignment as needed
             style: {
               color: "#444",
+              fontFamily:' Helvetica, Arial, sans-serif',
+              fontSize: "14px", // You can adjust the font size if needed
             },
           },
         },
@@ -132,7 +136,7 @@ const BarChart = () => {
 
   return (
     <div>
-      <Chart options={chartData.options} series={chartData.series} type="bar" height={350} />
+      <Chart options={chartData.options} series={chartData.series} type="bar"  height= {380}  width={800} />
     </div>
   );
 };

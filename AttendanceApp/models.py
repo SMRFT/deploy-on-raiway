@@ -36,7 +36,7 @@ class Employee(models.Model):
     TNMCNO = models.CharField(max_length=500, blank=True, null=True)
     ValidlityDate = models.DateField(blank=True, null=True)
     email = models.CharField(max_length=500,blank=True, null=True)
-    dateofjoining = models.DateField()
+    dateofjoining =models.CharField(max_length=500,blank=True, null=True)
     bankaccnum = models.IntegerField(blank=True, null=True)
     designation = models.CharField(max_length=500)
     Aadhaarno = models.CharField(max_length=500)
@@ -65,14 +65,14 @@ class DeletedEmployee(models.Model):
     referenceData = models.CharField(max_length=1200)
     selectedLanguages = models.CharField(max_length=500, blank=True)
     Aadhaarno = models.CharField(max_length=500)
-    PanNo = models.CharField(max_length=500)
-    IdentificationMark = models.CharField(max_length=500)
+    PanNo = models.CharField(max_length=500, blank=True, null=True)
+    IdentificationMark = models.CharField(max_length=500,blank=True, null=True)
     BloodGroup = models.CharField(max_length=500)
     RNRNO = models.IntegerField(blank=True, null=True)
     TNMCNO = models.CharField(max_length=500, blank=True, null=True)
     ValidlityDate = models.DateField(blank=True, null=True)
-    dateofjoining = models.DateField()
-    bankaccnum = models.IntegerField()
+    dateofjoining = models.CharField(max_length=500, blank=True, null=True)
+    bankaccnum = models.IntegerField(blank=True, null=True)
 
 
 # Admin Login
@@ -92,7 +92,17 @@ class Admin(AbstractUser):
 class Designation(models.Model):
     label = models.CharField(max_length=500)
     value = models.IntegerField()
-
+# department count details model (Donut chart)
+class department(models.Model):
+    label = models.CharField(max_length=500)
+    value = models.IntegerField()
+# Employee model by department (Donut chart)
+class Employeebydepartment(models.Model):
+    id = models.CharField(max_length=500,primary_key=True)
+    name = models.CharField(max_length=500)
+    mobile = models.CharField(max_length=500)
+    department = models.CharField(max_length=500)
+    address = models.CharField(max_length=500)
 # Employee model by Designation
 
 
