@@ -308,7 +308,7 @@ button {
 
 
 .screen-2 {
-  background: #f1f7fe;
+  background: #ffffff;
   padding: 3em;
   display: flex;
   margin: 220px auto;
@@ -317,7 +317,7 @@ button {
   margin-top: 2%;
   flex-direction: column;
   border-radius: 40px;
-  box-shadow: 0 0 1em #e6e9f9;
+  box-shadow: 0 0 1em #ffffff;
   gap: 2em;
 }
 

@@ -231,8 +231,8 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
 
  
     return (
-      <body><br/>
-      <div className="viewemp">
+      <body className="viewemp"><br/>
+      <div >
         <Link style={{color:"rgb(103, 180, 204)"}} to="/Admin/ViewempTable">Table View</Link>
         <br/><br/>
 <div className="row">

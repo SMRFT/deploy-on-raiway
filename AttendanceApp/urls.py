@@ -28,7 +28,6 @@ urlpatterns = [
     path('admincalendarlogin', AdmincalendarloginView.as_view()),
     path('admincalendarlogout', AdmincalendarlogoutView.as_view()),
     path('EmpcalendarId', RetrieveCalendarDataById.as_view()),
-
     path('SummaryDetails', Summary.as_view()),
     path('EmployeeExport', RetriveEmployeeexport.as_view()),
     path('lunchhourslogin', BreakhoursView.as_view()),
