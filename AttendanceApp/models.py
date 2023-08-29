@@ -47,9 +47,9 @@ class Employee(models.Model):
     educationData = models.CharField(max_length=1200)
     experienceData = models.CharField(max_length=1200)
     referenceData = models.CharField(max_length=1200)
-    selectedLanguages = models.CharField(max_length=500, blank=True)
+    languages = models.CharField(max_length=500, blank=True)
     added_at = models.DateTimeField(auto_now_add=True)
-
+    salary = models.IntegerField(blank=True, null=True)
 
 class DeletedEmployee(models.Model):
     id = models.CharField(primary_key=True, max_length=500)
@@ -63,7 +63,7 @@ class DeletedEmployee(models.Model):
     educationData = models.CharField(max_length=1200)
     experienceData = models.CharField(max_length=1200)
     referenceData = models.CharField(max_length=1200)
-    selectedLanguages = models.CharField(max_length=500, blank=True)
+    languages = models.CharField(max_length=500, blank=True)
     Aadhaarno = models.CharField(max_length=500)
     PanNo = models.CharField(max_length=500, blank=True, null=True)
     IdentificationMark = models.CharField(max_length=500,blank=True, null=True)
@@ -73,7 +73,7 @@ class DeletedEmployee(models.Model):
     ValidlityDate = models.DateField(blank=True, null=True)
     dateofjoining = models.CharField(max_length=500, blank=True, null=True)
     bankaccnum = models.IntegerField(blank=True, null=True)
-
+    salary = models.IntegerField(blank=True, null=True)
 
 # Admin Login
 

@@ -26,10 +26,11 @@ class DeleteEmp(APIView):
         emp_mobile=emp.mobile
         emp_designation=emp.designation
         emp_Address=emp.address
+        emp_salary=emp.salary
         emp_educationData =emp.educationData
         emp_experienceData=emp.experienceData
         emp_referenceData=emp.referenceData
-        emp_selectedLanguages =emp.selectedLanguages 
+        emp_languages =emp.languages
         emp_Aadhaarno=emp.Aadhaarno
         emp_PanNo=emp.PanNo
         emp_IdentificationMark=emp.IdentificationMark
@@ -52,7 +53,7 @@ class DeleteEmp(APIView):
             educationData =emp.educationData,
             experienceData=emp.experienceData,
             referenceData=emp.referenceData,
-            selectedLanguages =emp.selectedLanguages ,
+            languages =emp.languages ,
             Aadhaarno=emp.Aadhaarno,
             PanNo=emp.PanNo,
             IdentificationMark=emp.IdentificationMark,
@@ -62,6 +63,7 @@ class DeleteEmp(APIView):
             ValidlityDate=emp.ValidlityDate,
             dateofjoining =emp.dateofjoining,
             bankaccnum =emp.bankaccnum,
+            salary=emp.salary,
             deleted_at=timezone.now()
         )
         deleted_emp.save()
@@ -97,7 +99,7 @@ class RestoreEmployee(APIView):
                             designation=deleted_employee.designation, address=deleted_employee.address, educationData =deleted_employee.educationData,
             experienceData=deleted_employee.experienceData,
             referenceData=deleted_employee.referenceData,
-            selectedLanguages =deleted_employee.selectedLanguages ,
+            selectedLanguages =deleted_employee.languages ,
             Aadhaarno=deleted_employee.Aadhaarno,
             PanNo=deleted_employee.PanNo,
             IdentificationMark=deleted_employee.IdentificationMark,
@@ -106,7 +108,8 @@ class RestoreEmployee(APIView):
             TNMCNO =deleted_employee.TNMCNO,
             ValidlityDate=deleted_employee.ValidlityDate,
             dateofjoining =deleted_employee.dateofjoining,
-            bankaccnum =deleted_employee.bankaccnum)
+            bankaccnum =deleted_employee.bankaccnum,
+       salary=deleted_employee.salary)
         employee.save()
         deleted_employee.delete()
         return JsonResponse({'message': 'Employee restored successfully.'})

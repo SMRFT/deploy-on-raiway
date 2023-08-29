@@ -19,7 +19,7 @@ class EmployeeShowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Employee
-        fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining', 'IdentificationMark', 'selectedLanguages', 'bankaccnum', 'dob', 'Maritalstatus', 'Gender')
+        fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining', 'IdentificationMark', 'languages', 'bankaccnum', 'dob', 'Maritalstatus', 'Gender','salary')
 
 
 class AdminSerializer(serializers.ModelSerializer):

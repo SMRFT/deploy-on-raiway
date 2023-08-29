@@ -544,7 +544,7 @@ state = {
     return (
       
         <React.Fragment>
-     <NavbarComp />
+     {/* <NavbarComp /> */}
 
         
             <div className='normal-container' style={{ display: 'flex', flexDirection: 'column' }}>

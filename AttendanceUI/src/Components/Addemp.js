@@ -11,7 +11,7 @@ import { Radio, Checkbox } from 'semantic-ui-react';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import VerticalTabs from "./VerticalTabs";
-
+import moment from "moment";
 
 
 function Addemp() {
@@ -33,6 +33,7 @@ function Addemp() {
   const [address, setAddress] = useState("");
   const [proof, setProof] = useState(null);
   const [certificates, setCertificate] = useState(null);
+  const [salary, setSalary] = useState("");
   const [message, setMessage] = useState("");
   const [isShown, setIsShown] = useState(true);
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -155,7 +156,7 @@ function Addemp() {
     data.append("age",age);
     data.append("department", selectedDepartment);
     data.append("RNRNO", RNRNO);
-    data.append("selectedLanguages",languages);
+    data.append("languages",languages);
     data.append("TNMCNO", TNMCNO);
     data.append("ValidlityDate", ValidlityDate);
     data.append("designation", designation);
@@ -166,6 +167,7 @@ function Addemp() {
     data.append("Maritalstatus", Maritalstatus);
     data.append("Aadhaarno", Aadhaarno);
     data.append("PanNo", PanNo);
+    data.append("salary", salary);
     // data.append("proof", proof);
     // data.append("certificates", certificates);
     data.append("shift", shift);
@@ -235,7 +237,9 @@ function Addemp() {
     }
     return new File([u8arr], filename);
   }
-
+  const handleDateofjoiningChange = (date) => {
+    setDateOfJoining(date);
+  };
    // Validation for forms
    function validateName(name) {
     let error = "";
@@ -245,7 +249,13 @@ function Addemp() {
     }
     return error;
   }
-  
+  function validateSalary(salary) {
+    let error = "";
+    if (salary !== "" && !/^\d+$/.test(salary)) {
+      error = "*Only numbers are allowed";
+    }
+    return error;
+  }
   function validateId(id) {
     let error = "";
     if (!id.match(/^[0-9]*$/)) {
@@ -292,13 +302,13 @@ function Addemp() {
     return error;
   }
 
-  // function validateDateOfJoining(dateofjoining) {
-  //   let error = "";
-  //   if (dateofjoining !== "" && !/^\d{4}-\d{2}-\d{2}$/.test(dateofjoining)) {
-  //     error = "*Invalid date format. Please use YYYY-MM-DD";
-  //   }
-  //   return error;
-  // }
+  function validateDateOfJoining(dateofjoining) {
+    let error = "";
+    if (dateofjoining !== "" && !/^\d{4}-\d{2}-\d{2}$/.test(dateofjoining)) {
+      error = "*Invalid date format. Please use YYYY-MM-DD";
+    }
+    return error;
+  }
 
   function validateBankAccNum(bankaccnum) {
     let error = "";
@@ -591,30 +601,32 @@ function Addemp() {
             <div className="col-sm-6">
             <Form.Field>
       <Col>
-        <div className="mb-3">
-          <label className="mx-3 form-label">
-            <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>
-              Date Of Joining
-            </div>
-          </label>
-          <div className="col-sm-7">
-          <DatePicker
-  style={{ borderRadius: 140, width: "100%" }}
-  customInput={<input style={{ borderRadius: '40px' }} />}
-  selected={dateofjoining}
-  placeholderText="Enter your Date Of Joining"
-  onChange={date => { setDateOfJoining(date); }}
-  required
-  autoComplete="off"
-  dateFormat="yyyy-MM-dd" // Use lowercase 'yyyy' for the year
-  showMonthDropdown // Display month dropdown
-  showYearDropdown  // Display year dropdown
-  dropdownMode="select" // Use select for dropdowns
-  selects="day" // Enable selecting day only
-/>
-
-          </div>
-        </div>
+      <div className="col-sm-6">
+            <label className="mx-3 form-label">
+              <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>
+                Date Of Joining
+              </div>
+            </label>
+            <input
+                className="form-control-label text-muted"
+                style={{ borderRadius: 140, width: "150px", borderColor: "lightgrey", borderWidth: "1px", height: "0.9cm", padding: "10px" }}
+                placeholder="Select Date"
+                onClick={() => document.getElementById('dateofjoining-picker').click()}
+                value={dateofjoining ? moment(dateofjoining).format('YYYY-MM-DD') : ''}
+              />
+              <DatePicker
+                id="dateofjoining-picker"
+                selected={dateofjoining}
+                onChange={handleDateofjoiningChange}
+                dateFormat="yyyy-MM-dd"
+                peekNextMonth
+                showMonthDropdown
+                showYearDropdown
+                dropdownMode="select"
+                className="d-none"
+              />
+              </div>
+             
       </Col>
     </Form.Field>
               </div>
@@ -816,6 +828,52 @@ function Addemp() {
                   </div>
                 </Col>
               </Form.Field>
+              </div>
+              <div className="row">
+              <div className="col-sm-6">
+              <Form.Field>
+                <Col>
+                  <div className="mb-3">
+                    <label className="mx-3 form-label"><div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>Bank Account Number</div></label>
+                    <div className="col-sm-7">
+                      <input style={{ borderRadius: 40,width:"100%"}}
+                        className=" mx-4 form-control"
+                        type="text"
+                        value={bankaccnum}
+                        placeholder="Enter your Bank account number"
+                        ref={register("bankaccnum", { pattern: /^[0-9]{9,18}$/ })}
+                        required
+                        autoComplete="off"
+                        onChange={e => { setBankAccNum(e.target.value); validateBankAccNum(e.target.value); }}
+                      />
+                      <div style={{ color: "red", marginLeft: "6%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateBankAccNum(bankaccnum) ? <p>{validateBankAccNum(bankaccnum)}</p> : null}</div>
+                    </div>
+                  </div>
+                </Col>
+              </Form.Field>
+              </div>
+              <div className="col-sm-6">
+              <Form.Field>
+                <Col>
+                  <div className="mb-3">
+                    <label className="mx-3 form-label"><div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>Salary</div></label>
+                    <div className="col-sm-7">
+                      <input style={{ borderRadius: 40,width:"100%"}}
+                        className=" mx-4 form-control"
+                        type="text"
+                        value={salary}
+                        placeholder="Enter your Salary"
+                        ref={register("salary", { pattern: /^\d+$/ })}
+                        required
+                        autoComplete="off"
+                        onChange={e => { setSalary(e.target.value); validateSalary(e.target.value); }}
+                      />
+                      <div style={{ color: "red", marginLeft: "6%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateSalary(salary) ? <p>{validateSalary(salary)}</p> : null}</div>
+                    </div>
+                  </div>
+                </Col>
+              </Form.Field>
+              </div>
               </div>
               <div className="col-sm-6">
               <Form.Field>
@@ -1389,7 +1447,7 @@ function Addemp() {
  ]
 
   return (
-    <body className="Addemp">
+    <body className="addemp">
       
       <div className="App">
         <VerticalTabs tabs={tabs} />

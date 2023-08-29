@@ -249,17 +249,21 @@ const WebcamCaptureLogin = () => {
         />
       )}
 
-      <div className="empdetails" style={{ display: isShown ? "none" : "block" }}>
-        <div>
-          <br/>
-          {employee.id && <p style={{ fontWeight: "bold"}}>ID: {employee.id}</p>}
-          {employee.name && <p style={{ fontWeight: "bold"}}>Name: {employee.name}</p>}
-          {employee.designation && <p style={{ fontWeight: "bold"}}>Designation: {employee.designation}</p>}
-          {login && <p style={{ fontWeight: "bold" }}>Logintime: {login}</p>}
-          <br/>
-        </div>
-        <div className="message" style={{ marginLeft: "0.5%", marginTop: "3%" }}>{message ? <p>{message}</p> : null}</div><br/>
-      </div>
+<div className="empdetails" style={{ display: isShown ? "none" : "block" }}>
+  <div>
+    <br/>
+    {employee.id && <p style={{ fontWeight: "bold"}}>ID: {employee.id}</p>}
+    {employee.name && <p style={{ fontWeight: "bold"}}>Name: {employee.name}</p>}
+    {employee.designation && <p style={{ fontWeight: "bold"}}>Designation: {employee.designation}</p>}
+    {login && <p style={{ fontWeight: "bold" }}>Logintime: {login}</p>}
+    <br/>
+  </div>
+  <div className="message" style={{ marginLeft: "0.5%", marginTop: "3%" }}>
+    {message ? <p>{message}</p> : null}
+  </div>
+  <br/>
+</div>
+
       {/* <Footer /> */}
     </React.Fragment >
   );
