@@ -1,56 +1,28 @@
 body {
-  background-color: rgb(225, 247, 248);
-}
-.employee-name{
-  margin-right: 92%;
-  margin-top: -0.1% !important;
-  color:rgb(7, 74, 78);
-  border: none;
-  text-align: center;
-  text-decoration: none;
-  font-size: 16px;
+  background-color: rgb(255, 255, 255);
 }
 
-.id, 
-.salary,
-.department{
-  color: rgb(8, 108, 116);
-  border: none;
-  text-align: center;
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: bold;
-  font-family: cursive;
+.files {
+display: inline-block;
+box-shadow: 2px 5px #f7f6f6;
+padding: 40px;
+border-radius: 5%;
+background-color: rgb(255, 255, 255) !important;
+height: 100% !important;
+width: 20% !important;
 }
-
-.id{
-  margin-left: 20% !important;
-  margin-top: -8% !important;
-}
-
-.department{
-  margin-left: 5% !important;
-  margin-top: -8% !important;
-}
-
-.salary{
-  margin-left: 5%  !important;
-  margin-top: -8% !important;
-}
-
 
 
 .edit-button{
-box-shadow: 0 8px 16px 0 rgba(7, 238, 199, 0.2), 0 6px 20px 0 rgba(5, 99, 83, 0.2);
-margin-top: -5% !important;
-margin-right: 5%;
+margin-top: -2% !important;
+margin-right: 24% !important;
 border-radius: 10px;
 width: 3cm;
-height: 1cm;
+height: 0.8cm;
 float: right;
-font-size:medium;
-font-family: cursive;
-background-color: #209292;
+font-size:large;
+font-family: serif;
+background-color: rgb(159, 218, 236);
 color: #ffffff;
 border: none;
 outline: none;
@@ -60,12 +32,12 @@ transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
 .edit-button:hover {
 transform: scale(1.05);
-box-shadow: 0 6px 12px rgba(7, 238, 199, 0.4), 0 4px 16px rgba(5, 99, 83, 0.4);
+box-shadow: 0 8px 16px rgb(156, 215, 233), 0 4px 16px rgb(97, 182, 207);
 }
 
 .edit-button:active {
 transform: scale(0.95);
-box-shadow: 0 2px 4px rgba(7, 238, 199, 0.4), 0 1px 6px rgba(5, 99, 83, 0.4);
+box-shadow: 0 8px 16px rgb(156, 215, 233), 0 4px 16px rgb(97, 182, 207);
 }
 
 .summary-container,
@@ -75,17 +47,21 @@ box-shadow: 0 2px 4px rgba(7, 238, 199, 0.4), 0 1px 6px rgba(5, 99, 83, 0.4);
 .EmployeeHours-container
 {
   margin: 50%;
-  margin-top: -14%;
-  width: fit-content;
+  margin-top: 4%;
+  margin-left: 45%;
+  width: -moz-fit-content; 
+  width: fit-content; 
   height: 4cm !important;
   justify-content: center;
   align-items: center;
 }
 
+
 .summary-table-container,
 .overtime-table-container,
 .attendance-table-container,
-.payroll-table-container{
+.payroll-table-container,
+.employeehours-table-container{
   margin: 15%;
   margin-left: 16%;
   margin-top: -47%;
@@ -94,24 +70,29 @@ box-shadow: 0 2px 4px rgba(7, 238, 199, 0.4), 0 1px 6px rgba(5, 99, 83, 0.4);
 }
 
 .summary-table-container{
-  margin-left: 16%;
+  margin-left: 4%;
 }
 
 .overtime-table-container{
-  margin-left: 38%;
+  margin-left: 20%;
 }
 
 .attendance-table-container{
-  margin-left: 18%;
+  margin-left: 4%;
+}
+
+.employeehours-table-container{
+margin-top: -38%;
+margin-left: 8%;
 }
 
 .payroll-table-container{
-margin-left: 35%;
+margin-left: 32%;
 background-color: #cce9eede;
 padding: 10px;
 border: none;
 width: 40%;
-height: fit-content;
+height: auto;
 justify-content: center;
 border-radius: 5%;
 display: flex;
@@ -133,14 +114,14 @@ align-items: center;
   display: inline-block;
   width: 1px;
   height: 70px;
-  background-color: rgb(208, 212, 212);
-  margin: 0 30px;
+  background-color: rgb(200, 201, 201);
+  margin: 0 18px;
   vertical-align: middle;
 }
 
 .employee-details-container {
-  margin: 15%;
-  margin-top: 2%;
+  margin: 2%;
+  margin-top: 4%;
   padding: 10px;
   border: none;
   background-color: #cce9eede;
@@ -174,37 +155,19 @@ align-items: center;
   margin-right: 10px;
 }  
 
-.normal-container{
-  margin-left: 18%;
-  margin-top: 5%;
-  width: 75% !important;
-  height: 2.6cm !important;
-  border: none;
-  background: linear-gradient(to top right, #209999 0%, #c9f1f1 100%);
-}
 
 .icon-container {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  margin: 18%;
-  margin-top: 1%;
+  margin-top: -10%;
+  margin-left: 22%;
   padding: 10px;
-  width: 75% !important;
+  width: 72% !important;
   height: 2.5cm !important;
-  border: none;
-  background: linear-gradient(to top right, #209999 0%, #c9f1f1 100%);
-}
-
-thead th {
-  background-color: #bedde4de;
-  color:#5f9ea0;
-  white-space: nowrap;
-  text-align: center;
-}
-
-td{
-  text-align: center;
+  border: 1px solid rgb(191, 193, 194);
+  border-radius: 0.2cm;
+  font-family: serif !important;
 }
 
 .download-button,
