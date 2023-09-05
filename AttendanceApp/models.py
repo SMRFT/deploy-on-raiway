@@ -86,17 +86,25 @@ class Admin(AbstractUser):
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+    
 # Designation count details
 
 
 class Designation(models.Model):
     label = models.CharField(max_length=500)
     value = models.IntegerField()
+
 # department count details model (Donut chart)
+
 class department(models.Model):
     label = models.CharField(max_length=500)
     value = models.IntegerField()
+
+
+
 # Employee model by department (Donut chart)
+
 class Employeebydepartment(models.Model):
     id = models.CharField(max_length=500,primary_key=True)
     name = models.CharField(max_length=500)

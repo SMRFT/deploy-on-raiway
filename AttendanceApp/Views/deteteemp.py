@@ -72,7 +72,7 @@ class DeleteEmp(APIView):
         subject = f"Employee Deleted - {emp_name}"
         message = f"The employee {emp_name} has been deleted from the system."
         from_email = "parthibansmrft@gmail.com"
-        recipient_list = ["parthipan3121461@gmail.com"]
+        recipient_list = ["parthibansmrft@gmail.com"]
         send_mail(subject, message, from_email, recipient_list)
         return Response(status=status.HTTP_204_NO_CONTENT)
 class DeletedEmployeeList(APIView):
@@ -95,21 +95,27 @@ class RestoreEmployee(APIView):
     def post(self, request):
         data = request.data
         deleted_employee = DeletedEmployee.objects.get(id=data["id"])
-        employee = Employee(id=deleted_employee.id,name=deleted_employee.name, email=deleted_employee.email, department=deleted_employee.department,mobile=deleted_employee.mobile,
-                            designation=deleted_employee.designation, address=deleted_employee.address, educationData =deleted_employee.educationData,
-            experienceData=deleted_employee.experienceData,
-            referenceData=deleted_employee.referenceData,
-            selectedLanguages =deleted_employee.languages ,
-            Aadhaarno=deleted_employee.Aadhaarno,
-            PanNo=deleted_employee.PanNo,
-            IdentificationMark=deleted_employee.IdentificationMark,
-            BloodGroup=deleted_employee.BloodGroup,
-            RNRNO=deleted_employee.RNRNO,
-            TNMCNO =deleted_employee.TNMCNO,
-            ValidlityDate=deleted_employee.ValidlityDate,
-            dateofjoining =deleted_employee.dateofjoining,
-            bankaccnum =deleted_employee.bankaccnum,
-       salary=deleted_employee.salary)
+        employee = Employee(id=deleted_employee.id,
+                            name=deleted_employee.name, 
+                            email=deleted_employee.email, 
+                            department=deleted_employee.department,
+                            mobile=deleted_employee.mobile,
+                            designation=deleted_employee.designation, 
+                            address=deleted_employee.address, 
+                            educationData =deleted_employee.educationData,
+                            experienceData=deleted_employee.experienceData,
+                            referenceData=deleted_employee.referenceData,
+                            languages =deleted_employee.languages ,
+                            Aadhaarno=deleted_employee.Aadhaarno,
+                            PanNo=deleted_employee.PanNo,
+                            IdentificationMark=deleted_employee.IdentificationMark,
+                            BloodGroup=deleted_employee.BloodGroup,
+                            RNRNO=deleted_employee.RNRNO,
+                            TNMCNO =deleted_employee.TNMCNO,
+                            ValidlityDate=deleted_employee.ValidlityDate,
+                            dateofjoining =deleted_employee.dateofjoining,
+                            bankaccnum =deleted_employee.bankaccnum,
+                            salary=deleted_employee.salary)
         employee.save()
         deleted_employee.delete()
         return JsonResponse({'message': 'Employee restored successfully.'})

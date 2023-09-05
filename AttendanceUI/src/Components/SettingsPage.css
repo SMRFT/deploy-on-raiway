@@ -1,0 +1,26 @@
+ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 10px;
+  }
+  a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensures the content is vertically centered within the viewport */
+    text-align: center; /* Centers the text horizontally */
+  }
+  .link-with-space {
+    margin-right: 60% !important; /* Adjust the margin-right value to control the space between links */
+  }

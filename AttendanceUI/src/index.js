@@ -20,6 +20,7 @@ import EmployeeHours from "./Components/EmployeeHours";
 import Breakdetails from "./Components/Breakdetails";
 import Deleteemp from "./Components/Deleteemp";
 import AdminReg from "./Adminreg";
+import SettingsPage from "../src/Components/SettingsPage.js";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
@@ -38,7 +39,7 @@ root.render(
       <Route path="/Breakdetails/*" element={<Breakdetails/>} />
       <Route path="/Deleteemp/*" element={<Deleteemp/>} />
       <Route path="/AdminReg/*" element={<AdminReg/>} />
-
+      <Route  path="/admin/Viewemp/SettingsPage/*" element={<SettingsPage />} ></Route>
       {/* <Route path="/Summary/*" element={<Summary />} /> */}
     </Routes>
   </BrowserRouter>

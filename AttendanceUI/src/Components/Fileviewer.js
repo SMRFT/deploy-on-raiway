@@ -76,6 +76,7 @@ function DownloadButton(props) {
         };
          // Click event handler for the proof icon
          const handleProofIconClick = () => {
+            setShowTables(false)
             setShowAttendanceTable(false);
             setShowOvertimeTable(false);
             setShowTable(false);
@@ -89,6 +90,7 @@ function DownloadButton(props) {
 
         // Click event handler for the certificates icon
         const handleCertificatesIconClick = () => {
+            setShowTables(false);
             setShowAttendanceTable(false);
             setShowOvertimeTable(false);
             setShowTable(false);
@@ -102,62 +104,67 @@ function DownloadButton(props) {
   
         // Click event handler for the summary icon
         const handleSummaryIconClick = () => {
-        setShowAttendanceTable(false);
-        setShowOvertimeTable(false);
-        setShowPayrollTable(false);
-        setShowEmployeeHoursTable(false);
-        closePreviousContent(); 
-        setActiveIcon("summary"); 
-        toggleSummaryPicker(); 
-        closeIframe(); 
+            setShowTables(false);
+            setShowAttendanceTable(false);
+            setShowOvertimeTable(false);
+            setShowPayrollTable(false);
+            setShowEmployeeHoursTable(false);
+            closePreviousContent(); 
+            setActiveIcon("summary"); 
+            toggleSummaryPicker(); 
+            closeIframe(); 
         };
 
         // Click event handler for the attendance icon
         const handleAttendanceIconClick = () => {
-        setShowOvertimeTable(false);
-        setShowTable(false);
-        setShowPayrollTable(false);
-        setShowEmployeeHoursTable(false);
-        closePreviousContent();
-        setActiveIcon("attendance"); 
-        toggleAttendancePicker(); 
-        closeIframe(); 
+            setShowTables(false);
+            setShowOvertimeTable(false);
+            setShowTable(false);
+            setShowPayrollTable(false);
+            setShowEmployeeHoursTable(false);
+            closePreviousContent();
+            setActiveIcon("attendance"); 
+            toggleAttendancePicker(); 
+            closeIframe(); 
         };
 
         // Click event handler for the overtime icon
         const handleOvertimeIconClick = () => {
-        setShowPayrollTable(false);
-        setShowAttendanceTable(false);
-        setShowTable(false);
-        setShowEmployeeHoursTable(false);
-        closePreviousContent(); 
-        setActiveIcon("overtime"); 
-        toggleOvertimePicker(); 
-        closeIframe(); 
+            setShowTables(false);
+            setShowPayrollTable(false);
+            setShowAttendanceTable(false);
+            setShowTable(false);
+            setShowEmployeeHoursTable(false);
+            closePreviousContent(); 
+            setActiveIcon("overtime"); 
+            toggleOvertimePicker(); 
+            closeIframe(); 
         };
 
         // Click event handler for the payroll icon
         const handlePayrollIconClick = () => {
-          setShowAttendanceTable(false);
-          setShowOvertimeTable(false);
-          setShowTable(false);
-          setShowEmployeeHoursTable(false);
-          closePreviousContent(); 
-          setActiveIcon("payroll"); 
-          togglePayrollPicker(); 
-          closeIframe(); 
+              setShowTables(false);
+              setShowAttendanceTable(false);
+              setShowOvertimeTable(false);
+              setShowTable(false);
+              setShowEmployeeHoursTable(false);
+              closePreviousContent(); 
+              setActiveIcon("payroll"); 
+              togglePayrollPicker(); 
+              closeIframe(); 
           };
 
         // Click event handler for the EmployeeHours icon
           const handleEmployeeHoursIconClick = () => {
-            setShowAttendanceTable(false);
-            setShowOvertimeTable(false);
-            setShowTable(false);
-            setShowPayrollTable(false);
-            closePreviousContent(); // close previous content
-            setActiveIcon("EmployeeHours"); // set active icon
-            toggleEmployeeHoursPicker(); 
-            closeIframe(); 
+                setShowAttendanceTable(false);
+                setShowTables(false);
+                setShowOvertimeTable(false);
+                setShowTable(false);
+                setShowPayrollTable(false);
+                closePreviousContent(); // close previous content
+                setActiveIcon("EmployeeHours"); // set active icon
+                toggleEmployeeHoursPicker(); 
+                closeIframe(); 
             };
 
         // Click event handler for the employee details icon
@@ -178,6 +185,7 @@ function DownloadButton(props) {
       setShowAttendanceTable(false);
       setShowOvertimeTable(false);
       setShowTable(false);
+      setShowTables(false);
       setShowPayrollTable(false);
       setShowEmployeeHoursTable(false);
       closePreviousContent();
@@ -195,6 +203,7 @@ function DownloadButton(props) {
       //View the file in an iframe when the View button is clicked
       const viewFile1 = () => {
         setIsLoading(true);
+        setShowTables(false);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
         setShowTable(false);
@@ -346,6 +355,7 @@ function DownloadButton(props) {
     
     const toggleSummaryPicker = () => {
         setShowSummaryPicker(!showSummaryPicker);
+        setShowTables(false);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
         setShowPayrollTable(false);
@@ -355,6 +365,7 @@ function DownloadButton(props) {
 
       const toggleAttendancePicker = () => {
         setShowAttendancePicker(!showAttendancePicker);
+        setShowTables(false);
         setShowOvertimeTable(false);
         setShowTable(false);
         setShowPayrollTable(false);
@@ -364,6 +375,7 @@ function DownloadButton(props) {
 
       const toggleOvertimePicker = () => {
         setShowOvertimePicker(!showOvertimePicker);
+        setShowTables(false);
         setShowAttendanceTable(false);
         setShowTable(false);
         setShowPayrollTable(false);
@@ -373,6 +385,7 @@ function DownloadButton(props) {
 
       const togglePayrollPicker = () => {
         setShowPayrollPicker(!showPayrollPicker);
+        setShowTables(false);
         setShowOvertimeTable(false);
         setShowAttendanceTable(false);
         setShowEmployeeHoursTable(false);
@@ -382,6 +395,7 @@ function DownloadButton(props) {
 
       const toggleEmployeeHoursPicker = () => {
         setShowEmpolyeeHourspicker(!showEmpolyeeHours);
+        setShowTables(false);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
         setShowPayrollTable(false);
@@ -391,6 +405,7 @@ function DownloadButton(props) {
 
       const handleSummaryClick = () => {
         setShowTable(!showTable);
+        setShowTables(false);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
         setShowPayrollTable(false);
@@ -400,6 +415,7 @@ function DownloadButton(props) {
 
       const handleOvertimeClick = () => {
         setShowOvertimeTable(!showOvertimeTable);
+        setShowTables(false);
         setShowAttendanceTable(false);
         setShowTable(false);
         setShowPayrollTable(false);
@@ -409,6 +425,7 @@ function DownloadButton(props) {
 
       const handleAttendanceClick = () => {
         setShowAttendanceTable(!showAttendanceTable);
+        setShowTables(false);
         setShowOvertimeTable(false);
         setShowPayrollTable(false);
         setShowTable(false);
@@ -418,6 +435,7 @@ function DownloadButton(props) {
 
       const handlePayrollClick = () => {
         setShowPayrollTable(!showPayrollTable);
+        setShowTables(false);
         setShowOvertimeTable(false);
         setShowAttendanceTable(false);
         setShowTable(false);
@@ -427,6 +445,7 @@ function DownloadButton(props) {
 
       const handleEmployeeHoursClick = () => {
         setShowEmployeeHoursTable(!showEmployeeHoursTable);
+        setShowTables(false);
         setShowTable(false);
         setShowAttendanceTable(false);
         setShowOvertimeTable(false);
@@ -590,7 +609,16 @@ state = {
                       onClick={() => {handleNavItemClick('dashboard');closeIframe();}}
                     > Dashboard</Nav.Link>
                   </div>
-
+                  <div className="sidebar-nav-item">
+                    <Nav.Link as={Link} to="/Admin/Deleteemp" className={`Deleteemp ${state.activeLink === 'Deleteemp' ? 'active' : ''}`}
+                      onClick={() => {handleNavItemClick('Deleteemp');closeIframe();}}
+                    >Pending Approvals</Nav.Link>
+                  </div>
+                  <div className="sidebar-nav-item">
+                    <Nav.Link as={Link} to="/Admin/AdminReg" className={`AdminReg ${state.activeLink === 'AdminReg' ? 'active' : ''}`}
+                    onClick={() => {handleNavItemClick('AdminReg');closeIframe();}}
+                    >Admin</Nav.Link>
+                  </div>
                 </ul>
                 </div>
             </div>
@@ -602,12 +630,12 @@ state = {
                 <Route exact path='/Dashboard' element={<Dashboard />} ></Route>
                 <Route exact path='/Summary' element={<Summary />} ></Route>
                 <Route exact path='/EmployeeHours' element={<EmployeeHours/>} ></Route>   
-               
-               
+                <Route exact path='/Deleteemp' element={<Deleteemp/>} ></Route>
+                <Route exact path='/AdminReg' element={<AdminReg/>} ></Route>
             </Routes>
             </main>
         </div>
-        <Card md={8} className="files"><br/>
+        <Card md={2} className="files"><br/>
         <Card.Body style={{ display: 'flex', flexDirection: 'column'}}>
         <img
           src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${name1 + '_' + id + '_' + 'profile' + '.jpg'}`}
@@ -615,14 +643,14 @@ state = {
             width: '70px',
             height: '70px',
             borderRadius: '20%',
-            marginTop:'-25%',
-            marginLeft: '-10%'
+            marginTop:'-16%',
+            marginLeft: '-6%'
           }}
           alt="Profile Picture"
         />
        {employee && (
         <div >
-          <div style={{ color: "#525E75", fontWeight: "bold", fontFamily: "serif", fontSize: "17px", marginLeft:"38%",marginTop:"-35%",whiteSpace:'nowrap' }}>
+          <div style={{ color: "#525E75", fontWeight: "bold", fontFamily: "serif", fontSize: "17px", marginLeft:"38%",marginTop:"-38%",whiteSpace:'nowrap' }}>
             {employee.name}
           </div>
           <div style={{ color: "#525E75", fontFamily: "serif", fontSize: "16px", marginLeft:"38%",whiteSpace:'nowrap'}}>
@@ -634,17 +662,6 @@ state = {
         </div>
         )}
         </Card.Body>
-
-            {employee && (
-                    <button
-                    className='edit-button'
-                    onClick={() => {handleEditIconClick();setEditMode(!editMode)}}
-                    data-toggle="modal"
-                    >
-                    {editMode ? "Close" : "Edit Details"}
-                    </button>
-                )}
-          
              </Card>  <br/>    
 
             <div className="icon-container">
@@ -653,6 +670,9 @@ state = {
                 {showTables ? "" : ""} 
                 </a>
                 <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-60px',marginTop:"50px",whiteSpace:"nowrap"}}>Employee Details</div>
+                <div className="divider"></div>
+                <i onClick={() => {handleEditIconClick();setEditMode(!editMode)}} className="bi bi-pencil-square" style={{fontSize:"35px",color:"darkslategrey",marginTop:"-0.3%",cursor:"pointer"}}></i>
+                <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-45px',marginTop:"50px",whiteSpace:"nowrap"}}>Edit Details</div> 
                 <div className="divider"></div>
                 <a onClick={handleProofIconClick} className="view-link" style={{marginLeft:"-1%", marginTop:"-0.3%",cursor: "pointer"}} disabled={isLoading}>
                    {isLoading && activeIcon === "proof" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
@@ -689,13 +709,13 @@ state = {
 
             {showEditForm && employee && ( // Show EditForm component if showEditForm is true
                <div style={{marginLeft:"-10%",marginTop:"4%"}}>
-            <div style={{fontSize:"26px",color:"darkcyan",whiteSpace:"nowrap",marginLeft:"50%"}}>Edit Form</div><br/>
+            <div style={{fontSize:"26px",color:"darkcyan",whiteSpace:"nowrap",marginLeft:"50%",fontFamily:"serif"}}>Edit Form</div><br/>
             <EditForm theuser={employee} toggleForm={handleEditIconClick} /></div>
             )}    
 
                 {showSummaryPicker && (
                  <div className='summary-container'>
-                <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Summary Report</div><br/>
+                <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Summary Report</div><br/>
                  <DatePicker
                    selected={myDay}
                    onChange={(date) => setMyDay(date)}
@@ -755,7 +775,7 @@ state = {
 
                 {showAttendancePicker && (
                  <div className='attendance-container'>
-                 <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Attendance Report</div><br/>
+                 <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Attendance Report</div><br/>
                  <DatePicker
                    selected={myDay}
                    onChange={(date) => setMyDay(date)}
@@ -815,7 +835,7 @@ state = {
 
                 {showOvertimePicker && (
                  <div className='overtime-container'>
-                <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Overtime Report</div><br/>
+                <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Overtime Report</div><br/>
                  <DatePicker
                    selected={myDay}
                    onChange={(date) => setMyDay(date)}
@@ -871,7 +891,7 @@ state = {
 
               {showPayrollPicker && (
                  <div className='payroll-container'>
-                 <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Payroll Report</div><br/>
+                 <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Payroll Report</div><br/>
                  <DatePicker
                    selected={myDay}
                    onChange={(date) => setMyDay(date)}
@@ -887,7 +907,7 @@ state = {
 
             {showPayrollTable && (
               <div className='payroll-table-container'>
-                <div style={{fontFamily:"-moz-initial",fontSize:"22px",color:"darkcyan",whiteSpace:"nowrap"}}>Salary Summary</div><br/>
+                <div style={{fontFamily:"serif",fontSize:"22px",color:"darkcyan",whiteSpace:"nowrap"}}>Salary Summary</div><br/>
                 {userexportdata.map((data) => {
                         // Specify the ID for which you want to display the attendance report
                         const targetId = id;
@@ -946,7 +966,7 @@ state = {
 
             {showEmpolyeeHours && (
             <div className="EmployeeHours-container">
-              <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Employee Hours Report</div><br/>
+              <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Employee Hours Report</div><br/>
             <div className="monthyear">
             <label htmlFor="date">Select Month & Year:</label>
             <DatePicker
@@ -1049,7 +1069,7 @@ state = {
                 <div >    
                 {showTables && (
                 <>
-                <div style={{fontFamily:"-moz-initial",fontSize:"25px",color:"darkcyan",marginLeft:"35%",marginTop:"4%"}}>{employee.name}'s Details</div><br/>
+                <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",marginLeft:"35%",marginTop:"4%"}}>{employee.name}'s Details</div><br/>
                 <div style={{ display: "flex" }}>
                 <div className="employee-details-container">
                 <div className="details-row">
@@ -1145,7 +1165,7 @@ state = {
                 </div>
                 </div>
                         <div style={{marginLeft:"2%",marginTop:"2%"}}>
-                        <caption style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Education Data</caption><br/>
+                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Education Data</caption><br/>
                             {educationData ? (
                                 <table className="table table-hover">
                                     <thead>
@@ -1181,7 +1201,7 @@ state = {
 
                         <div style={{ display: "flex",marginLeft: '2%' ,marginTop:"4%"}}>
                         <div>
-                        <caption style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Experience Data</caption><br/>
+                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Experience Data</caption><br/>
                             {experienceData ? (
                                 <table className="table table-hover">
                                     <thead className='thead'>
@@ -1212,7 +1232,7 @@ state = {
                             )}
                         </div>
                         <div style={{ marginLeft: '2%' }}>
-                        <caption style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Reference Data </caption><br/>
+                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Reference Data </caption><br/>
                             {referenceData ? (
                                 <table className="table table-hover">
                                     <thead>

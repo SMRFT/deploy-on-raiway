@@ -104,18 +104,43 @@ const handleCloseModal = () => {
   const navigateToFileviewer = () => {
   };
   ///delete employee
-  const deleteEmployee = async (e) => {
-    if (window.confirm("Are you sure you want to delete this employee?"))
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [selectedEmployeeToDelete, setSelectedEmployeeToDelete] = useState(null);
+
+  const openDeleteConfirmation = (employee) => {
+    setSelectedEmployeeToDelete(employee);
+    setShowDeleteConfirmation(true);
+  };
+
+  const deleteEmployee = (employee) => {
+    openDeleteConfirmation(employee);
+  };
+    
+
+  const handleConfirmDelete = async () => {
+  if (selectedEmployeeToDelete) {
+    try {
       await fetch("http://127.0.0.1:7000/attendance/delemp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          id: e.id,
+          id: selectedEmployeeToDelete.id,
         }),
       });
-    window.location.reload(true);
-  };
+
+      // Update the state to remove the deleted employee without refreshing
+      setUsers((prevUsers) => {
+        return { blogs: prevUsers.blogs.filter((user) => user.id !== selectedEmployeeToDelete.id) };
+      });
+
+      // Close the confirmation modal
+      setShowDeleteConfirmation(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
 // fetch the data from the server and update the state
 const [breakusers, setBreakusers] = useState([]);
 const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
@@ -416,7 +441,19 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     </Button>
   </Modal.Footer>
 </Modal>
-
+<Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
+  <Modal.Header style={{ padding: "2%"}} closeButton>
+    <Modal.Title style={{fontFamily:"serif"}}>Confirm Delete</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    Are you sure you want to delete this employee?
+  </Modal.Body>
+  <Modal.Footer style={{ padding: "1%" }}>
+    <Button style={{ padding: "1%",fontFamily:"serif",fontSize:"18px" }} variant="danger" onClick={handleConfirmDelete}>
+      Delete
+    </Button>
+  </Modal.Footer>
+</Modal>
     </>
     <div style={{float:"left",marginTop:"10px"}}>
       <span style={{fontSize:"18px",color: 'rgb(103, 180, 204)',fontFamily:"cursive"}}>Views per page: </span>

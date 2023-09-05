@@ -3,6 +3,7 @@ import axios from "axios";
 import "./Admin.css";
 
 // import "./Adminreg.css";
+
 const AdminReg = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

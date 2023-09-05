@@ -44,6 +44,8 @@ import cv2
 import face_recognition
 import os
 from rest_framework.permissions import AllowAny
+
+
 class RetriveEmp(APIView):
     @csrf_exempt
     def get(self, request):
@@ -79,23 +81,40 @@ import cv2
 import numpy as np
 import face_recognition
 import datetime
-
-
+import io
+import gridfs
+from pymongo import MongoClient
 
 
 
 # Load known faces and names only once when the server starts
-known_faces_dir = 'images'  # Update this to the directory containing known faces
+client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
+db = client['data']
+fs = gridfs.GridFS(db)
+
 known_faces = []
 known_names = []
 
-for filename in os.listdir(known_faces_dir):
-    if filename.endswith('.jpg') or filename.endswith('.png'):
-        known_image = face_recognition.load_image_file(os.path.join(known_faces_dir, filename))
-        known_face_encoding = face_recognition.face_encodings(known_image)[0]
-        known_faces.append(known_face_encoding)
-        known_names.append(filename.split('.')[0])  # Extract the name from the file name
-
+# Iterate through GridFS to retrieve known images
+for file in db.fs.files.find({'filename': {'$regex': '.*\.(jpg|png)$'}}):
+    file_id = file['_id']
+    # Check if the file still exists in GridFS
+    if fs.exists(file_id):
+        file_data = fs.get(file_id).read()
+    
+    # Load the image data as bytes
+    known_image = face_recognition.load_image_file(io.BytesIO(file_data))
+    
+    # Get the face encodings if faces are detected
+    face_encodings = face_recognition.face_encodings(known_image)
+    
+    if face_encodings:
+        # Extract the name without the file extension
+        filename_parts = file['filename'].split('_')
+        if len(filename_parts) >= 2:
+            name_without_extension = '_'.join(filename_parts[:-1])
+            known_names.append(name_without_extension)
+            known_faces.append(face_encodings[0])
 @csrf_exempt
 def facial_recognition_view(request):
     if request.method == 'POST':
