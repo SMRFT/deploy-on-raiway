@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'; // Remove Link impo
 import profile from "../images/smrft(1).png";
 import "./Header.css";
 // import Notification from "./Notification";
-// import SettingsPage from './SettingsPage';
+import SettingsPage from './SettingsPage';
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Get the navigate function from React Router

@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 import jwt
 import datetime
 from .constants import Addemployee
-from AttendanceApp.models import Admin
+from AttendanceApp.models import Admin,PasswordResetRequest
 from AttendanceApp.serializers import EmployeeSerializer, AdminSerializer
 # from Attendance_Management.settings import SIMPLE_JWT,REST_FRAMEWORK
 from PIL import Image
@@ -156,38 +156,147 @@ class AdminLogin(APIView):
         user = Admin.objects.filter(email=email).first()
         if user is None:
             raise AuthenticationFailed('User not found!')
+        
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
+        
+        if not user.is_active:
+            raise AuthenticationFailed('User is not active!')
+        
         payload = {
             'id': user.id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
             'iat': datetime.datetime.utcnow()
         }
-        # token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8')
         token = jwt.encode(payload, 'secret', algorithm='HS256')
         response = Response()
         response.set_cookie(key='jwt', value=token, httponly=True)
         response.data = {
             'jwt': token,
             'email': user.email,
-                    'name': user.name,
-                    'role': user.role,
-                    'mobile': user.mobile
+            'name': user.name,
+            'role': user.role,
+            'mobile': user.mobile
         }
         return response
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 
-class AdminReg(APIView):
-    @csrf_exempt
-    def post(self, request):
+import secrets
+import string
+
+@csrf_exempt
+@api_view(['POST'])
+def admin_registration(request):
+    if request.method == 'POST':
         serializer = AdminSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save() 
-        return Response(serializer.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_text
+from django.http import HttpResponse
+from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.response import Response
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
+
+User = get_user_model()  # Get the User model
+
+from django.shortcuts import render
+
+@api_view(['GET'])
+def activate_account(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+
+        if default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            message = 'Account activated successfully!'
+        else:
+            message = 'Activation link is invalid.'
+    except User.DoesNotExist:
+        message = 'User not found.'
+    except Exception as e:
+        message = str(e)
+
+    return render(request, 'AttendanceApp/activation.html', {'message': message})
 
 
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+@api_view(['POST'])
+def send_reset_code(request):
+    if request.method == 'POST':
+        # Get the user's email address from the request data
+        user_email = request.data.get('email')
+
+        if user_email:
+            reset_code = generate_reset_code() 
+            
+            # Create a PasswordResetRequest object
+            reset_request = PasswordResetRequest(email=user_email, reset_code=reset_code)
+            reset_request.save()
+
+            # Send an email with a customized HTML message
+            subject = 'Password Reset'
+            html_message = render_to_string('AttendanceApp/password_reset_email.html', {'reset_code': reset_code})
+            plain_message = strip_tags(html_message)
+            from_email = 'parthibansmrft@gmail.com'
+            recipient_list = [user_email]
+
+            try:
+                send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
+                return Response({'message': 'Reset code sent successfully'})
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'error': 'Email address not provided'}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+import secrets
+import string
+
+def generate_reset_code(length=6):
+    # Define the character set for the reset code (you can customize this)
+    characters = string.ascii_letters + string.digits  # You can add more characters if needed
+
+    # Generate a random reset code of the specified length
+    reset_code = ''.join(secrets.choice(characters) for _ in range(length))
+
+    return reset_code
 
 
+@api_view(['PUT'])  # Use PUT or PATCH as per your preference
+def reset_password(request):
+    email = request.data.get('email')
+    new_password = request.data.get('newPassword')
 
+    if not email:
+        return Response({'error': 'Email address is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not new_password:
+        return Response({'error': 'New password is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Find the user in the database by email
+        user = Admin.objects.get(email=email)
+        # Update the user's password with the new password
+        user.password = make_password(new_password)
+        user.save()
+        return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+    except Admin.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class UserDetails(APIView):

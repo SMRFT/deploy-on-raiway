@@ -1,7 +1,7 @@
 from curses.ascii import EM
 from dataclasses import fields
 from rest_framework import serializers
-from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department
+from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -21,22 +21,49 @@ class EmployeeShowSerializer(serializers.ModelSerializer):
         model = Employee
         fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining', 'IdentificationMark', 'languages', 'bankaccnum', 'dob', 'Maritalstatus', 'Gender','salary')
 
-
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
 class AdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin
-        fields = ['name', 'email', 'password','role','mobile']
+        fields = ['id', 'name', 'email', 'password', 'role', 'mobile']
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def create(self, validated_data):
+        validated_data['is_active'] = False  # Set is_active to False initially
+
         password = validated_data.pop('password', None)
         instance = self.Meta.model(**validated_data)
         if password is not None:
             instance.set_password(password)
         instance.save()
+
+        # Generate an activation token for the user
+        token = default_token_generator.make_token(instance)
+        uid = urlsafe_base64_encode(force_bytes(instance.id))
+
+        # Build the activation link
+        activation_link = f"http://127.0.0.1:7000/attendance/activate/{uid}/{token}/"
+        
+        # Send an activation email to the user
+        subject = 'Activate your account'
+        message = f'Click the following link to activate your account: {activation_link}'
+        from_email = settings.EMAIL_HOST_USER  # Set this to your email address
+        to_email = instance.email
+        send_mail(subject, message, from_email, [to_email], fail_silently=False)
+
         return instance
+    
+class PasswordResetRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PasswordResetRequest
+        fields = '__all__'
+
 
 class EmployeedesignationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,10 +80,14 @@ class EmployeedepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = department
         fields = ('label', 'value')
+
+
 class EmployeeShowbydepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employeebydepartment
         fields = '__all__'
+
+
 class AdmincalendarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admincalendarlogin

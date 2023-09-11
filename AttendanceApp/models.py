@@ -76,20 +76,41 @@ class DeletedEmployee(models.Model):
     salary = models.IntegerField(blank=True, null=True)
 
 # Admin Login
-
+from bson import ObjectId
+class ObjectIdField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 24  # ObjectId is typically 24 characters long
+        kwargs['primary_key'] = True
+        kwargs['editable'] = False
+        kwargs['default'] = str(ObjectId())
+        super(ObjectIdField, self).__init__(*args, **kwargs)
+    
+    def pre_save(self, model_instance, add):
+        if add and not getattr(model_instance, self.attname):
+            setattr(model_instance, self.attname, str(ObjectId()))
+        return super(ObjectIdField, self).pre_save(model_instance, add)
+    
 class Admin(AbstractUser):
     name = models.CharField(max_length=500)
     email = models.EmailField(max_length=500, unique=True)
     password = models.CharField(max_length=500)
-    role = models.CharField(max_length=100)
-    mobile = models.CharField(max_length=100)
+    role = models.CharField(max_length=100,)
+    mobile = models.CharField(max_length=100, blank=True, null=True)
+
+    
+    # You can specify 'id' explicitly
+    id = ObjectIdField()
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+    def __str__(self):
+        return self.email
 
-    
-# Designation count details
-
+class PasswordResetRequest(models.Model):
+    email = models.EmailField()
+    reset_code = models.CharField(max_length=6)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
 
 class Designation(models.Model):
     label = models.CharField(max_length=500)

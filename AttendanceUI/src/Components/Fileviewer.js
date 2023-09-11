@@ -638,7 +638,7 @@ state = {
         <Card md={2} className="files"><br/>
         <Card.Body style={{ display: 'flex', flexDirection: 'column'}}>
         <img
-          src={`https://smrftadmin.onrender.com/attendance/get_file?filename=${name1 + '_' + id + '_' + 'profile' + '.jpg'}`}
+          src={`http://127.0.0.1:7000/attendance/get_file?filename=${name1 + '_' + id + '_' + 'profile' + '.jpg'}`}
           style={{
             width: '70px',
             height: '70px',

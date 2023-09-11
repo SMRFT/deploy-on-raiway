@@ -74,10 +74,7 @@ function Admin(props) {
         
   <style>{'body { background-color: rgb(255, 255, 255); }'}</style>
   <div className='main'></div>
-  {/* <div>
-      <h1>Facial Recognition</h1>
-      <FacialRecognitionView />
-    </div> */}
+
   <div className="employee-container">
     <div
       className="profile-pic"
@@ -114,7 +111,7 @@ function Admin(props) {
 
             <NavbarComp />
     
-            {/* <Footer /> */}
+         
         </div>
        
     );
