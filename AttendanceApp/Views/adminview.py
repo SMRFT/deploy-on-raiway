@@ -139,11 +139,19 @@ def upload_file(request):
          
 class EmployeeView(APIView):
     def post(self, request):
+        # Create a serializer instance and validate the data
         serializer = EmployeeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Save the validated data to create a new employee record
         employee = serializer.save()
+
+        # Redundant save() call - remove this line
         employee.save()
+
+        # Return a response indicating successful employee creation
         return Response({'message': 'New Employee Has Been Added Successfully'})
+
 
 
 
