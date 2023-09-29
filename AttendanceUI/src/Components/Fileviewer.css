@@ -196,3 +196,26 @@ align-items: center;
   background-color: #f8f8f8;
   /* Add additional styles as needed */
 }
+
+
+/* Style for the button */
+.button-container4 {
+  text-align: center; /* Align the button to the center */
+  margin-top: 20px; /* Add some top margin for spacing */
+}
+
+.button-container4 button {
+   /* Blue background color */
+  color: #2ec9db; /* White text color */
+  border: none; /* Remove border */
+   /* Add padding */
+  cursor: pointer; /* Show pointer cursor on hover */
+  border-radius: 5px; /* Add border radius for rounded corners */
+}
+
+
+
+/* Style for the Font Awesome download icon */
+.button-container4 i {
+  margin-right: 5px; /* Add some margin to the right of the icon */
+}

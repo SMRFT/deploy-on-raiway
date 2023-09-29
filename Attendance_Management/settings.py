@@ -2,7 +2,8 @@ import json
 import os
 from pathlib import Path
 import dj_database_url
-
+from AttendanceApp.Views.constants import MONGODB_HOST,TWILIO_ACCOUNT_SID,TWILIO_AUTH_TOKEN,EMAIL_BACKEND, EMAIL_HOST, EMAIL_USE_TLS, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD,SECRET_KEY
+from datetime import timedelta
 # from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -13,25 +14,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5#y-^bdkqu5-_2ttnr7(^*ai-i$2nh+ef)7+t$+%+hhol59h@!'
+SECRET_KEY = SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# https://docs.djangoproject.com/en/3.0/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['https://smrftadmin.netlify.app/','127.0.0.1','http://localhost:8000/api/v1/recognition/recognize',"http://localhost:3000/","localhost"]
+ALLOWED_HOSTS = [
+    'smrftadmin.netlify.app',
+    '127.0.0.1',
+    'localhost',
+    '127.0.0.1:7000'
+]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     'https://smrftadmin.netlify.app',
-    'http://localhost:3000',  # Add any other origins you want to allow
+    'http://localhost:3000',
 ]
+
 CORS_ALLOW_CREDENTIALS = True
-# Application definition
-CSRF_TRUSTED_ORIGINS = ['*']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'rest_framework_simplejwt',
+    'rest_framework_simplejwt',
     'corsheaders',
     'AttendanceApp',
     # 'upload.apps.UploadConfig'
@@ -82,42 +88,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Attendance_Management.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+}
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'djongo',
-#         'CLIENT': {
-#             "host": "localhost:27017",
-#             "name": "data",
-#         }
-#     }
-# }
 
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'demodatabase',  # Replace with your database name
         'CLIENT': {
-            'host': 'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net',  # Replace with your MongoDB connection URL
-            'username': 'madhu',  # Replace with your MongoDB username
-            'password': 'salem2022',  # Replace with your MongoDB password
+            'host': MONGODB_HOST,  # Replace with your MongoDB connection URL
             'authMechanism': 'SCRAM-SHA-1',
         },
     },
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'admindata',
-#         'USER': 'admin',
-#         'PASSWORD': 'SMRFT#636007',
-#         'HOST': 'database-1.czlpcyejzya7.us-west-2.rds.amazonaws.com',
-#         'PORT': '3306',
-#     }
-# }
+
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -182,28 +184,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'AttendanceApp.Admin'
 
 
-# mongo storage connection
-
-GRIDFS_STORAGE_OPTIONS = {
-    'location': 'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net',
-    'database': 'data',
-    'base_url': '/media/',
-}
-# DEFAULT_FILE_STORAGE = 'gridfs_storage.storage.GridFSStorage'
-
-# email sender
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'parthibansmrft@gmail.com'
-EMAIL_HOST_PASSWORD = 'jgnuxbycnzywwvlw'
+# Use the constants for email settings
+EMAIL_BACKEND = EMAIL_BACKEND
+EMAIL_HOST = EMAIL_HOST
+EMAIL_USE_TLS = EMAIL_USE_TLS
+EMAIL_PORT = EMAIL_PORT
+EMAIL_HOST_USER = EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD
 
 # whatsapp
-TWILIO_ACCOUNT_SID = 'ACe1d37f2342c44648499add958166abe2'
-TWILIO_AUTH_TOKEN = 'c6ff1b2f81b4fcac652d4d71fce766a2'
-# whatsapp vonage
-VONAGE_API_KEY = '4be358a0'
-VONAGE_API_SECRET = '6GF9TK0JGgbe4V0A'
-VONAGE_BRAND_NAME = 'parthiban'
+TWILIO_ACCOUNT_SID = TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN = TWILIO_AUTH_TOKEN
+
 

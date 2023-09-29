@@ -45,20 +45,20 @@ function Admin(props) {
     const fetchUserData = async () => {
       const adminDetails = localStorage.getItem('adminDetails');
       if (adminDetails) {
-        const { email, name, mobile, role } = JSON.parse(adminDetails);
-        setEmail(email);
-        setName(name);
-        setMobile(mobile);
-        setRole(role);
+        const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
+        console.log("DDDD",jwt)
         try {
           const response = await axios.get('http://127.0.0.1:7000/attendance/UserDetails', {
-            params: { email: email } // Set the desired email as a query parameter
+            headers: {
+              Authorization: jwt    
+            },
+            params: { email: email }
           });
           setUserData(response.data);
           setError(null);
         } catch (error) {
           setUserData(null);
-          setError(error.response.data);
+          setError(error.response ? error.response.data : 'An error occurred');
         }
       }
     };

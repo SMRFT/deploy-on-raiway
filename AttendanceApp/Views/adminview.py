@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 import jwt
 import datetime
 from .constants import Addemployee
-from AttendanceApp.models import Admin,PasswordResetRequest
+from AttendanceApp.models import Admin,PasswordResetRequest,Employee
 from AttendanceApp.serializers import EmployeeSerializer, AdminSerializer
 # from Attendance_Management.settings import SIMPLE_JWT,REST_FRAMEWORK
 from PIL import Image
@@ -39,50 +39,7 @@ from django.http import JsonResponse
 
 
 
-@csrf_exempt
-def aws_config_view(request):
-    if request.method == 'POST':
-        region = request.POST.get('region')
-        access_key_id = request.POST.get('accessKeyId')
-        secret_access_key = request.POST.get('secretAccessKey')
 
-        # Perform any necessary validation or processing of the received data
-
-        # Connect to MongoDB
-        client = MongoClient('<mongodb_connection_string>')
-        db = client['<database_name>']
-        collection = db['aws_config']
-
-        # Create a document with the AWS configuration data
-        config_doc = {
-            'region': region,
-            'accessKeyId': access_key_id,
-            'secretAccessKey': secret_access_key
-        }
-
-        # Insert the document into the collection
-        result = collection.insert_one(config_doc)
-
-        # Check if the insertion was successful
-        if result.inserted_id:
-            aws_config = {
-                'status': 'success',
-                'message': 'AWS configuration stored successfully'
-            }
-        else:
-            aws_config = {
-                'status': 'error',
-                'message': 'Failed to store AWS configuration'
-            }
-
-        return JsonResponse(aws_config)
-    else:
-        aws_config = {
-            'status': 'error',
-            'message': 'Invalid request method'
-        }
-
-        return JsonResponse(aws_config, status=400)
     
 
     
@@ -134,59 +91,54 @@ def upload_file(request):
         # Return a response indicating successful file upload
         return HttpResponse('Files uploaded successfully')
 
-
-
-         
-class EmployeeView(APIView):
-    def post(self, request):
-        # Create a serializer instance and validate the data
-        serializer = EmployeeSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Save the validated data to create a new employee record
-        employee = serializer.save()
-
-        # Redundant save() call - remove this line
-        employee.save()
-
-        # Return a response indicating successful employee creation
-        return Response({'message': 'New Employee Has Been Added Successfully'})
-
-
-
-
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 class AdminLogin(APIView):
-    @csrf_exempt
     def post(self, request):
-        email = request.data['email']
-        password = request.data['password']
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        # Assuming you have an Admin model with email, password, name, role, and mobile fields
         user = Admin.objects.filter(email=email).first()
+
         if user is None:
             raise AuthenticationFailed('User not found!')
-        
+
         if not user.check_password(password):
             raise AuthenticationFailed('Incorrect password!')
-        
+
         if not user.is_active:
             raise AuthenticationFailed('User is not active!')
-        
-        payload = {
-            'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.utcnow()
-        }
-        token = jwt.encode(payload, 'secret', algorithm='HS256')
-        response = Response()
-        response.set_cookie(key='jwt', value=token, httponly=True)
-        response.data = {
-            'jwt': token,
+
+        refresh = RefreshToken.for_user(user)
+        refresh.access_token.set_exp(timezone.now() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'])
+        access_token = str(refresh.access_token)
+
+        # Return the JWT token in 'Bearer' format
+        response_data = {
+            'jwt': f'Bearer {access_token}',  # JWT token in 'Bearer' format
             'email': user.email,
             'name': user.name,
             'role': user.role,
             'mobile': user.mobile
         }
-        return response
+
+        return Response(response_data)
+
+         
+class EmployeeView(APIView):
+    def post(self, request):
+        serializer = EmployeeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        employee = serializer.save()
+        employee.save()
+        return Response({'message': 'New Employee Has Been Added Successfully'})
+
+
+
+
     
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -194,10 +146,13 @@ from rest_framework import status
 
 import secrets
 import string
-
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def admin_registration(request):
+    permission_classes = (IsAuthenticated,)
     if request.method == 'POST':
         serializer = AdminSerializer(data=request.data)
         if serializer.is_valid():
@@ -206,14 +161,13 @@ def admin_registration(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_text
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
-
+from django.utils.encoding import force_str
 User = get_user_model()  # Get the User model
 
 from django.shortcuts import render
@@ -221,7 +175,7 @@ from django.shortcuts import render
 @api_view(['GET'])
 def activate_account(request, uidb64, token):
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
+        uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
 
         if default_token_generator.check_token(user, token):
@@ -306,18 +260,119 @@ def reset_password(request):
     except Admin.DoesNotExist:
         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import TokenError
 
 class UserDetails(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self, request):
-        email = request.GET.get('email') # Get the email from the query parameters
-        user = Admin.objects.filter(email=email).first() # Query the Admin model to get the user
-        if user is None:
-            raise NotFound('User not found!')
-        # Create a dictionary with the user details
+        user = request.user  # User details are obtained from the token
+
         user_data = {
             'email': user.email,
             'name': user.name,
             'role': user.role,
             'mobile': user.mobile
         }
+
         return Response(user_data)
+
+from django.http import FileResponse
+from django.views import View
+from reportlab.pdfgen import canvas
+from io import BytesIO
+import json
+
+from django.shortcuts import get_object_or_404
+from django.template.loader import get_template
+from django.template import Context
+
+
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph
+from reportlab.platypus import Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+
+import fitz  # PyMuPDF
+from io import BytesIO
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from django.views import View
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Table, TableStyle, Paragraph
+from reportlab.lib import colors
+
+class GeneratePDF(View):
+    def get(self, request, id):
+        # Fetch employee data based on id
+        employee = get_object_or_404(Employee, pk=id)
+
+        # Load an existing PDF file
+        existing_pdf_path = 'AttendanceUI\\src\\images\\Employeedetail.pdf'
+        pdf_document = fitz.open(existing_pdf_path)
+
+        # Access the first page of the PDF
+        page = pdf_document.load_page(0)
+
+        # Define the font and size for text
+        font = "helvetica"
+        font_size = 12
+
+        # Customize the PDF content based on employee data
+        data = {
+            "Employee ID": str(employee.id),
+            "Name": employee.name,
+            "Email": employee.email,
+            "Mobile": employee.mobile,
+            "Department": employee.department,
+            "Designation": employee.designation,
+            "Address": employee.address,
+            "Languages": employee.languages,
+            "Aadhaar No": employee.Aadhaarno,
+            "Pan No": employee.PanNo,
+            "Identification Mark": employee.IdentificationMark,
+            "Blood Group": employee.BloodGroup,
+            "RNRNO": employee.RNRNO,
+            "TNMC No": employee.TNMCNO,
+            "Validity Date": employee.ValidlityDate,
+            "Date of Joining": employee.dateofjoining,
+            "Salary": employee.salary,
+            "Bank Account Number": employee.bankaccnum  
+        }
+
+        # Define positions for placing the data on the PDF
+        positions = {
+            "Employee ID": (100, 160),
+            "Name": (100, 180),
+            "Email": (100, 200),
+            "Mobile": (100, 220),
+            "Department": (100, 420),
+            "Address": (100, 400),
+            "Languages": (100, 380),
+            "Aadhaar No": (100, 360),
+            "Pan No": (100, 340),
+            "Identification Mark": (100, 320),
+            "Blood Group":( 100, 300),
+            "RNRNO":( 100, 280),
+            "TNMC No":(100, 260),
+            "Validity Date": (100, 240),
+            "Date of Joining": (100, 440),
+            "Salary": (100, 460),
+            "Bank Account Number": (100, 480),
+            "Designation":  (100, 500)
+        }
+
+        # Iterate over data and add it to the PDF
+        for label, value in data.items():
+            page.insert_text((positions[label][0], positions[label][1]), f"{label}: {value}", fontsize=font_size, fontname=font)
+
+        # Save the modified PDF to a BytesIO buffer
+        buffer = BytesIO()
+        pdf_document.save(buffer, garbage=4, deflate=True, clean=True)
+        buffer.seek(0)
+
+        # Return the modified PDF as a FileResponse
+        return FileResponse(buffer, as_attachment=True, filename=employee.name+"_"+employee.id+".pdf")

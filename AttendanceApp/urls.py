@@ -5,14 +5,17 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,aws_config_view,send_reset_code,reset_password,activate_account
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,facial_recognition_view,RetriveEmpdepartmentCount,RetriveEmpBydepartment
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 # from .views import send_email
 urlpatterns = [
 
@@ -45,7 +48,7 @@ urlpatterns = [
     path('permanentdelete', PermanentDeleteEmp.as_view()),
     path('restore-employee/', RestoreEmployee.as_view()),
     path("UserDetails", UserDetails.as_view()),
-    path('aws-config/', aws_config_view, name='aws-config'),
+
     path('facial-recognition/', facial_recognition_view, name='recognize_faces'),
     path('showempdesignation', RetriveEmpdepartmentCount.as_view()),
     path('empbydesignation', RetriveEmpBydepartment.as_view()),
@@ -54,7 +57,11 @@ urlpatterns = [
     # path('compare/',face_comparison_view, name='compare'),
     path('admin/register/', admin_registration, name='admin_registration'),
     path('activate/<str:uidb64>/<str:token>/', activate_account, name='activate_account'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('generate-pdf/<int:id>/', GeneratePDF.as_view(), name='generate_pdf'),
 ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

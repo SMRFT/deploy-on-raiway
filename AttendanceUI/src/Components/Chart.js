@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ReactApexChart from 'react-apexcharts';
+import { Bar } from "react-chartjs-2";
 
 function ApexChart() {
   const [employeeData, setEmployeeData] = useState([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [availableYears, setAvailableYears] = useState([]);
+  const [relievedData, setRelievedData] = useState([]);
 
   useEffect(() => {
+    // Fetch joined employees data
     axios
       .get('http://127.0.0.1:7000/attendance/showemp')
       .then((res) => {
@@ -38,116 +41,148 @@ function ApexChart() {
       .catch((error) => {
         console.error(error);
       });
+
+    // Fetch relieved employees data
+    axios
+      .get('http://127.0.0.1:7000/attendance/deleted-employees/')
+      .then((res) => {
+        setRelievedData(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [selectedYear]);
 
-  // const selectedYearData = employeeData.filter(entry => new Date(entry.dateofjoining).getFullYear() === selectedYear);
+  // Define the monthOrder array
+  const monthOrder = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
+  // Merge the data for joined and relieved employees by month
+  const combinedData = employeeData.map((joinedEntry) => {
+    const month = joinedEntry.month;
+    const joinedCount = joinedEntry.count;
+    const relievedEntry = relievedData.find((relieved) => {
+      const date = new Date(relieved.deleted_at);
+      return date.getMonth() === monthOrder.indexOf(month) && date.getFullYear() === selectedYear;
+    });
+    const relievedCount = relievedEntry ? 1 : 0;
+    return {
+      month,
+      joinedCount,
+      relievedCount,
+    };
+  });
 
-    
-      const chartOptions = {
-        chart: {
-          id: 'chartyear',
-          type: 'bar',
-          height: 300,
-          toolbar: {
-            show: true,
-            tools: {
-              download: false,
-              selection: true,
-              zoom: true,
-              zoomin: true,
-              zoomout: true,
-              pan: true,
-            },
-          },
+  const chartOptions = {
+    chart: {
+      id: 'chartyear',
+      type: 'bar',
+      height: 300,
+      toolbar: {
+        show: true,
+        tools: {
+          download: false,
+          selection: true,
+          zoom: true,
+          zoomin: true,
+          zoomout: true,
+          pan: true,
         },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            endingShape: "rounded",
-            columnWidth: '20%',
-          },
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        endingShape: 'rounded',
+        columnWidth: '20%',
+      },
+    },
+    dataLabels: {
+      enabled: true,
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent'],
+    },
+    series: [
+      {
+        name: 'Joined Employees',
+        style: {
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontSize: '14px',
         },
-        dataLabels: {
-          enabled: true,
+        data: combinedData.map((entry) => entry.joinedCount),
+      },
+      {
+        name: 'Relieved Employees',
+        style: {
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontSize: '14px',
         },
-        stroke: {
-          show: true,
-          width: 2,
-          colors: ['transparent'],
+        data: combinedData.map((entry) => entry.relievedCount),
+      },
+    ],
+    xaxis: {
+      type: "category",
+      categories: combinedData.map((entry) => entry.month),
+      title: {
+        text: 'Month',
+        style: {
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontSize: '14px',
         },
-        series: [
-          {
-            name: 'Employees',
-            style: {
-              fontFamily:' Helvetica, Arial, sans-serif',
-              fontSize: "14px",
-            },
-            data: employeeData.map((e) => e.count),
-          },
-        ],
-        xaxis: {
-          categories: employeeData.map((e) => e.month),
-          title: {
-            text: 'Month',
-            style: {
-              fontFamily:' Helvetica, Arial, sans-serif',
-              fontSize: "14px",
-            },
-            
-          },
+      },
+    },
+    yaxis: {
+      title: {
+        text: 'Employees',
+        style: {
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontSize: '14px',
         },
-        yaxis: {
-          title: {
-            text: 'Employees',
-            style: {
-              fontFamily:' Helvetica, Arial, sans-serif',
-              fontSize: "14px",
-            },
-          },
-        },
-        tooltip: {
-          y: {
-            formatter: (value) => value + ' employees',
-          },
-          x: {
-            formatter: (value) => value,
-          },
-          marker: {
-            show: false,
-          },
-        custom: ({ series, seriesIndex, dataPointIndex, w }) => {
-            const employeeCount = employeeData[dataPointIndex].count;
-            const employeeNames = employeeData[dataPointIndex].employees;
-            return `<div class="apexcharts-tooltip-custom">
-              <div class="employee-count">${employeeCount} employees</div>
-              <div class="employee-names">${employeeNames}</div>
-            </div>`;
-          },
-        },
-      };
-      const chart = new ApexCharts(document.querySelector('#chart'), chartOptions);
-      chart.render();
- 
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (value) => value + ' employees',
+      },
+      x: {
+        formatter: (value) => value,
+      },
+      marker: {
+        show: false,
+      },
+      custom: ({ series, seriesIndex, dataPointIndex, w }) => {
+        const joinedCount = combinedData[dataPointIndex].joinedCount;
+        const relievedCount = combinedData[dataPointIndex].relievedCount;
+        return `<div class="apexcharts-tooltip-custom">
+          <div class="employee-count">${joinedCount} joined, ${relievedCount} relieved</div>
+        </div>`;
+      },
+    },
+  };
 
   return (
-    <div style={{ backgroundColor: "#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent: "center", position: "relative", display: "flex", alignItems: "center", flexDirection: "column" }}>
-    <div style={{ fontSize: "100%", fontFamily: " Helvetica, Arial, sans-serif", whiteSpace: "nowrap" }}>
-      <br />Employees Joined
-    </div>
-    <br />
-    <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
-      {availableYears.map((year) => (
-        <option key={year} value={year}>
-          {year}
-        </option>
-      ))}
-    </select>
+    <div style={{ backgroundColor: '#F6F8FA', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent: 'center', position: 'relative', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+      <div style={{ fontSize: '100%', fontFamily: 'Helvetica, Arial, sans-serif', whiteSpace: 'nowrap' }}>
+        <br />Employees Joined and Relieved
+      </div>
+      <br />
+      <select value={selectedYear} onChange={(e) => setSelectedYear(Number(e.target.value))}>
+        {availableYears.map((year) => (
+          <option key={year} value={year}>
+            {year}
+          </option>
+        ))}
+      </select>
 
-    {employeeData.length > 0 && (
-      <ReactApexChart options={chartOptions} series={[{ data: employeeData.map((e) => e.count) }]} type="bar" height={300}width={800} />
-    )}
-  </div>
+      {combinedData.length > 0 && (
+        <ReactApexChart options={chartOptions} series={chartOptions.series} type="bar" height={300} width={1000} />
+      )}
+    </div>
   );
 }
 

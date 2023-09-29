@@ -214,7 +214,7 @@ function DownloadButton(props) {
         // Make a POST request to the server to get the file as a blob
         axios
           .post(
-            `https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_proof.pdf`,
+            `http://127.0.0.1:7000/attendance/get_file?filename=${name}_proof.pdf`,
             {
               filename: `${name}_proof.pdf`,
             },
@@ -262,7 +262,7 @@ function DownloadButton(props) {
       const queryParams = new URLSearchParams();
 
       // Make a POST request to the server to get the file as a blob
-      axios.post(`https://smrftadmin.onrender.com/attendance/get_file?filename=${name}_certificates.pdf`, {
+      axios.post(`http://127.0.0.1:7000/attendance/get_file?filename=${name}_certificates.pdf`, {
           filename: `${name}_certificate.pdf`,
       }, {
           responseType: "blob"
@@ -335,6 +335,37 @@ function DownloadButton(props) {
             );
     }, [id]);
 
+
+    
+  const generatePDF = async () => {
+    try {
+      const response = await fetch(`http://127.0.0.1:7000/attendance/generate-pdf/${id}/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Create a blob from the response data
+        const blob = await response.blob();
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(blob);
+        // Create a link and trigger a click to download the file
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${employee.name + '_' + employee.id}.pdf`;
+        a.click();
+        // Release the URL object
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('PDF generation failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+    
     const [showSummaryPicker, setShowSummaryPicker] = useState(false);
     const [showAttendancePicker, setShowAttendancePicker] = useState(false);
     const [showOvertimePicker, setShowOvertimePicker] = useState(false);
@@ -661,6 +692,11 @@ state = {
           </div>
         </div>
         )}
+  <div className="button-container4">
+      <button onClick={generatePDF} title="Employee details ">
+        <i className="fas fa-download"></i>
+      </button>
+    </div>
         </Card.Body>
              </Card>  <br/>    
 
@@ -701,6 +737,12 @@ state = {
                 <div className="divider"></div>
                 <i onClick={() => {handlePayrollIconClick();closeIframe();}} style={{fontSize:"35px",color:"darkslateblue",marginTop:"0.2%",marginLeft: '-0.5%',cursor:"pointer"}} className="fa fa-dollar"></i>
                 <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-25px',marginTop:"50px",whiteSpace:"nowrap"}}>Pay roll</div>
+                {/* <div className="divider">
+           
+      <button onClick={generatePDF} style={{fontSize:"15px",color:"darkslateblue",marginTop:"0.10%",marginLeft: '-0.5%',cursor:"pointer"}}title="Employee details ">
+        <i className="fas fa-download"></i>
+      </button>
+    </div> */}
             </div>
 
             <div style={{marginLeft:'40%',marginTop:"4%",color:'red',whiteSpace:"nowrap"}} className="message">

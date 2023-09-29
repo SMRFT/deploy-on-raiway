@@ -50,7 +50,7 @@ class Employee(models.Model):
     languages = models.CharField(max_length=500, blank=True)
     added_at = models.DateTimeField(auto_now_add=True)
     salary = models.IntegerField(blank=True, null=True)
-
+    age = models.IntegerField(blank=True, null=True)
 class DeletedEmployee(models.Model):
     id = models.CharField(primary_key=True, max_length=500)
     name = models.CharField(max_length=500)

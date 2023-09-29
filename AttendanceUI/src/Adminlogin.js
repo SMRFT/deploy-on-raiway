@@ -19,6 +19,7 @@ function Adminlogin() {
     const [name, setname] = useState("");
     const [mobile, setMobile] = useState("");
     const [role, setrole] = useState("");
+    const [jwt, setjwt] = useState("");
     const navigate = useNavigate();
     const submit = async (e) => {
         e.preventDefault();
@@ -42,8 +43,15 @@ function Adminlogin() {
         if (response.status === 200) {
           setMessage("Logged in successfully");
           const content = await response.json();
-          const { email, name, mobile, role } = content;
-          localStorage.setItem('adminDetails', JSON.stringify({ email, name, mobile, role }));
+          const { email, name, mobile, role ,jwt} = content;
+          console.log("DDDD", content.jwt);
+          localStorage.setItem('adminDetails', JSON.stringify({
+            email,
+            name,
+            mobile,
+            role,
+            jwt: jwt // Here, you save the JWT token
+        }));
           // Pass the admin details as props to the /Admin page
           navigate('/Admin/Viewemp', {
             state: {
