@@ -2,16 +2,13 @@ import os.path
 import os
 from rest_framework.views import APIView
 from rest_framework.response import Response
-# from rest_framework_simplejwt.authentication import JWTAuthentication
-# from rest_framework.authtoken.views import ObtainAuthToken
-# from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed,NotFound
 from django.views.decorators.csrf import csrf_exempt
 import jwt
 import datetime
 from .constants import Addemployee
-from AttendanceApp.models import Admin,PasswordResetRequest,Employee
-from AttendanceApp.serializers import EmployeeSerializer, AdminSerializer
+from AttendanceApp.models import Admin,PasswordResetRequest,Employee,UserPermission
+from AttendanceApp.serializers import EmployeeSerializer, AdminSerializer,UserPermissionSerializer
 # from Attendance_Management.settings import SIMPLE_JWT,REST_FRAMEWORK
 from PIL import Image
 import io
@@ -95,14 +92,18 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
+from rest_framework_simplejwt.tokens import RefreshToken
+
 class AdminLogin(APIView):
     def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-
+        cred = base64.b64decode(request.headers["Authorization"][6:]).decode('utf-8')
+        i = cred.index(':')
+        email = cred[:i]
+        password = cred[i+1:]
+     
         # Assuming you have an Admin model with email, password, name, role, and mobile fields
         user = Admin.objects.filter(email=email).first()
-
+        
         if user is None:
             raise AuthenticationFailed('User not found!')
 
@@ -112,6 +113,7 @@ class AdminLogin(APIView):
         if not user.is_active:
             raise AuthenticationFailed('User is not active!')
 
+        # Generate a JWT token
         refresh = RefreshToken.for_user(user)
         refresh.access_token.set_exp(timezone.now() + settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'])
         access_token = str(refresh.access_token)
@@ -124,17 +126,27 @@ class AdminLogin(APIView):
             'role': user.role,
             'mobile': user.mobile
         }
-
         return Response(response_data)
 
-         
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication # Import JWT authentication
+
+
 class EmployeeView(APIView):
+ 
+
     def post(self, request):
+        # Your view logic goes here
         serializer = EmployeeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         employee = serializer.save()
         employee.save()
         return Response({'message': 'New Employee Has Been Added Successfully'})
+
+
 
 
 
@@ -376,3 +388,110 @@ class GeneratePDF(View):
 
         # Return the modified PDF as a FileResponse
         return FileResponse(buffer, as_attachment=True, filename=employee.name+"_"+employee.id+".pdf")
+
+
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+
+
+@api_view(['POST', 'GET'])
+@csrf_exempt
+def user_permission(request):
+    if request.method == 'POST':
+        # Handle POST request to update permissions for a role.
+        data = request.data
+        # Assuming you have a model named 'YourModel' to store user permissions
+        try:
+            serializer = UserPermissionSerializer(data=data)
+            print("User permission serializer:", serializer)  # Add this line for debugging
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            print("Serializer errors:", serializer.errors)  # Add this line for debugging
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except UserPermission.DoesNotExist:
+            return Response({'message': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    elif request.method == 'GET':
+        # Handle GET request to retrieve permissions for a role.
+        role = request.GET.get('role')  # Get the 'role' parameter from the query string
+        if role is not None:
+            try:
+                user = UserPermission.objects.get(role=role)
+                permissions = {
+                    'employee': user.employee,
+                    'add_employee': user.add_employee,
+                    'dashboard': user.dashboard,
+                    'pending_approval': user.pending_approval,
+                    'admin_registration': user.admin_registration,
+                }
+                return Response(permissions, status=status.HTTP_200_OK)
+            except UserPermission.DoesNotExist:
+                return Response({'message': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'message': 'Role parameter is missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+from django.http import HttpResponse
+from datetime import date, datetime
+@csrf_exempt
+def parse_date(date_str):
+    try:
+        # Attempt to parse the date string as a datetime object
+        return datetime.strptime(date_str, '%Y-%m-%d').date()
+    except ValueError:
+        try:
+            # Attempt to parse the date string with an alternative format
+            return datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ').date()
+        except ValueError:
+            # Handle parsing errors or additional date formats here
+            return None
+@csrf_exempt
+def employee_events(request):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    today = date.today()
+
+    employees = Employee.objects.all()
+    print(employees)
+    joining_anniversaries = []
+    birthdays = []
+    print(birthdays)
+    for employee in employees:
+        # Parse the 'dob' date string
+        dob = parse_date(str(employee.dob))
+        
+        # Parse the 'dateofjoining' date string
+        dateofjoining = parse_date(str(employee.dateofjoining))
+
+        # Check if parsing was successful for both 'dob' and 'dateofjoining'
+        if dob and dateofjoining:
+            if today.month == dob.month and today.day == dob.day:
+                birthdays.append(employee.name)
+                print(f"Today is the birthday of: {employee.name}")
+
+            # Calculate work anniversary
+            work_anniversary = today.year - dateofjoining.year
+            if today.month < dateofjoining.month or (today.month == dateofjoining.month and today.day < dateofjoining.day):
+                work_anniversary -= 1
+
+            # Check if it's a work anniversary
+            if work_anniversary > 0 and today.month == dateofjoining.month and today.day == dateofjoining.day:
+                joining_anniversaries.append((employee.name, work_anniversary))
+                print(f"{employee.name} is celebrating {work_anniversary} years of joining")
+
+    response_text = ""
+    if birthdays:
+        response_text += f"Today's birthday celebration employees are: {', '.join(birthdays)}\n"
+
+    if joining_anniversaries:
+        response_text += "Work Anniversaries:\n"
+        for name, anniversary in joining_anniversaries:
+            response_text += f"{name}: {anniversary} years\n"
+
+    return HttpResponse(response_text, content_type="text/plain")

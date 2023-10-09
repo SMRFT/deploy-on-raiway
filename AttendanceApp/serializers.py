@@ -1,7 +1,7 @@
 from curses.ascii import EM
 from dataclasses import fields
 from rest_framework import serializers
-from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest
+from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest,UserPermission 
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -134,3 +134,15 @@ class EmployeeHoursSerializer(serializers.ModelSerializer):
     class Meta:
         model=EmployeeHours
         fields = '__all__'
+
+class UserPermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPermission 
+        fields = (
+            'role',
+            'employee',
+            'add_employee',  
+            'dashboard',
+            'pending_approval',  
+            'admin_registration',
+        )

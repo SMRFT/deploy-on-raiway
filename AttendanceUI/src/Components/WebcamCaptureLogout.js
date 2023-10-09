@@ -30,7 +30,9 @@ const WebcamCaptureLogout = () => {
     setIsShown((current) => !current);
   };
 
-
+  const adminDetails = localStorage.getItem('adminDetails');
+  const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
+  // console.log(jwt)
   const capture = React.useCallback(async () => {
     // Function to get the camera screenshot image of an employee and change it to data URL
     const imageSrc = webcamRef.current.getScreenshot();
@@ -66,7 +68,7 @@ const WebcamCaptureLogout = () => {
           try {
             const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", 'Authorization': `${jwt}` },
               body: JSON.stringify({ id: empId }),
             });
   
@@ -119,7 +121,9 @@ const WebcamCaptureLogout = () => {
             //Updating logout information of employee to db using the above data
             await fetch("http://127.0.0.1:7000/attendance/admincalendarlogout", {
               method: "PUT",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",'Authorization': `${jwt}`
+              },
               body: JSON.stringify({
                 id: empId,
                 name: nameOfEmployee,

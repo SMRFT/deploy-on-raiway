@@ -32,19 +32,18 @@ function Adminlogin() {
       
         const response = await fetch('http://127.0.0.1:7000/attendance/adminlog', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json' ,
+        'Authorization':'Basic '+ btoa(email+':'+password)},
+    
           credentials: 'include',
-          body: JSON.stringify({
-            email,
-            password
-          })
+         
         });
       
         if (response.status === 200) {
           setMessage("Logged in successfully");
           const content = await response.json();
           const { email, name, mobile, role ,jwt} = content;
-          console.log("DDDD", content.jwt);
+          // console.log("DDDD", content.jwt);
           localStorage.setItem('adminDetails', JSON.stringify({
             email,
             name,

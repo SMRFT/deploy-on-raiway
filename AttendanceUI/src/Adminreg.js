@@ -17,7 +17,8 @@ const AdminReg = () => {
     e.preventDefault();
 
     // Validation
-    
+    const adminDetails = localStorage.getItem('adminDetails');
+    const { jwt } = JSON.parse(adminDetails);
     const validationErrors = {};
    
     if (!email) {
@@ -47,6 +48,10 @@ const AdminReg = () => {
           password,
           mobile,
           role,
+        }, {
+          headers: {
+            Authorization: `${jwt}`
+          }
         });
         console.log(response.data);
         setMessage("Register successfully check the mail for activation");

@@ -44,17 +44,28 @@ import cv2
 import face_recognition
 import os
 from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes, authentication_classes
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 class RetriveEmp(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     @csrf_exempt
     def get(self, request):
         emp_id = request.query_params.get('id')
         if emp_id:
             try:
-                emp = Employee.objects.get(id=emp_id)
-                serializer = EmployeeShowSerializer(emp)
-                return Response(serializer.data)
+                # Check if emp_id is not an empty string before attempting to convert it to an integer
+                if emp_id.isdigit():
+                    emp = Employee.objects.get(id=int(emp_id))
+                    serializer = EmployeeShowSerializer(emp)
+                    return Response(serializer.data)
+                else:
+                    return Response({'error': 'Invalid employee ID format'}, status=status.HTTP_400_BAD_REQUEST)
             except Employee.DoesNotExist:
                 return Response({'error': f'Employee with ID {emp_id} does not exist'}, status=status.HTTP_404_NOT_FOUND)
         else:
@@ -64,9 +75,11 @@ class RetriveEmp(APIView):
 
 
 
+
 # Retrieve Employee By Id
 
-
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 class RetriveEmpById(APIView):
     permission_classes = [AllowAny]
     @csrf_exempt
@@ -154,6 +167,8 @@ def facial_recognition_view(request):
 
 
 # Edit Employee
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 class EmployeeEditView(APIView):
       def put(self, request, *args, **kwargs):
         data = request.data
@@ -216,7 +231,8 @@ class EmployeeEditView(APIView):
 
 # Search Employee
 
-
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 class EmployeeSearchView(APIView):
     @ csrf_exempt
     def put(self, request):
@@ -245,6 +261,8 @@ class AdminCalendarView(APIView):
 
 
 class AdmincalendarloginView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     @ csrf_exempt
     def post(self, request):
         data = request.data
@@ -260,6 +278,8 @@ class AdmincalendarloginView(APIView):
 
 
 class AdmincalendarlogoutView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     @csrf_exempt
     def put(self, request, *args, **kwargs):
         data = request.data
@@ -274,7 +294,8 @@ class AdmincalendarlogoutView(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
 # Retrieve Data By Designation
-
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 class RetriveEmpBydepartment(APIView):
     @csrf_exempt
     def post(self, request):

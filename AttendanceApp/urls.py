@@ -5,7 +5,7 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,facial_recognition_view,RetriveEmpdepartmentCount,RetriveEmpBydepartment
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
@@ -60,6 +60,9 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('generate-pdf/<int:id>/', GeneratePDF.as_view(), name='generate_pdf'),
+    path('userpermission/', user_permission, name='user_permission'), 
+    path('attendance/userpermission/<str:role>/', user_permission, name='user_permission'),
+    path('employee_events/', employee_events, name='employee_events'),
 ]
 
 

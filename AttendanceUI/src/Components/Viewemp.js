@@ -38,9 +38,16 @@ const Home = () => {
     setIsLoading(false);
     setIsError(true);
   };
-
+  const adminDetails = localStorage.getItem('adminDetails');
+  const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
+ 
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp")
+    fetch("http://127.0.0.1:7000/attendance/showemp", {
+      method: "GET",
+      headers: {
+        "Authorization": ` ${jwt}`
+      }
+    })
       .then((res) => res.json())
       .then(
         (data) => {
@@ -122,7 +129,7 @@ const handleCloseModal = () => {
     try {
       await fetch("http://127.0.0.1:7000/attendance/delemp", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", 'Authorization': `${jwt}` },
         credentials: "include",
         body: JSON.stringify({
           id: selectedEmployeeToDelete.id,
@@ -147,7 +154,15 @@ const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
 const [employeesActive, setEmployeesActive] = useState([]);
 const [employeesNotActive, setEmployeesNotActive] = useState([]);
 const fetchData = useCallback(() => {
-  fetch("http://127.0.0.1:7000/attendance/breakdetails")
+   // Replace with your actual JWT token
+
+  fetch("http://127.0.0.1:7000/attendance/breakdetails", {
+    method: 'GET',
+    headers: {
+      'Authorization': `${jwt}`,
+      'Content-Type': 'application/json'
+    }
+  })
     .then((res) => res.json())
     .then(
       (data) => {
@@ -163,6 +178,7 @@ const fetchData = useCallback(() => {
       }
     );
 }, []);
+
  // initially set to "active"
 // Call the fetchData function when the component mounts
 // refresh the details every 3 minutes

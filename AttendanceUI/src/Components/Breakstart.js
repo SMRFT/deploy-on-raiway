@@ -34,7 +34,9 @@ const WebcamCaptureLogin = () => {
 
     };
 
-
+    const adminDetails = localStorage.getItem('adminDetails');
+    const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
+    // console.log(jwt)
 
       const capture = React.useCallback(async () => {
         const imageSrc = webcamRef.current.getScreenshot();
@@ -65,12 +67,14 @@ const WebcamCaptureLogin = () => {
                 console.log('Name of Employee:', nameOfEmployee);
                 console.log('Employee ID:', empId);
         
+        
                 try {
                   const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json", 'Authorization': `${jwt}` },
                     body: JSON.stringify({ id: empId }),
                   });
+        
                   if (response.ok) {
                     const data = await response.json();
                         ////employee time format change

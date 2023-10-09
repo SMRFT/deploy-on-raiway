@@ -11,14 +11,23 @@ const TrashPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
-
+  const adminDetails = localStorage.getItem('adminDetails');
+  const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
+  console.log(email)
   useEffect(() => {
     loadDeletedEmployees();
   }, []);
 
   const loadDeletedEmployees = () => {
+    // Replace 'YOUR_JWT_TOKEN_HERE' with your actual JWT token
+    
+  
     axios
-      .get("http://127.0.0.1:7000/attendance/deleted-employees/")
+      .get("http://127.0.0.1:7000/attendance/deleted-employees/", {
+        headers: {
+          Authorization: jwt
+        }
+      })
       .then((res) => {
         setDeletedEmployees(res.data);
         const pendingDeletionCount = res.data.length;
@@ -28,6 +37,7 @@ const TrashPage = () => {
         console.log(err);
       });
   };
+  
 
   const deleteEmployee = async (id) => {
     setSelectedEmployeeId(id);
@@ -44,7 +54,7 @@ const TrashPage = () => {
     try {
       await fetch("http://127.0.0.1:7000/attendance/permanentdelete", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: jwt  },
         credentials: "include",
         body: JSON.stringify({
           id: selectedEmployeeId,
@@ -65,7 +75,7 @@ const TrashPage = () => {
     try {
       await fetch(`http://127.0.0.1:7000/attendance/restore-employee/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" ,Authorization: jwt },
         credentials: "include",
         body: JSON.stringify({ id: selectedEmployeeId }),
       });

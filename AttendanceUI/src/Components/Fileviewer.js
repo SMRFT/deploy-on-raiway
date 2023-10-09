@@ -38,7 +38,7 @@ function DownloadButton(props) {
     const [year, setYear] = useState(null);
     const [selectedId, setSelectedId] = useState("");
     const [users, setUsers] = useState([]);
-    const options = users.map(user => ({value: user.id, label: user.name}));
+    // const options = users.map(user => ({value: user.id, label: user.name}));
 
     // Get the name parameter from the URL
     const params = useParams();
@@ -317,23 +317,32 @@ function DownloadButton(props) {
         navigate(`/AdminCalendar/${employee.name + '_' + employee.id}`)
         closeIframe();
     };
-      
+    const adminDetails = localStorage.getItem('adminDetails');
+    const { jwt } = JSON.parse(adminDetails);
     useEffect(() => {
         const apiUrl = `http://127.0.0.1:7000/attendance/showemp?id=${id}`;
-        fetch(apiUrl)
-            .then((res) => res.json())
-            .then(
-                (data) => {
-                    setEmployee(data);
-                    setEducationData(JSON.parse(data.educationData));
-                    setExperienceData(JSON.parse(data.experienceData));
-                    setReferenceData(JSON.parse(data.referenceData));
-                },
-                (error) => {
-                    console.error(error);
-                }
-            );
-    }, [id]);
+        const headers = {
+            'Authorization': `${jwt}`
+        };
+    
+        fetch(apiUrl, {
+            method: 'GET',
+            headers: headers
+        })
+        .then((res) => res.json())
+        .then(
+            (data) => {
+                setEmployee(data);
+                setEducationData(JSON.parse(data.educationData));
+                setExperienceData(JSON.parse(data.experienceData));
+                setReferenceData(JSON.parse(data.referenceData));
+            },
+            (error) => {
+                console.error(error);
+            }
+        );
+    }, [id, jwt]);
+    
 
 
     
@@ -552,13 +561,20 @@ state = {
     setState({ activeLink: linkName });
   };
 
+
+ 
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp")
+    fetch("http://127.0.0.1:7000/attendance/showemp", {
+      method: "GET",
+      headers: {
+        "Authorization": ` ${jwt}`
+      }
+    })
       .then((res) => res.json())
       .then(
         (data) => {
           setIsLoaded(true);
-          setUsers(data);
+          setUsers({ blogs: data });
         },
         (error) => {
           setIsLoaded(true);

@@ -247,3 +247,12 @@ class EmployeeHours(models.Model):
     earlyLogout = models.TimeField()
     # department = models.CharField(max_length=500)
     # designation = models.CharField(max_length=500)
+
+
+class UserPermission(models.Model):
+    role = models.CharField(max_length=100)
+    employee = models.BooleanField(default=False)
+    add_employee = models.BooleanField(default=False)
+    dashboard = models.BooleanField(default=False)
+    pending_approval = models.BooleanField(default=False)
+    admin_registration = models.BooleanField(default=False)

@@ -46,7 +46,7 @@ function Admin(props) {
       const adminDetails = localStorage.getItem('adminDetails');
       if (adminDetails) {
         const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
-        console.log("DDDD",jwt)
+        // console.log("DDDD",jwt)
         try {
           const response = await axios.get('http://127.0.0.1:7000/attendance/UserDetails', {
             headers: {

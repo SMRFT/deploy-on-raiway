@@ -82,6 +82,7 @@ export default class NavbarComp extends Component {
                         Home
                       </Nav.Link>
                     </div>
+                    
                     <div className="sidebar-nav-item">
                       <Nav.Link
                         as={Link}
@@ -120,6 +121,7 @@ export default class NavbarComp extends Component {
                         Dashboard
                       </Nav.Link>
                     </div>
+                    
                     {this.state.isHR && ( // Conditionally render HR-specific links
                       <div className="sidebar-nav-item">
                         <Nav.Link
@@ -148,7 +150,9 @@ export default class NavbarComp extends Component {
                         </Nav.Link>
                       </div>
                     )}
+                    
                   </ul>
+                  
                 </div>
               </div>
             </div>

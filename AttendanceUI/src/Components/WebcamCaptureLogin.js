@@ -26,7 +26,8 @@ const WebcamCaptureLogin = () => {
     setIsShown((current) => !current);
   };
 
-
+  const adminDetails = localStorage.getItem('adminDetails');
+  const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
   const capture = React.useCallback(async () => {
     // Function to get the camera screenshot image of an employee and change it to data URL
     const imageSrc = webcamRef.current.getScreenshot();
@@ -51,18 +52,18 @@ const WebcamCaptureLogin = () => {
         const result = await response.json();
         if (result.recognized) {
           const recognizedName = result.name;
-          console.log('Recognized Name:', recognizedName);
+          // console.log('Recognized Name:', recognizedName);
           setEmployeeName(recognizedName);
           const splitValues = recognizedName.split('_');
           const nameOfEmployee = splitValues[0];
           const empId = splitValues[1].split('.')[0];
-          console.log('Name of Employee:', nameOfEmployee);
-          console.log('Employee ID:', empId);
+          // console.log('Name of Employee:', nameOfEmployee);
+          // console.log('Employee ID:', empId);
   
           try {
             const response = await fetch("http://127.0.0.1:7000/attendance/showempById", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
+              headers: { "Content-Type": "application/json", 'Authorization': `${jwt}` },
               body: JSON.stringify({ id: empId }),
             });
   
@@ -124,7 +125,7 @@ const WebcamCaptureLogin = () => {
               await fetch("http://127.0.0.1:7000/attendance/admincalendarlogin", {
                 method: "POST",
                 headers: {
-                  "Content-Type": "application/json",
+                  "Content-Type": "application/json",'Authorization': `${jwt}`
                 },
                 body: JSON.stringify(attendanceData),
               })

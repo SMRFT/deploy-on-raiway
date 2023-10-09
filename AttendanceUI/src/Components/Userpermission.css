@@ -1,0 +1,45 @@
+.Role-select {
+    margin-left: 30%;
+    justify-content: center;
+    align-items: center;
+    height: 10% !important; /* You can adjust the height to your preference */
+    width: 100%;
+  }
+  /* Center the panel within its container */
+.col-md-6.panel {    
+    margin-left: 90%;
+    margin-top: 20%;
+  }
+  
+  /* Style the panel heading */
+  .panel-heading {
+    background-color: #f0f0f0; /* Change this to your desired background color */
+    font-weight: bold;
+    border: 1px solid #c5c9cc;
+    padding: 10px 15px;
+    width: 108%;
+    margin-left: -4%;
+
+  }
+  
+  /* Style the active panel */
+  .panel.panel-active {
+    border: 1px solid #c5c9cc; /* Change this to your desired border color for the active panel */
+    
+  }
+
+  .panel-body{
+    float: left;
+  }
+
+  .panel-body div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-family: sans-serif;
+  }
+  
+  .panel-body input[type="checkbox"] {
+    margin-right: 10px;
+  }
+  

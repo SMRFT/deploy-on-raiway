@@ -44,6 +44,7 @@ root.render(
       <Route  path="/admin/Viewemp/SettingsPage/*" element={<SettingsPage />} ></Route>
       <Route path="/ForgetPassword" element={<ForgetPassword />} />
       <Route path="/ResetPassword" element={<ResetPassword />} />
+      <Route exact path="/Event" element={<Event />} />
       {/* <Route path="/Summary/*" element={<Summary />} /> */}
     </Routes>
   </BrowserRouter>

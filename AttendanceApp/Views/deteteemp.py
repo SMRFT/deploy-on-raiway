@@ -12,9 +12,12 @@ from AttendanceApp.serializers import DeletedEmployeeSerializer
 from django.core.mail import send_mail
 from rest_framework import status
 # from .models import Employee, DeletedEmployee
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class DeleteEmp(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     @csrf_exempt
     def post(self, request):
         data = request.data
@@ -76,12 +79,16 @@ class DeleteEmp(APIView):
         send_mail(subject, message, from_email, recipient_list)
         return Response(status=status.HTTP_204_NO_CONTENT)
 class DeletedEmployeeList(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         employees = DeletedEmployee.objects.all()
         serializer = DeletedEmployeeSerializer(employees, many=True)
         return Response(serializer.data)
 
 class PermanentDeleteEmp(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     @csrf_exempt
     def post(self, request):
         data = request.data
@@ -91,6 +98,8 @@ class PermanentDeleteEmp(APIView):
         return JsonResponse({'message': 'Employee deleted successfully.'})
     
 class RestoreEmployee(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     @csrf_exempt
     def post(self, request):
         data = request.data
