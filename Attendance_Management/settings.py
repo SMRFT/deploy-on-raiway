@@ -23,7 +23,7 @@ ALLOWED_HOSTS = [
     'smrftadmin.netlify.app',
     '127.0.0.1',
     'localhost',
-    '127.0.0.1:7000'
+    '127.0.0.1:7000',"3.135.24.9"
 ]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
