@@ -23,7 +23,10 @@ ALLOWED_HOSTS = [
     'smrftadmin.netlify.app',
     '127.0.0.1',
     'localhost',
-    'http://smrft.s3-website.us-east-2.amazonaws.com'
+    'http://smrft.s3-website.us-east-2.amazonaws.com',
+    '127.0.0.1:7000',
+    "3.135.24.9"
+
 ]
 
 
