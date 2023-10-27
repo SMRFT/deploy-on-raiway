@@ -23,8 +23,9 @@ ALLOWED_HOSTS = [
     'smrftadmin.netlify.app',
     '127.0.0.1',
     'localhost',
-    '127.0.0.1:7000'
+    'http://smrft.s3-website.us-east-2.amazonaws.com'
 ]
+
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
@@ -33,8 +34,13 @@ if RENDER_EXTERNAL_HOSTNAME:
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     'https://smrftadmin.netlify.app',
-    'http://localhost:3000',
+    'http://localhost:3000',  # Use https://localhost:3000 if possible
+    'http://smrft.s3-website.us-east-2.amazonaws.com',
+    'https://127.0.0.1:7000'  # Use https://127.0.0.1:7000 if possible
 ]
+
+
+
 
 CORS_ALLOW_CREDENTIALS = True
 

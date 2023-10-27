@@ -6,7 +6,7 @@ from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
 from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events
-from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,facial_recognition_view,RetriveEmpdepartmentCount,RetriveEmpBydepartment
+from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static
@@ -49,7 +49,7 @@ urlpatterns = [
     path('restore-employee/', RestoreEmployee.as_view()),
     path("UserDetails", UserDetails.as_view()),
 
-    path('facial-recognition/', facial_recognition_view, name='recognize_faces'),
+    # path('facial-recognition/', facial_recognition_view, name='recognize_faces'),
     path('showempdesignation', RetriveEmpdepartmentCount.as_view()),
     path('empbydesignation', RetriveEmpBydepartment.as_view()),
     path('send-reset-code/', send_reset_code, name='send_reset_code'),

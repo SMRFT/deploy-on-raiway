@@ -53,11 +53,11 @@
 
 @media (min-width: 576px) {
 
-    /* Small devices (landscape phones, 576px and up) */
+  
     .center {
         width: 100px;
         height: 100px;
-        /* max-width: 300px; */
+       
         height: auto;
         margin: 20px auto;
     }
@@ -65,7 +65,7 @@
 
 @media (min-width: 768px) {
 
-    /* Medium devices (tablets, 768px and up) */
+   
     .center {
         width: 150px;
         height: 150px;
@@ -75,7 +75,7 @@
 
 @media (min-width: 992px) {
 
-    /* Large devices (desktops, 992px and up) */
+   
     .center {
         width: 150px;
         height: 150px;
@@ -138,45 +138,7 @@
   
   
 
-/* @media only screen and (max-width: 768px) {
-    .name {
-        margin-left: 50%;
-        /* center align for smaller screens */
-        /* transform: translateX(-50%);
-    }
-}
 
-.profile {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: 50px;
-    margin-right: 20px;
-    position: absolute;
-    top: 0;
-    right: 0;
-  } */ */
-  
-
-  /* /* .csv {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: -5%; /* Adjust this value to move the element down */
-  /* } */ */
-   */
-  /* .fa-download {
-    font-size: 40px;
-    cursor: pointer;
-    color: green;
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin-top: -5%;
-    margin-right: 250px; /* Adjust this value to move the button to the left */
-  /* } */
-   */
 .scheduler_default_corner div {
     display: none;
   }

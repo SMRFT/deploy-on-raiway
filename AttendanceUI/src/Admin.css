@@ -121,7 +121,7 @@
 button {
   cursor: pointer;
 }
-/* < !-- HTML !--><button class="button-78" role="button">Button 78</button> */
+
 /* CSS */
 .button-78 {
   align-items: center;
@@ -284,12 +284,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* flex-direction: column; */
-  /* background-color: #F2F2F2; */
+ 
   padding: 20px;
   border-radius: 10px;
   width: 300px;
-  /* margin-top: -40%; */
+  
 }
 .profile-info {
   margin-bottom: 1px;

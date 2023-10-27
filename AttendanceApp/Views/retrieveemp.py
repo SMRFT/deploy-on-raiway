@@ -41,7 +41,7 @@ from gridfs import GridFS
 from bson import ObjectId
 import cv2
 # Retrieve Employee
-import face_recognition
+# import face_recognition
 import os
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes, authentication_classes
@@ -78,8 +78,8 @@ class RetriveEmp(APIView):
 
 # Retrieve Employee By Id
 
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+# @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAuthenticated])
 class RetriveEmpById(APIView):
     permission_classes = [AllowAny]
     @csrf_exempt
@@ -89,80 +89,80 @@ class RetriveEmpById(APIView):
         serializer = EmployeeShowSerializer(emp)
         return Response(serializer.data)
 
-import os
-import cv2
-import numpy as np
-import face_recognition
-import datetime
-import io
-import gridfs
-from pymongo import MongoClient
+# import os
+# import cv2
+# import numpy as np
+# import face_recognition
+# import datetime
+# import io
+# import gridfs
+# from pymongo import MongoClient
 
 
 
-# Load known faces and names only once when the server starts
-client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-db = client['data']
-fs = gridfs.GridFS(db)
+# # Load known faces and names only once when the server starts
+# client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
+# db = client['data']
+# fs = gridfs.GridFS(db)
 
-known_faces = []
-known_names = []
+# known_faces = []
+# known_names = []
 
-# Iterate through GridFS to retrieve known images
-for file in db.fs.files.find({'filename': {'$regex': '.*\.(jpg|png)$'}}):
-    file_id = file['_id']
-    # Check if the file still exists in GridFS
-    if fs.exists(file_id):
-        file_data = fs.get(file_id).read()
+# # Iterate through GridFS to retrieve known images
+# for file in db.fs.files.find({'filename': {'$regex': '.*\.(jpg|png)$'}}):
+#     file_id = file['_id']
+#     # Check if the file still exists in GridFS
+#     if fs.exists(file_id):
+#         file_data = fs.get(file_id).read()
     
-    # Load the image data as bytes
-    known_image = face_recognition.load_image_file(io.BytesIO(file_data))
+#     # Load the image data as bytes
+#     known_image = face_recognition.load_image_file(io.BytesIO(file_data))
     
-    # Get the face encodings if faces are detected
-    face_encodings = face_recognition.face_encodings(known_image)
+#     # Get the face encodings if faces are detected
+#     face_encodings = face_recognition.face_encodings(known_image)
     
-    if face_encodings:
-        # Extract the name without the file extension
-        filename_parts = file['filename'].split('_')
-        if len(filename_parts) >= 2:
-            name_without_extension = '_'.join(filename_parts[:-1])
-            known_names.append(name_without_extension)
-            known_faces.append(face_encodings[0])
-@csrf_exempt
-def facial_recognition_view(request):
-    if request.method == 'POST':
-        # Get the uploaded image from the request
-        image = request.FILES.get('image')
+#     if face_encodings:
+#         # Extract the name without the file extension
+#         filename_parts = file['filename'].split('_')
+#         if len(filename_parts) >= 2:
+#             name_without_extension = '_'.join(filename_parts[:-1])
+#             known_names.append(name_without_extension)
+#             known_faces.append(face_encodings[0])
+# @csrf_exempt
+# def facial_recognition_view(request):
+#     if request.method == 'POST':
+#         # Get the uploaded image from the request
+#         image = request.FILES.get('image')
 
-        if image:
-            # Load the unknown image
-            unknown_image = face_recognition.load_image_file(image)
-            unknown_face_encodings = face_recognition.face_encodings(unknown_image)
+#         if image:
+#             # Load the unknown image
+#             unknown_image = face_recognition.load_image_file(image)
+#             unknown_face_encodings = face_recognition.face_encodings(unknown_image)
 
-            # Check if any faces are found in the unknown image
-            if unknown_face_encodings:
-                face_distances = face_recognition.face_distance(known_faces, unknown_face_encodings[0])
-                min_distance_index = face_distances.argmin()
-                min_distance = face_distances[min_distance_index]
-                recognized_name = known_names[min_distance_index]
+#             # Check if any faces are found in the unknown image
+#             if unknown_face_encodings:
+#                 face_distances = face_recognition.face_distance(known_faces, unknown_face_encodings[0])
+#                 min_distance_index = face_distances.argmin()
+#                 min_distance = face_distances[min_distance_index]
+#                 recognized_name = known_names[min_distance_index]
 
-                # Compare the distance to a threshold value to determine if it's a match
-                if min_distance < 0.6:
-                    # Face recognized
-                    response_data = {'recognized': True, 'name': recognized_name}
-                else:
-                    # Face not recognized
-                    response_data = {'recognized': False}
-            else:
-                # No faces found in the unknown image
-                response_data = {'recognized': False}
-        else:
-            # Handle the case where no image is provided in the request
-            response_data = {'recognized': False}
+#                 # Compare the distance to a threshold value to determine if it's a match
+#                 if min_distance < 0.6:
+#                     # Face recognized
+#                     response_data = {'recognized': True, 'name': recognized_name}
+#                 else:
+#                     # Face not recognized
+#                     response_data = {'recognized': False}
+#             else:
+#                 # No faces found in the unknown image
+#                 response_data = {'recognized': False}
+#         else:
+#             # Handle the case where no image is provided in the request
+#             response_data = {'recognized': False}
 
-        return JsonResponse(response_data)
+#         return JsonResponse(response_data)
 
-    return JsonResponse({'recognized': False})
+#     return JsonResponse({'recognized': False})
 
 
 

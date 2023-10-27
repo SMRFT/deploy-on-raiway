@@ -4,7 +4,7 @@
 .dashboard,
 .Deleteemp,
 .AdminReg{
-  display: block; /* new property */
+  display: block;
   padding: 10px;
   margin: 8% 0;
   color: rgb(255, 249, 249);

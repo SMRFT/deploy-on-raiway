@@ -27,7 +27,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 import cv2
 import numpy as np
-import face_recognition
+# import face_recognition
 import base64
 from django.conf import settings
 from django.http import JsonResponse
@@ -225,7 +225,7 @@ def send_reset_code(request):
             subject = 'Password Reset'
             html_message = render_to_string('AttendanceApp/password_reset_email.html', {'reset_code': reset_code})
             plain_message = strip_tags(html_message)
-            from_email = 'parthibansmrft@gmail.com'
+            from_email = 'parthipanmurugan33517@gmail.com'
             recipient_list = [user_email]
 
             try:
