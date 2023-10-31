@@ -16,7 +16,7 @@ shift2 = 'Afternoon'
 shift3 = 'night'
 
 
-#mongodb
+# mongodb
 MONGODB_HOST = 'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net'
 
 # whatsapp
@@ -36,5 +36,5 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'parthibansmrft@gmail.com'
 EMAIL_HOST_PASSWORD = 'jgnuxbycnzywwvlw'
 
-#secret key
+# secret key
 SECRET_KEY = 'django-insecure-5#y-^bdkqu5-_2ttnr7(^*ai-i$2nh+ef)7+t$+%+hhol59h@!'

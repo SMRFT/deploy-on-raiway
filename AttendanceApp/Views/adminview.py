@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import jwt
 import datetime
 from .constants import Addemployee
-from AttendanceApp.models import Admin,PasswordResetRequest,Employee,UserPermission
+from AttendanceApp.models import Admin,PasswordResetRequest,Employee,UserPermission,EmployeeExitForm
 from AttendanceApp.serializers import EmployeeSerializer, AdminSerializer,UserPermissionSerializer
 # from Attendance_Management.settings import SIMPLE_JWT,REST_FRAMEWORK
 from PIL import Image
@@ -31,7 +31,7 @@ import numpy as np
 import base64
 from django.conf import settings
 from django.http import JsonResponse
-
+from django.http import JsonResponse, HttpResponse,HttpResponseBadRequest
 
 
 
@@ -47,46 +47,44 @@ def upload_file(request):
         client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
         db = client['data']
         fs = GridFS(db)
-
         # Retrieve employee information
         employee_name = request.POST.get('employee_name')
         employee_id = request.POST.get('employee_id')
-
         # Check if proof file exists and read its contents
         if 'proof' in request.FILES:
             proof_file = request.FILES['proof']
             file_contents1 = proof_file.read()
             proof_filename = f'{employee_name}_{employee_id}_proof.pdf'
             proof_id = fs.put(file_contents1, filename=proof_filename)
-
         # Check if certificates file exists and read its contents
         if 'certificates' in request.FILES:
             certificates_file = request.FILES['certificates']
             file_contents2 = certificates_file.read()
             certificates_filename = f'{employee_name}_{employee_id}_certificates.pdf'
             certificates_id = fs.put(file_contents2, filename=certificates_filename)
-
+         # Check if uploadfile file exists and read its contents
+        if 'uploadFile' in request.FILES:
+            uploadFile_file = request.FILES['uploadFile']
+            file_contents4 = uploadFile_file.read()
+            uploadFile_filename = f'{employee_name}_{employee_id}_uploadFile.pdf'
+            uploadFile_id = fs.put(file_contents4, filename=uploadFile_filename)
         # Read imgSrc file contents
         imgsrc_profile = request.FILES['imgSrc']
         file_contents3 = imgsrc_profile.read()
         imgsrc_filename = f'{employee_name}_{employee_id}_profile.jpg'
         imgsrc_id = fs.put(file_contents3, filename=imgsrc_filename)
-
         # Save file information in the database
         db.fs.files.insert_one({
             'proof_id': str(proof_id) if 'proof' in request.FILES else None,
             'certificates_id': str(certificates_id) if 'certificates' in request.FILES else None,
+            'uploadFile_id':str(uploadFile_id) if 'uploadFile' in request.FILES else None,
             'imgsrc_id': str(imgsrc_id),
             'employee_name': employee_name,
-            'employee_id': employee_id
+            'employee_id': employee_id,
+           
         })
-
-        # Save image to local storage
-        # with open(f'images{imgsrc_filename}', 'wb') as f:
-        #     f.write(file_contents3)
-
-        # Return a response indicating successful file upload
         return HttpResponse('Files uploaded successfully')
+    return HttpResponseBadRequest('Invalid request method')
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
@@ -495,3 +493,44 @@ def employee_events(request):
             response_text += f"{name}: {anniversary} years\n"
 
     return HttpResponse(response_text, content_type="text/plain")
+
+
+
+@csrf_exempt
+def submit_employee_exit_form(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            employee_exit_form = EmployeeExitForm(
+                name=data.get('name'),
+                id=data.get('id'),
+                department=data.get('department'),
+                exitStatus=data.get('exitStatus'),
+                lastWorkingDate=data.get('lastWorkingDate')
+            )
+            employee_exit_form.save()
+            return JsonResponse({'message': 'Form submitted successfully'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+        
+
+@csrf_exempt
+def get_employee_exit_form(request):
+    if request.method == 'GET':
+        try:
+            # Retrieve all the employee exit forms
+            exit_forms = EmployeeExitForm.objects.all()
+            # Serialize the data if needed
+            serialized_exit_forms = []
+            for form in exit_forms:
+                serialized_exit_forms.append({
+                    'name': form.name,
+                    'id': form.id,
+                    'department': form.department,
+                    'exitStatus': form.exitStatus,
+                    'lastWorkingDate': form.lastWorkingDate,
+                })
+            return JsonResponse({'data': serialized_exit_forms})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

@@ -11,6 +11,7 @@ import EmployeeHours from './EmployeeHours';
 import AdminReg from '../Adminreg';
 import Deleteemp from './Deleteemp';
 import ViewempTable from './ViewempTable';
+import EmployeeExitForm from "./EmployeeExitForm";
 import profile from "../images/smrft(1).png";
 export default class NavbarComp extends Component {
   // Active link function to keep the navlink active when clicked
@@ -150,7 +151,20 @@ export default class NavbarComp extends Component {
                         </Nav.Link>
                       </div>
                     )}
-                    
+                    <div className="sidebar-nav-item">
+                      <Nav.Link
+                        as={Link}
+                        to="EmployeeExitForm"
+                        className={`EmployeeExitForm ${
+                          this.state.activeLink === 'EmployeeExitForm' ? 'sticky' : ''
+                        }`}
+                        onClick={() => this.handleNavItemClick('EmployeeExitForm')}
+                      >
+                        Employee Exit Form
+                      </Nav.Link>
+                    </div>
+                  
+                 
                   </ul>
                   
                 </div>
@@ -167,6 +181,7 @@ export default class NavbarComp extends Component {
               <Route exact path="/ViewempTable" element={<ViewempTable />} />
               <Route exact path="/Deleteemp" element={<Deleteemp />} />
               <Route exact path="/AdminReg" element={<AdminReg />} />
+              <Route exact path="/EmployeeExitForm" element={<EmployeeExitForm />} />
             </Routes>
           </main>
         </div>

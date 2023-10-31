@@ -23,6 +23,7 @@ import AdminReg from "./Adminreg";
 import SettingsPage from "../src/Components/SettingsPage.js";
 import ResetPassword from "./Components/ResetPassword";
 import ForgetPassword from "./Components/ForgetPassword";
+import EmployeeExitForm from "./Components/EmployeeExitForm";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
@@ -45,6 +46,7 @@ root.render(
       <Route path="/ForgetPassword" element={<ForgetPassword />} />
       <Route path="/ResetPassword" element={<ResetPassword />} />
       <Route exact path="/Event" element={<Event />} />
+      <Route exact path="/EmployeeExitForm" element={<EmployeeExitForm />} />
       {/* <Route path="/Summary/*" element={<Summary />} /> */}
     </Routes>
   </BrowserRouter>

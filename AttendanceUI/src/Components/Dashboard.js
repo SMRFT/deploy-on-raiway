@@ -3,13 +3,13 @@ import './Dashboard.css'
 import { Bar } from 'react-chartjs-2';
 import Chart1 from "react-apexcharts";
 import Chart3 from "./Chart.js";
-import Slchart from './Slchart.js';
-import { People, Block, FreeBreakfast } from '@material-ui/icons';
+import EmployeeExitChart from "./EmployeeExitChart";
 import axios from "axios";
 import { Link } from 'react-router-dom';
-import { Chart as ChartJS, CategoryScale, LinearScale } from 'chart.js';
+import { Chart, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+
 // Register the scale
-// ChartJS.register(LinearScale, CategoryScale);
+// Chart.register(LinearScale, CategoryScale, BarElement, Tooltip, Legend);
 
 function Donut() {
   const [activeTab, setActiveTab] = useState('otherCharts');
@@ -136,170 +136,6 @@ const options2 = {
   },
 };
 
-  const [employeeData, setEmployeeData] = useState([]);
-
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:7000/attendance/breakdetails")
-      .then((response) => {
-        setEmployeeData(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
-  const activeEmployees = employeeData.employees_active || [];
-  const inactiveEmployees = employeeData.employees_not_active || [];
-  const breakEmployees = employeeData.employees_on_break || [];
-  const data = {
-    labels: ["Active Employees", "Inactive Employees", "Break Employees"],
-    datasets: [
-      {
-        label: "Employee Status",
-        data: [activeEmployees.length, inactiveEmployees.length, breakEmployees.length],
-        backgroundColor: ["rgb(36, 177, 170)", "#FF6384", "skyblue"],
-        hoverBackgroundColor: ["rgb(36, 177, 170)", "#FF6384", "skyblue"],
-      },
-    ],
-  };
-
-  const activeEmployeesCount = activeEmployees.length;
-  const inactiveEmployeesCount = inactiveEmployees.length;
-  const breakEmployeesCount = breakEmployees.length;
-
-  const [chartData4, setChartData4] = useState({
-    options: {
-      xaxis: {
-        type: "category",
-        categories: [],
-        title: {
-          text: "Months",
-        }
-      },
-      tooltip: {
-        y: {
-          formatter: function (val) {
-            return val + " employee(s)";
-          },
-        },
-      },
-    },
-    series: [
-      {
-        name: "Employees Added",
-        data: [],
-      },
-    ],
-  });
-  useEffect(() => {
-    axios
-      .get("http://127.0.0.1:7000/attendance/showemp")
-      .then((res) => {
-        // Map the data to an object with month and employee name properties
-        const employeeData = res.data.map((employee) => {
-          const addedDate = new Date(employee.
-            dateofjoining);
-          return {
-            month: addedDate.toLocaleString("default", { month: "long" }),
-            name: employee.name,
-          };
-        });
-
-        // Group the employee data by month
-        const groupedData = employeeData.reduce((acc, employee) => {
-          if (!acc[employee.month]) {
-            acc[employee.month] = [];
-          }
-          acc[employee.month].push(employee);
-          return acc;
-        }, {});
-
-        // Populate the chart data with the grouped employee data
-        const categories = Object.keys(groupedData);
-        const seriesData = categories.map((category) => {
-          return groupedData[category].length;
-        });
-        setChartData4({
-          options: {
-            xaxis: {
-              type: "category",
-              categories: categories,
-              title: {
-                text: "Months"
-              }
-            },
-            tooltip: {
-              y: {
-                formatter: function (val, { seriesIndex, dataPointIndex }) {
-                  const employeeName = groupedData[categories[seriesIndex]][dataPointIndex].name;
-                  return `${val} employee(s) added by ${employeeName}`;
-                },
-              },
-            },
-          },
-          series: [
-            {
-              name: "Employees Added",
-              data: seriesData,
-            },
-          ],
-        });
-
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);
-
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const currentYear = currentDate.getFullYear();
-  const [userExportData, setUserExportData] = useState([]);
-
-  useEffect(() => {
-    const getExportData = async () => {
-      fetch("http://127.0.0.1:7000/attendance/EmployeeSummaryExport", {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          month: currentMonth,
-          year: currentYear,
-        }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setUserExportData(data);
-        });
-    };
-    getExportData();
-  }, []);
-
-  const slTakenByUser = userExportData.reduce((acc, user) => {
-    return acc + user.SL_Taken;
-  }, 0);
-
-  const totalUsers = userExportData.length;
-  const slTakenPercentage = (slTakenByUser / (totalUsers * 12)) * 100;
-
-  const chartOptions8 = {
-    chart: {
-      type: "pie",
-    },
-    series: [slTakenPercentage, 100 - slTakenPercentage],
-    labels: ["SL Taken", "SL not Use"],
-    pie: {
-      offsetX: -10,
-      offsetY: 30,
-    },
-    labels: {
-      style: {
-        fontSize: '14px',
-        fontWeight: 'bold',
-        color: 'blue', // Customize label color
-      },
-    },
-  };
 
         // Define age group categories
         const ageGroups = [
@@ -369,7 +205,12 @@ const ageGroupChartOptions = {
     },
   },
   plugins: {
+    legend: {
+      display: true,
+      position: "top",
+    },
     tooltips: {
+      enabled: true,
       callbacks: {
         label: (context) => {
           const datasetLabel = context.dataset.label || "";
@@ -430,6 +271,37 @@ const ageGroupChartOptions = {
         console.error(err);
       });
   }, []);
+
+  const bloodGroupChartOptions = {
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+      },
+    },
+    plugins: {
+      legend: {
+        display: true, // Ensure the legend is displayed
+        position: "top",
+      },
+      tooltips: {
+        enabled: true, // Make sure tooltips are enabled
+        callbacks: {
+          label: (context) => {
+            const datasetLabel = context.dataset.label || "";
+            const value = context.parsed.y;
+            const ageGroup = ageGroupChartData.labels[context.dataIndex];
+            const bloodGroup = context.dataset.label;
+            const employeeCountInAgeGroup = context.raw[bloodGroup][ageGroup];
+            return `${datasetLabel}: ${value} employees in age group ${ageGroup} (Count: ${employeeCountInAgeGroup})`;
+          },
+        },
+      },
+    },
+  };
+
 
   return (
     <div className='side2'><br />
@@ -499,33 +371,6 @@ const ageGroupChartOptions = {
             </div>
             <br />
 
-            <div className='row'>
-              <div className='col-sm-6' style={{ height: 400, width: 600, backgroundColor: "#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent: "center", position: "relative", display: "flex", alignItems: "center", flexDirection: "column" }}>
-                 <div style={{ fontSize: "100%",fontFamily:"serif", whiteSpace: "nowrap", justifyContent: "center", display: "flex", alignItems: "center" }}><br />Sick Leave</div>
-                <Slchart />
-              </div>
-              {/* <div className='col-sm-6' style={{marginLeft:"2%", height: 400, width: 500, backgroundColor: "#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent: "center", display: "flex", alignItems: "center", flexDirection: "column" }}>
-                <div style={{ fontSize: "100%",fontFamily:"serif", whiteSpace: "nowrap" }}><br />Employee Status</div><br />
-                <div className='container5'>
-                  <div style={{ backgroundColor: "green" }}>
-                    <People />
-                    <span>{activeEmployeesCount} Active Employees</span>
-                  </div>
-                  <div style={{ backgroundColor: "red" }}>
-                    <Block />
-                    <span>{inactiveEmployeesCount} Not Active Employees</span>
-                  </div>
-                  <div style={{ backgroundColor: "skyblue" }}>
-                    <FreeBreakfast />
-                    <span>{breakEmployeesCount} Employees on Break</span>
-                  </div>
-                </div>
-                <div>
-                  <Bar height={300} width={400} data={data} />
-                </div>
-              </div> */}
-            </div> 
-            <br/>
             <div className="row">
             <div className='col-sm-6' style={{ height: 400, width: 600, backgroundColor: "#F6F8FA", boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)', justifyContent: "center", position: "relative", display: "flex", alignItems: "center", flexDirection: "column" }}>
               <div style={{ fontSize: "100%",fontFamily:"serif", whiteSpace: "nowrap", justifyContent: "center", display: "flex", alignItems: "center" }}>Age Group Ratio by Department</div>
@@ -536,7 +381,7 @@ const ageGroupChartOptions = {
                 <div style={{fontSize: "100%",fontFamily: "serif",whiteSpace: "nowrap",justifyContent: "center",display: "flex",alignItems: "center",}}>
                   Blood Group Ratio by Age Group
                 </div>
-                <Bar data={bloodGroupChartData} options={ageGroupChartOptions} />
+                <Bar data={bloodGroupChartData} options={bloodGroupChartOptions} />
               </div>
             </div> 
           </div>
@@ -550,11 +395,16 @@ const ageGroupChartOptions = {
               onClick={() => handleLinkClick("otherCharts")}
             >
               Employee Live Data
-            </a><br />
-            <h2 style={{ alignItems: "center", display: "flex", justifyContent: "center",fontFamily:"serif" }}>Employees Joined and Relieved Data</h2><br />
+            </a><br /><br/>
             <div className='row'>
-                <Chart3 />
+              <div className="col-sm-6" >
+                <Chart3/>
               </div>
+              <div className="col-sm-6">
+                <EmployeeExitChart/>
+                </div>
+              </div>
+              <br/>
             </div>
         )}
         <br/>

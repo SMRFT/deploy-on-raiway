@@ -16,11 +16,9 @@ class DeletedEmployeeSerializer(serializers.ModelSerializer):
         
 class EmployeeShowSerializer(serializers.ModelSerializer):
     # imgSrc = serializers.ImageField(use_url=False)
-
     class Meta:
         model = Employee
-        fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining', 'IdentificationMark', 'languages', 'bankaccnum', 'dob',"age", 'Maritalstatus', 'Gender','salary')
-
+        fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining',  'languages', 'bankaccnum', 'dob','age', 'Maritalstatus', 'Gender','salary','medicalClaimPolicyNo','validityDateFrom','validityDateTo','bankName','ifscCode','employmentCategory')
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes

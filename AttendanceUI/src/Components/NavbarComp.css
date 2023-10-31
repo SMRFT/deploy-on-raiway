@@ -3,7 +3,7 @@
 .addemployee,
 .dashboard,
 .Deleteemp,
-.AdminReg{
+.AdminReg,.EmployeeExitForm{
   display: block;
   padding: 10px;
   margin: 8% 0;
@@ -18,7 +18,8 @@
 .addemployee:hover,
 .dashboard:hover,
 .Deleteemp:hover,
-.AdminReg:hover {
+.AdminReg:hover,
+.EmployeeExitForm:hover {
   color: #085C69;
 }
 .home.active,
@@ -26,7 +27,8 @@
 .addemployee.active,
 .dashboard.active,
 .Deleteemp.active,
-.AdminReg .active
+.AdminReg .active,
+.EmployeeExitForm.active
 {
   color:rgb(255, 255, 255)!important;
   font-weight:bold !important;

@@ -36,7 +36,7 @@ class DeleteEmp(APIView):
         emp_languages =emp.languages
         emp_Aadhaarno=emp.Aadhaarno
         emp_PanNo=emp.PanNo
-        emp_IdentificationMark=emp.IdentificationMark
+    
         emp_BloodGroup=emp.BloodGroup
         emp_RNRNO=emp.RNRNO
         emp_TNMCNO =emp.TNMCNO
@@ -59,7 +59,7 @@ class DeleteEmp(APIView):
             languages =emp.languages ,
             Aadhaarno=emp.Aadhaarno,
             PanNo=emp.PanNo,
-            IdentificationMark=emp.IdentificationMark,
+          
             BloodGroup=emp.BloodGroup,
             RNRNO=emp.RNRNO,
             TNMCNO =emp.TNMCNO,
@@ -117,7 +117,7 @@ class RestoreEmployee(APIView):
                             languages =deleted_employee.languages ,
                             Aadhaarno=deleted_employee.Aadhaarno,
                             PanNo=deleted_employee.PanNo,
-                            IdentificationMark=deleted_employee.IdentificationMark,
+                          
                             BloodGroup=deleted_employee.BloodGroup,
                             RNRNO=deleted_employee.RNRNO,
                             TNMCNO =deleted_employee.TNMCNO,

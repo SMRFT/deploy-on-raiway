@@ -20,10 +20,22 @@ const Myconstants = Object.freeze({
     start: '19:00:00',
     end: '24:00:00'
   },
+  employeeexitstatus: ["Voluntary","Relieved","Abscond"],
   lunchlogout: ' Enjoy your meal...! ',
   lunchalreadylogout: 'You are Already in Lunch!',
   lunchlogin: ' Thanks For Login...!',
-  departments: ["all","IT", "DOCTOR", "NURSE", "HR", "LAB", "RT TECH", "PHARMACY", "TELECALLER", "FRONT OFFICE", "SECURITY", "ELECTRICIAN", "ACCOUNTS", "NURSING", "HOUSE KEEPING", "DENSIST CONSULTANT", "COOK"]
+  departments: ["IT", "DOCTOR", "NURSE", "HR", "LAB", "RT TECH", "PHARMACY", "TELECALLER", "FRONT OFFICE", "SECURITY", "ELECTRICIAN", "ACCOUNTS", "NURSING", "HOUSE KEEPING", "DENSIST CONSULTANT", "COOK"],
+  Role:["HR","HR Assistant"],
+ // Using an array of strings
+  employmentCategoryOptions : [
+    { value: "Consultant", label: "Consultant" },
+    { value: "OnRoll", label: "OnRoll" },
+  ],
+   employeeTypeOptions : [
+    { value: 'Full Time', label: 'Full Time' },
+    { value: 'Part Time', label: 'Part Time' },
+    { value: 'Contract', label: 'Contract' },
+     ],
 });
 
 export default Myconstants;
