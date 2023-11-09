@@ -24,6 +24,7 @@ import uuid
 
 gridfs_storage = GridFSStorage()
 
+# Employee model (Add employee model)
 class Employee(models.Model):
     id = models.CharField(primary_key=True, max_length=500)
     name = models.CharField(max_length=500)
@@ -49,8 +50,8 @@ class Employee(models.Model):
     referenceData = models.CharField(max_length=1200,blank=True, null=True)
     languages = models.CharField(max_length=1200,blank=True, null=True)
     salary = models.IntegerField(blank=True, null=True)
-    PF=models.IntegerField(blank=True,null=True)
-    ESINO=models.IntegerField(blank=True,null=True)
+    PF=models.CharField(blank=True,null=True,max_length=500)
+    ESINO=models.CharField(blank=True,null=True,max_length=500)
     employmentCategory=models.CharField(max_length=500)
     employeeType=models.CharField(max_length=500)
     medicalClaimPolicyNo=models.CharField(max_length=500,blank=True, null=True)
@@ -61,6 +62,8 @@ class Employee(models.Model):
     companyEmail=models.CharField(max_length=500,blank=True, null=True)
     assetDetails=models.CharField(max_length=1000,blank=True, null=True)
     reportedBy=models.CharField(max_length=1000,blank=True, null=True)
+    experience=models.CharField(max_length=1000,blank=True, null=True)
+    yearsOfExperience=models.CharField(max_length=1000,blank=True, null=True)
 
 
 class DeletedEmployee(models.Model):

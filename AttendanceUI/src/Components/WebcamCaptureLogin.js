@@ -101,9 +101,11 @@ const WebcamCaptureLogin = () => {
               // Calculate the late login time for the shift
               const loginTime = moment(logintime, 'YYYY-MM-DD HH:mm');
               const shiftStartTimeDate = moment(shiftStartTime, 'HH:mm');
-  
+              console.log("Dd",shiftStartTime)
               const diffDuration = moment.duration(loginTime.diff(shiftStartTimeDate));
+              console.log(diffDuration)
               const lateLogin = diffDuration.asSeconds() > 0 ? diffDuration.toISOString().substr(11, 8) : '00:00:00';
+              console.log("ssss",lateLogin)
               const earlyLogout = "00:00:00";
   
               const attendanceData = {

@@ -14,9 +14,7 @@ import HorizontalTabs from "./HorizontalTabs";
 import moment from "moment";
 
 
-
-
-function Addemp() 
+function Addemp()
 {
   const { employmentCategoryOptions,employeeTypeOptions } = Myconstants;
   const [Initial, setInitial] = useState('');
@@ -24,7 +22,6 @@ function Addemp()
   const webcamRef = React.useRef(null);
   const [imgSrc, setImgSrc] = React.useState("");
   const [imageSrc, setImageSrc] = useState("");
-  const [imgSrcname, setImgSrcname] = useState("");
   const [image, setImage] = useState(null);
   const [title, setTitle] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -45,7 +42,7 @@ function Addemp()
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [RNRNO, setRNRNO] = useState("");
   const [TNMCNO, setTNMCNO] = useState("");
-  const [ValidlityDate, setValidlityDate] = useState("");
+  const [ValidlityDate, setValidlityDate] = useState(null); // Use null as the initial date value
   const [Gender, setGender] = useState("");
   const [Maritalstatus, setMaritalstatus] = useState("");
   const [Aadhaarno, setAadhaarno] = useState("");
@@ -65,49 +62,136 @@ function Addemp()
   const [ifscCode, setIfscCode] = useState('');
   const[experienceFrom,setexperienceFrom]=useState(null);
   const[experienceTo,setexperienceTo]=useState(null);
+  const[experience,setexperience]=useState('');
   const [yearsOfExperience, setYearsOfExperience] = useState({ years: 0, months: 0 });
-  
+ 
+ 
   const [educationData, setEducationData] = useState([
-    { SlNo: 1, Degree: '', major: '', institution: '', marks: '', division: '', year: '' }
+    {
+      slNo: 1,
+      degree: "",
+      major: "",
+      institution: "",
+      university: "",
+      percentMarks: "",
+      yearOfPassing: "",
+    },
   ]);
+ 
+  const [editingIndex, setEditingIndex] = useState(-1);
+  const [editingField, setEditingField] = useState(null);
+ 
 
+  const startEditing = (index, field) => {
+    setEditingIndex(index);
+    setEditingField(field);
+  };
+
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target;
+   
+    setEducationData((prevData) => {
+
+      const newData = [...prevData];
+      newData[index][name] = value;
+      return newData;
+    });
+  };
+ 
+ 
   const [experienceData, setExperienceData] = useState([
-    { SlNo: 1, Organization: "", designation: "", lastdrawnsalary: "", location: "", experience: "" },
+    { SlNo: 1, Organization: "", designation: "", lastdrawnsalary: "", location: "", experience: "",yearsOfExperience:""},
   ]);
 
   const [assetDetails, setAssetDetails] = useState([
     { slNo: 1, description: '', modelSerialNo: '' }
   ]);
-  
-  const addRow = (tableType) => {
-    if (tableType === 'experience') {
-      setExperienceData([...experienceData, { SlNo: experienceData.length + 1, Organization: "", designation: "", lastdrawnsalary: "", location: "", experience: "" }]);
-    } else if (tableType === 'asset') {
-      setAssetDetails([...assetDetails, { slNo: assetDetails.length + 1, description: "", modelSerialNo: "" }]);
-    } else if (tableType === 'education') {
-      const newRowData = {
-        SlNo: educationData.length + 1,
-        degree: '',
-        major: '',
-        institution: '',
-        marks: '',
-        division: '',
-        year: ''
-      };
-      setEducationData([...educationData, newRowData]);
-    }
-  };
-  
-  
+
   const [referenceData, setReferenceData] = useState([
     { SlNo: 1, references: "", Organization: "", designation: "", ContactNo: "" },
-
   ]);
-
+ 
+  const [referenceEditingIndex, setReferenceEditingIndex] = useState(-1);
+  const [referenceEditingField, setReferenceEditingField] = useState(null);
+ 
+  const startReferenceEditing = (index, field) => {
+    setReferenceEditingIndex(index);
+    setReferenceEditingField(field);
+  };
+ 
+  const handleReferenceInputChange = (e, index) => {
+    const { name, value } = e.target;
+    setReferenceData((prevData) => {
+      const newData = [...prevData];
+      newData[index][name] = value;
+      return newData;
+    });
+  };
+ 
+ 
+  const addRow = (tableType) => {
+    console.log("first")
+    console.log("second")
+    switch (tableType) {
+      case 'experience':
+        setExperienceData((prevData) => [
+          ...prevData,
+          {
+            SlNo: prevData.length + 1,
+            Organization: "",
+            designation: "",
+            lastdrawnsalary: "",
+            location: "",
+            experience: "",
+            yearsOfExperience: "",
+          },
+        ]);
+        break;
+      case 'asset':
+        setAssetDetails((prevData) => [
+          ...prevData,
+          {
+            slNo: prevData.length + 1,
+            description: "",
+            modelSerialNo: "",
+          },
+        ]);
+        break;
+      case 'reference':
+        setReferenceData((prevData) => [
+          ...prevData,
+          {
+            SlNo: prevData.length + 1,
+            references: "",
+            Organization: "",
+            designation: "",
+            ContactNo: "",
+          },
+        ]);
+        break;
+      case 'education':
+        setEducationData((prevData) => [
+          ...prevData,
+          {
+            slNo: prevData.length + 1,
+            degree: "",
+            major: "",
+            institution: "",
+            university: "",
+            percentMarks: "",
+            yearOfPassing: "",
+          },
+        ]);
+        break;
+      default:
+        // Handle unknown table type
+        break;
+    }
+  };
+ 
+ 
   const [showReferenceDetails, setShowReferenceDetails] = useState(false);
-
   // const referenceData = []; // Replace with your actual reference data
-
   const handleReferenceClick = () => {
     setShowReferenceDetails(true);
   };
@@ -116,62 +200,22 @@ function Addemp()
     setShowReferenceDetails(false);
   };
 
-
-  const handleAddRow = () => {
-    const newRow = { SlNo: referenceData.length + 1, references: "", Organization: "", designation: "", ContactNo: "" };
-    setReferenceData([...referenceData, newRow]);
-  };
-
-
- 
-  const handleAssetContentEditableChange = (index, fieldName, newValue) => {
+   const handleAssetContentEditableChange = (index
+    , fieldName, newValue) => {
     const updatedAssetDetails = [...assetDetails];
     updatedAssetDetails[index][fieldName] = newValue;
+    console.log("index:",index,fieldName,newValue)
     setAssetDetails(updatedAssetDetails);
   };
-  
-
-  const handleEducationContentEditableChange = (index, fieldName, newValue) => {
-    if (fieldName === "major") {
-      validateMajor(newValue);
-    } else if (fieldName === "institution") {
-      validateInstitution(newValue);
-    } else if (fieldName === "marks") {
-      validateMarks(newValue);
-    } else if (fieldName === "division") {
-      validateDivision(newValue);
-    } else if (fieldName === "year") {
-      validateYear(newValue);
-    }
-  
-    const updatedEducationData = [...educationData];
-    updatedEducationData[index][fieldName] = newValue;
-    setEducationData(updatedEducationData);
-  };
-  
-  const handleReferenceContentEditableChange = (index, fieldName, newValue) => {
-    const updatedReferenceData = [...referenceData];
-    updatedReferenceData[index][fieldName] = newValue;
-    setReferenceData(updatedReferenceData);
-  };
-
-  const handleexpFromDateChange = (date) => {
-    setexperienceFrom(date);
-    handleExperienceChange(); // Calculate years and months when "experienceFrom" changes
-  };
-  
-  const handleexpToDateChange = (date) => {
-    setexperienceTo(date);
-    handleExperienceChange(); // Calculate years and months when "experienceTo" changes
-  };
-  
-  console.log("yearsofexp:",yearsOfExperience)
+   
+   
+ 
 
   // experience Handle date changes
-  const handleDateChange = (date, rowIndex, type) => {
-  const updatedExperienceData = [...experienceData];
-  const rowData = updatedExperienceData[rowIndex];
-
+  const handleDateChange = (index, fieldName, newValue) => {
+    const updatedExperienceData = [...experienceData];
+    updatedExperienceData[index][fieldName] = newValue;
+    // setExperienceData(updatedExperienceData);
   if (type === "experienceFrom") {
     rowData.experience= date;
   } else if (type === "experienceTo") {
@@ -182,11 +226,23 @@ function Addemp()
   setExperienceData(updatedExperienceData);
 };
 
- // Calculate years and months of experience when date changes
- useEffect(() => {
-  if (experienceFrom && experienceTo) {
-    const fromDate = new Date(experienceFrom);
-    const toDate = new Date(experienceTo);
+const handleexpFromDateChange = (date) => {
+  setexperienceFrom(date);
+  handleExperienceChange();
+};
+
+const handleexpToDateChange = (date) => {
+  setexperienceTo(date);
+  handleExperienceChange();
+};
+
+// Calculate years and months of experience when date changes
+const calculateYearsOfExperience = (fromDate, toDate) => {
+  if (fromDate && toDate) {
+    const from = fromDate.toLocaleDateString();
+    const to = toDate.toLocaleDateString();
+    const combinedExperience = `from${from} to ${to}`;
+    setexperience(combinedExperience);
 
     const diff = toDate - fromDate;
     const years = diff / 31536000000; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours * 365 days
@@ -197,10 +253,17 @@ function Addemp()
       months: Math.round(months),
     });
   } else {
-    setYearsOfExperience({ years: 0, months: 0 }); // Reset to 0 if dates are not selected
+    setexperience(''); // Reset to an empty string if dates are not selected
+    setYearsOfExperience({ years: 0, months: 0 }); // Reset yearsOfExperience
   }
+};
+
+useEffect(() => {
+  calculateYearsOfExperience(experienceFrom, experienceTo);
 }, [experienceFrom, experienceTo]);
 
+console.log("experience:", experience);
+console.log("yearsOfExperience",yearsOfExperience)
 
   //Functions for selecting department using dropdown
   function handleChange(e) {
@@ -214,53 +277,12 @@ function Addemp()
     }
   }
 
-  const handleOnChange = (e, rowIndex, field) => {
-    const updatedData = [...educationData];
-    updatedData[rowIndex][field] = e.target.value;
-    setEducationData(updatedData);
-  }
-
-  const handleChangeexp = (e, index, key) => {
-    const { value } = e.target;
-    const newData = [...experienceData];
-    newData[index][key] = value;
-    setExperienceData(newData);
-  };
-
-  const handleChangeref = (event, index, key) => {
-    const newData = [...referenceData];
-    newData[index][key] = event.target.value;
-    setReferenceData(newData);
-  };
-
   const handleClick = (event) => {
     console.log("handleClick called");
     setIsShown((current) => !current);
   };
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
-  const handleImageSelect = (event) => {
-    setImgSrc(event.target.files[0]);
-  };
-
-  const [isFileSelected, setIsFileSelected] = useState(false);
-  const [isCertificateSelected, setIsCertificateSelected] = useState(false);
-
-  const handleFileSelect = (e) => {
-    setProof(e.target.files[0]);
-    setIsFileSelected(true);
-  };
-
-  const handleCertificateSelect = (e) => {
-    setCertificate(e.target.files[0]);
-    setIsCertificateSelected(true);
-  };
-
-  const handleRemoveCertificate = () => {
-    setCertificate(null);
-    setIsCertificateSelected(false);
-    document.getElementById("selectCertificate").value = "";
-  };
 
   const [dob, setDob] = useState(null); // Initialize the DOB state with current date
   const [age, setAge] = useState(''); // Initialize the age state with 0
@@ -280,20 +302,33 @@ function Addemp()
       return Math.abs(ageDt.getUTCFullYear() - 1970);
     };
 
+
+   
   const onSubmit = async (details) => {
     const data = new FormData();
-    const comprefaceImage = new FormData();
     data.append("name", name);
     data.append("id", id);
     data.append("Gender", Gender);
     data.append("mobile", mobile);
-    data.append("dob", dob.toISOString().split('T')[0]);
+    if (dob !== null) {
+      data.append("dob", dob.toISOString().split('T')[0]);
+    } else {
+      // Handle the case when dob is null (e.g., set a default date or handle it as needed).
+      // Example: Set an empty string as a placeholder or provide a default value.
+      data.append("dob", "");
+    }
     data.append("age",age);
     data.append("department", selectedDepartment);
     data.append("RNRNO", RNRNO);
     data.append("languages",languages);
     data.append("TNMCNO", TNMCNO);
-    data.append("ValidlityDate", ValidlityDate);
+    if (ValidlityDate !== null) {
+      data.append("ValidlityDate", ValidlityDate.toISOString().split('T')[0]);
+    } else {
+      // Handle the case when ValidlityDate is null (e.g., set a default date or handle it as needed).
+      // Example: Set an empty string as a placeholder or provide a default value.
+      data.append("ValidlityDate", "");
+    }
     data.append("designation", designation);
     data.append("email", email);
     data.append("dateofjoining", dateofjoining);
@@ -305,7 +340,6 @@ function Addemp()
     data.append("salary", salary);
     data.append("shift", shift);    
     data.append("BloodGroup", BloodGroup);
-    data.append("educationData", JSON.stringify(educationData));
     data.append("experienceData", JSON.stringify(experienceData));
     data.append("referenceData", JSON.stringify(referenceData));
     data.append("assetDetails", JSON.stringify(assetDetails));
@@ -316,26 +350,25 @@ function Addemp()
     data.append("employmentCategory",employmentCategory);
     data.append("employeeType",employeeType);
     data.append("medicalClaimPolicyNo",medicalClaimPolicyNo);
-    data.append("validityDateFrom",validityDateFrom.toISOString().split('T')[0]);
-    data.append("validityDateTo",validityDateTo.toISOString().split('T')[0]);
+    if (validityDateFrom !== null) {
+      data.append("validityDateFrom", validityDateFrom.toISOString().split('T')[0]);
+    } else {
+      data.append("validityDateFrom", "");
+    }
+    if (validityDateTo !== null) {
+      data.append("validityDateTo", validityDateTo.toISOString().split('T')[0]);
+    } else {
+      data.append("validityDateTo", "");
+    }
+ 
     data.append("bankName",bankName);
     data.append("bankaccnum",bankaccnum);
     data.append("ifscCode",ifscCode);
-    data.append("companyEmail",companyEmail);reportedBy
+    data.append("companyEmail",companyEmail);
     data.append("reportedBy",reportedBy);
-
-
-
-
-
-
-    comprefaceImage.append("file", imgSrc);
-    let formDataNew = new FormData();
-    formDataNew.append("file", imgSrc);
-    let formData = new FormData();
-    
-    console.log(data)
-    try {
+    data.append("yearsOfExperience",yearsOfExperience);
+       
+        try {
       const res = await axios({
         method: "post",
         url: "http://127.0.0.1:7000/attendance/addemp/",
@@ -353,6 +386,7 @@ function Addemp()
     }
     catch (err) {
     }
+    setIsFormSubmitted(true);
   };
 
   // Refresh function
@@ -426,7 +460,7 @@ function Addemp()
     }
     return "";
   }
-  
+ 
   function validatePanNo(PanNo) {
     let error = "";
     if (PanNo !== "" && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(PanNo)) {
@@ -480,6 +514,16 @@ function Addemp()
       prevState.map((data, i) => (i === index ? { ...data, [field]: value } : data))
     );
   };
+  const validateDegree = (Degree) => {
+    const regex = /^[a-zA-Z\s]*$/;
+    if (!Degree) {
+      return " ";
+    } else if (!regex.test(Degree)) {
+      return "Only alphabets with spaces allowed in Degree field";
+    } else {
+      return null;
+    }
+  };
   const validateMajor = (major) => {
     const regex = /^[a-zA-Z\s]*$/;
     if (!major) {
@@ -500,6 +544,7 @@ function Addemp()
       return null;
     }
   };
+
   const validateMarks = (marks) => {
     const regex = /^[0-9]*$/;
     if (!marks) {
@@ -510,7 +555,7 @@ function Addemp()
       return null;
     }
   };
-  
+ 
 
   const [languagesError, setLanguagesError] = useState("");
   const validateLanguages = () => {
@@ -531,22 +576,28 @@ function Addemp()
       return null;
     }
   };
-  const handleOnChangeexperience = (value, index, field) => {
+
+  const handleOnChangeexperience = (e, index, field) => {
+    const { value } = e.target;
     setExperienceData((prevState) =>
       prevState.map((data, i) => (i === index ? { ...data, [field]: value } : data))
     );
   };
-  
+
   const validateOrganization = (organization) => {
-    const regex = /^[a-zA-Z\s]*$/;
+    const regex = /^[A-Za-z]+$/;
     if (!organization) {
       return " ";
     } else if (!regex.test(organization)) {
-      return "Only alphabets with spaces allowed in Organization field";
+      return "Organization name should contain only letters";
     } else {
       return null;
     }
   };
+ 
+ 
+ 
+ 
   const validateexpDesignation = (designation) => {
     const regex = /^[a-zA-Z\s]*$/;
     if (!designation) {
@@ -625,18 +676,18 @@ function Addemp()
     if (PF.trim() === "") {
       return " ";
     }
-  
+ 
     if (!/^\d+$/.test(PF)) {
       return "PF must be a valid integer";
     }
-  
+ 
     return null; // Return null if validation succeeds
   }
   function validateESINO(ESINO) {
     if (!ESINO) {
       return " ";
     }
-  
+ 
     if (!/^\d+$/.test(ESINO)) {
       return "ESINO must be a valid integer";
     }
@@ -649,7 +700,7 @@ function Addemp()
     setReportedBy(e.target.value);
   };
 
-  
+ 
   const handleBankNameChange = (e) => {
     // Allow all types of characters
     setBankName(e.target.value);
@@ -674,7 +725,7 @@ function Addemp()
       setProfileImageFile(fileData);
       setImageSrc(imageSrc)
       console.log("____",fileData)
-      
+     
     });
   }, [webcamRef, setImgSrc]);
 
@@ -727,7 +778,7 @@ function Addemp()
       console.error('File upload failed:', error);
     }
   };
-  
+ 
   const handleCombinedClick = async () => {
     console.log("handleCombinedClick called");
     await handleSubmit2();
@@ -777,11 +828,15 @@ function Addemp()
 
 
   const tabs =[
+
+
+   
       {
       title: "Personal Details",
       content:(
         <div>
           <br/>
+         
         <Form onSubmit={handleSubmit(onSubmit)}>
      <div>
 <center>
@@ -808,7 +863,7 @@ function Addemp()
                     marginLeft:"-100%",
                     marginTop:"15%"
                   }}
-                >Choose image</label>
+                >Upload image</label>
                 {profileImageFile && (
                   <>
                     <span className="mx-2">{profileImageFile.name}</span>
@@ -836,7 +891,7 @@ function Addemp()
 
             <div className="col-sm-6">
             <Form.Field>
-            
+           
               <input
                 className=" mx-4 form-control"
                 style={{width:'100%'}}
@@ -867,7 +922,7 @@ function Addemp()
 
             <div className="col-md-3">
             <Form.Field>
-              
+             
               <input
                 className=" mx-4 form-control"
                 type="text"
@@ -880,7 +935,7 @@ function Addemp()
             </div>
 
             <div className="col-md-3">
-            <input 
+            <input
               className=" mx-4 form-control"
               type="text"
               value={id}
@@ -896,7 +951,7 @@ function Addemp()
               <div style={{ color: "red", marginLeft: "8%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>
                 {validateId(id) ? <p>{validateId(id)}</p> : null}
               </div>
-              
+             
           </div>
       </div>
 
@@ -906,7 +961,7 @@ function Addemp()
          
 
           <div className="col-md-3">
-            <input 
+            <input
               className=" mx-4 form-control"
               type="text"
               value={mobile}
@@ -921,8 +976,8 @@ function Addemp()
               </div>
           </div>
 
-          <div className="col-md-3"> 
-          <input 
+          <div className="col-md-3">
+          <input
                         className=" mx-4 form-control"
                         type="text"
                          value={email}
@@ -934,9 +989,9 @@ function Addemp()
                       />
                       <div style={{ color: "red", marginLeft: "22%", marginTop: "2%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateEmail(email) ? validateEmail(email) : null}</div>
                        
-          </div>   
+          </div>  
 
-       <div className="col-md-3"> 
+       <div className="col-md-3">
 
        <input
                          className=" mx-4 form-control"
@@ -951,10 +1006,10 @@ function Addemp()
                       <div style={{ color: "red", marginLeft: "8%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateAddress(address) ? <p>{validateAddress(address)}</p> : null}</div>
                       </div>
 
-                      <div className="col-md-3"> 
+                      <div className="col-md-3">
      <Form.Field>
       <div>
-        
+       
         <select
           className="mx-4 form-control"
           value={Gender}
@@ -975,11 +1030,11 @@ function Addemp()
 
 
   <div className="row">
-   <div className="col-md-3"> 
+   <div className="col-md-3">
  <div className="row">
- <div className="col-sm-8"> 
+ <div className="col-sm-8">
  <Form.Field>
-        <input 
+        <input
           type="text"
          className="mx-4 form-control"
           placeholder="Date of Birth"
@@ -1001,7 +1056,7 @@ function Addemp()
         />
         </Form.Field>
       </div>
- <div className="col-sm-4"> 
+ <div className="col-sm-4">
  <Form.Field>
          <input
            type="text"
@@ -1015,7 +1070,7 @@ function Addemp()
 </div>
 </div>
 
-<div className="col-md-3"> 
+<div className="col-md-3">
 
                   <Form.Field>
                        <select  className="mx-4 form-control" value={Maritalstatus}  onChange={e => { setMaritalstatus(e.target.value); }}>
@@ -1028,7 +1083,7 @@ function Addemp()
                     </Form.Field>
 </div>
 
-<div className="col-md-3"> 
+<div className="col-md-3">
 
 <Form.Field>
 
@@ -1048,9 +1103,9 @@ function Addemp()
 </div>
 
 
-<div className="col-md-3"> 
+<div className="col-md-3">
               <Form.Field>
-                      <input 
+                      <input
                         className=" mx-4 form-control"
                            type="text"
                          value={languages}
@@ -1066,7 +1121,7 @@ function Addemp()
                       >
                        {languagesError}
                       </div>
-                    )}                   
+                    )}                  
                </Form.Field>
                </div>
 </div>
@@ -1079,10 +1134,10 @@ function Addemp()
                                 <br/>
 
 <div className="row">
-     <div className="col-md-3"> 
+     <div className="col-md-3">
 
                    <Form.Field>
-                        <input 
+                        <input
                           className="mx-4 form-control"
                           type="text"
                           value={Aadhaarno}
@@ -1092,11 +1147,11 @@ function Addemp()
                           autoComplete="off"
                           onChange={e => { setAadhaarno(e.target.value);validateAadhaarNo(e.target.value);}}
                         />
-                      <div style={{ color: "red", marginLeft: "8%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateAadhaarNo(Aadhaarno) ? <p>{validateAadhaarNo(Aadhaarno)}</p> : null}</div>   
+                      <div style={{ color: "red", marginLeft: "8%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validateAadhaarNo(Aadhaarno) ? <p>{validateAadhaarNo(Aadhaarno)}</p> : null}</div>  
               </Form.Field>
      </div>
      
-     <div className="col-md-3"> 
+     <div className="col-md-3">
                   <Form.Field>
                       <input
                         className="mx-4 form-control"
@@ -1110,9 +1165,9 @@ function Addemp()
                       />
                        <div style={{ color: "red", marginLeft: "8%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validatePanNo(PanNo) ? <p>{validatePanNo(PanNo)}</p> : null}</div>
                     </Form.Field>
- </div>             
+ </div>            
 
- <div className="col-md-3"> 
+ <div className="col-md-3">
  <input
             id="selectFile"
             type="file"
@@ -1130,7 +1185,7 @@ function Addemp()
               marginLeft:"8%",
               cursor: "pointer",
             }}
-          >Choose PAN / Aadhaar</label>
+          >Upload PAN / Aadhaar</label>
           {proofFile && (
             <>
               <span className="mx-3">{proofFile.name}</span>
@@ -1140,17 +1195,15 @@ function Addemp()
             </>
           )}
  </div>  
-
-
 </div>
 <br/>
 
 
 
  <div className="row">
-     <div className="col-md-3"> 
+     <div className="col-md-3">
                    <Form.Field>
-                      <input 
+                      <input
                         className=" mx-4 form-control"
                         type="text"
                         value={bankaccnum}
@@ -1165,7 +1218,7 @@ function Addemp()
 
  </div>  
 
- <div className="col-md-3"> 
+ <div className="col-md-3">
 
       <input
        className=" mx-4 form-control"
@@ -1176,9 +1229,9 @@ function Addemp()
         onChange={handleBankNameChange}
       />
    </div>
-  
+ 
 
-<div className="col-md-3"> 
+<div className="col-md-3">
 
       <input
        className=" mx-4 form-control"
@@ -1192,88 +1245,92 @@ function Addemp()
    
 </div>
 </div>
-             </Form> 
+             </Form>
+           
               </div>  
-                )   
+             
+                )  
               },
-
+           
               {
                 title: "Educational Details",
                 content:(
                     <Form onSubmit={handleSubmit(onSubmit)}>
                     <div>
                       <br/>
-              <div><b>EDUCATIONAL QUALIFICATIONS:</b></div><br />
-       <table className="table table-bordered">
-      <thead>
-        <tr align="center">
-          <th style={{ padding: "0 30px", fontSize: "15px" }}>Sl.No</th>
-          <th style={{ padding: "0 30px", fontSize: "15px" }}>Degree</th>
-          <th style={{ padding: "0 30px", fontSize: "15px" }}>Major</th>
-          <th style={{ padding: "0 30px", fontSize: "15px" }}>Institution & University</th>
-          <th style={{ padding: "0 30px", fontSize: "15px" }}>% of Marks</th>
-          <th style={{ padding: "0 30px", fontSize: "15px" }}>Year of Passing</th>
-          
-        </tr>
-      </thead>
-      <tbody>
-          {educationData.map((data, index) => (
-            <tr key={index}>
-              <td align="center">{data.SlNo}</td>
-              <td
-                contentEditable
-                onBlur={(e) => handleEducationContentEditableChange(index, "degree", e.target.textContent)}
-              >
-                {data.Degree}
-                <div style={{ color: "red" }}>{/* Validation for degree */}</div>
-              </td>
-              <td
-                contentEditable
-                onBlur={(e) => handleEducationContentEditableChange(index, "major", e.target.textContent)}
-              >
-                {data.major}
-                <div style={{ color: "red" }}>{/* Validation for major */}</div>
-              </td>
-              <td
-                contentEditable
-                onBlur={(e) => handleEducationContentEditableChange(index, "institution", e.target.textContent)}
-              >
-                {data.institution}
-                <div style={{ color: "red" }}>{/* Validation for institution */}</div>
-              </td>
-              <td
-                contentEditable
-                onBlur={(e) => handleEducationContentEditableChange(index, "marks", e.target.textContent)}
-              >
-                {data.marks}
-                <div style={{ color: "red" }}>{/* Validation for marks */}</div>
-              </td>
-              <td
-                contentEditable
-                onBlur={(e) => handleEducationContentEditableChange(index, "year", e.target.textContent)}
-              >
-                {data.year}
-                <div style={{ color: "red" }}>{/* Validation for year */}</div>
-              </td>
-              
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button onClick={() => addRow('education')} className="btn btn-primary">Add Row</button>
-      </div>
+                      <br/>
+
+                      <div className="row">
+                   <b><div style={{ textAlign: "right" ,fontFamily:"serif"}}>Name: {name}</div></b>  
+                     </div>
+
+<br/>
+                      <div className="row">
+                      <div className="col-md-3">
+                        <b>EDUCATIONAL QUALIFICATIONS:</b>
+                        </div>
+                        </div>
+                       
+
+             <div className="row">
+              <div >
+              <i style={{float:"right", color: "skyblue",marginRight:"6%"}}className="bi bi-plus fa-2x" title="Add New Row" onClick={() => addRow('education')}></i>
+
+              </div>    
+              </div>
+              <br/>
+             
+       <div className="row">
+       <div >
+       <table className="table-bordered" style={{borderColor:"#DEE2E6"}}>
+                    <thead>
+                      <tr align="center">
+                        <th style={{ padding: "10px", fontSize:"15px" }}>Sl.No</th>
+                        <th style={{ padding: "10px", fontSize:"15px" }}>Degree</th>
+                        <th style={{ padding: "10px", fontSize:"15px" }}>Major</th>
+                        <th style={{ padding: "10px", fontSize:"15px" }}>Institution &amp; University</th>
+                        <th style={{ padding: "10px", fontSize:"15px" }}>Marks</th>
+                        <th style={{ padding: "10px", fontSize:"15px" }}>Year of Passing</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {educationData.map((data, index) => (
+                      <tr key={index}>
+                      <td align="center">{index + 1}</td>
+                        <td>
+                        <input style={{border:"none",padding:"15px"}} type="text" value={data.degree} onChange={(e) => { handleOnChangeeducation(e, index, "degree"); }} />
+                      </td>
+                        <td>
+                        <input style={{border:"none",padding:"15px"}} type="text" value={data.major} onChange={(e) => { handleOnChangeeducation(e, index, "major"); validateMajor(e.target.value); }} />
+                        <div style={{ color: "red" }}>{validateMajor(data.major)}</div>
+                      </td>
+                      <td>
+                        <input style={{border:"none",padding:"15px"}} type="text" value={data.institution} onChange={(e) => { handleOnChangeeducation(e, index, "institution"); validateInstitution(e.target.value); }} />
+                        <div style={{ color: "red" }}>{validateInstitution(data.institution)}</div>
+                      </td>
+                      <td>
+                        <input style={{border:"none",padding:"15px"}} type="text" value={data.marks} onChange={(e) => { handleOnChangeeducation(e, index, "marks"); validateMarks(e.target.value); }} />
+                        <div style={{ color: "red" }}>{validateMarks(data.marks)}</div>
+                      </td>
+                      <td>
+                        <input style={{border:"none",padding:"15px"}} type="text" value={data.year} onChange={(e) => { handleOnChangeeducation(e, index, "year"); validateYear(e.target.value); }} />
+                        <div style={{ color: "red" }}>{validateYear(data.year)}</div>
+                      </td>
+                      </tr>
+                      ))}
+                      </tbody>
+                      </table>
+       </div>
+    </div>
+</div>
+
+   
 <br/>
 <br/>
 <div className="row">
-  <div className="col-sm-6">
-    <div className="mx-5 form-group">
-      <label htmlFor="formFileMultiple" className="bi bi-plus fa-lg" style={{
-        fontFamily:"serif",
-        color: "skyblue",
-        cursor: "pointer",
-      }}>Choose Certificates
-      </label>
-      <input
+  <div className="col-md-3">
+    <div className="form-group">
+    <input
         id="formFileMultiple"
         type="file"
         accept=".pdf"
@@ -1282,10 +1339,19 @@ function Addemp()
         hidden
         name="certificates"
       />
+      <label htmlFor="formFileMultiple" className="bi bi-plus fa-lg" style={{
+        fontFamily:"serif",
+        color: "skyblue",
+        cursor: "pointer",
+        whiteSpace:"nowrap"
+        }}>Upload Certificates
+      {(certificatesFile && <span style={{fontSize:"14px",marginLeft:"2%"}}>{certificatesFile.name}</span>)}
+      </label>
+     
       {certificatesFile && (
             <>
-              <span className="mx-3">{certificatesFile.name}</span>
-              <button className="btn btn-danger" onClick={handleRemoveFile3}>
+              {/* <span className="mx-3">{certificatesFile.name}</span> */}
+              <button style={{ height: "0.5cm", width: "0.5cm", backgroundColor: "red", border: "none", color: "white", fontSize: "14px" , marginLeft: "4%",whiteSpace:"nowrap"  }} onClick={handleRemoveFile3}>
                 <i className="fa fa-times"></i>
               </button>
             </>
@@ -1293,87 +1359,80 @@ function Addemp()
     </div>
   </div>
 </div>
-
-
-         <br/>
-           </Form>
-           )
-         },
-  
+ <br/>
+ </Form>
+  )
+  },
+ 
          {
           title: "Professional Details",
             content:(
               <Form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-     <div><b>EXPERIENCE DETAILS:</b></div><br />
-                <div>
-                <table className="table table-bordered">
+
+               
+                <div className="row">
+                   <b><div style={{ textAlign: "right" ,fontFamily:"serif"}}>Name: {name}</div></b>  
+                     </div>
+
+<br/>
+                  <div>
+                   
+                  <div className="row">
+                  <div className="col-md-3">
+                    <b>EXPERIENCE DETAILS:</b>
+                    </div>
+                    </div>
+                   
+              <div className="row">
+              <div >
+              <i style={{float:"right", color: "skyblue",marginRight:"6%"}}className="bi bi-plus fa-2x" title="Add New Row" onClick={() => addRow('experience')}></i>
+              </div>    
+              </div>
+              <br/>
+
+                <div className="row">
+                <table className="table-bordered" style={{borderColor:"#DEE2E6"}}>
                     <thead>
                       <tr align="center">
-                        <th style={{ padding: "0 30px", fontSize:"15px" }}>Sl.No</th>
-                        <th style={{ padding: "0 30px", fontSize:"15px" }}>Name of the Hospital/Organization</th>
-                        <th style={{ padding: "0 30px", fontSize:"15px" }}>Designation</th>
-                        <th style={{ padding: "0 30px", fontSize:"15px" }}>Last Drawn Salary(CTC)</th>
-                        <th style={{ padding: "0 30px", fontSize:"15px" }}>Location</th>
-                        <th style={{ padding: "0 30px", fontSize:"15px" }} colSpan={2}>Experience From/To</th>
-                        <th style={{ padding: "0 30px", fontSize:"15px" }} >years Of Experience</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }}>Sl.No</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }}>Name of the Hospital/Organization</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }}>Designation</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }}>Last Drawn Salary(CTC)</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }}>Location</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }}>Experience From/To</th>
+                        <th  style={{ padding: "10px", fontSize:"15px" }} >Years Of Experience</th>
                       </tr>
                     </thead>
                     <tbody>
-  {experienceData.map((data, index) => (
-    <tr key={index}>
-      <td align="center">{data.SlNo}</td>
-      <td
-        contentEditable
-        onBlur={(e) => {
-          handleDateChange(e, index, "organization");
-          validateOrganization(e.target.textContent);
-        }}
-      >
-        {data.organization}
-        <div style={{ color: "red" }}>{validateOrganization(data.organization)}</div>
-      </td>
-      <td
-        contentEditable
-        onBlur={(e) => {
-          handleDateChange(e, index, "designation");
-          validateDesignation(e.target.textContent);
-        }}
-      >
-        {data.designation}
-        <div style={{ color: "red" }}>{validateexpDesignation(data.designation)}</div>
-      </td>
-      <td
-        contentEditable
-        onBlur={(e) => {
-          handleDateChange(e, index, "lastdrawnsalary");
-          validateLastDrawnSalary(e.target.textContent);
-        }}
-      >
-        {data.lastdrawnsalary}
-        <div style={{ color: "red" }}>{validateLastDrawnSalary(data.lastdrawnsalary)}</div>
-      </td>
-      <td
-        contentEditable
-        onBlur={(e) => {
-          handleDateChange(e, index, "location");
-          validateLocation(e.target.textContent);
-        }}
-      >
-        {data.location}
-        <div style={{ color: "red" }}>{validateLocation(data.location)}</div>
-      </td>
-      <td colSpan={2}
-        contentEditable
-        onBlur={(e) => {
-          handleDateChange(e, index, "experience");
-          validateExperience(e.target.textContent);
-        }}
-      >
-      {data.experience}
-      <div style={{ color: "red" }}>{validateExperience(data.experience)}</div>
+                    {experienceData.map((data, index) => (
+                        <tr key={index}>
+                          <td>{data.SlNo}</td>
+                          <td>
+  <input
+    style={{ border: "none", padding: "15px" }}
+    type="text"
+    value={data.Organization}
+    onChange={(e) => {
+      handleOnChangeexperience(e, index, "Organization");
+      validateOrganization(e.target.value);
+    }}
+  />
+  <div style={{ color: "red" }}>{validateOrganization(data.Organization)}</div>
+</td>
 
-   
+                          <td>
+                          <input style={{border:"none",padding:"15px"}} type="text" value={data.designation} onChange={(e) => { handleOnChangeexperience(e, index, "designation"); validateDesignation(e.target.value); }} />
+                          <div style={{ color: "red" }}>{validateexpDesignation(data.designation)}</div>
+                          </td>
+                          <td>
+                          <input style={{border:"none",padding:"15px"}} type="text" value={data.lastdrawnsalary} onChange={(e) => { handleOnChangeexperience(e, index, "lastdrawnsalary"); validateLastDrawnSalary(e.target.value); }} />
+                          <div style={{ color: "red" }}>{validateLastDrawnSalary(data.lastdrawnsalary)}</div>
+                          </td>
+                          <td>
+                          <input style={{border:"none",padding:"15px"}} type="text" value={data.location} onChange={(e) => { handleOnChangeexperience(e, index, "location"); validateLocation(e.target.value); }} />
+                          <div style={{ color: "red" }}>{validateLocation(data.location)}</div>
+                          </td>
+      <td >
       <div style={{ display: 'flex', alignItems: 'center' }}>
   <DatePicker
     selected={experienceFrom}
@@ -1386,7 +1445,7 @@ function Addemp()
     dropdownMode="select"
   />
   <span>&nbsp;</span> {/* A spacer */}
-  <DatePicker 
+  <DatePicker
     selected={experienceTo}
     onChange={handleexpToDateChange}
     placeholderText="To"
@@ -1408,68 +1467,102 @@ function Addemp()
 </tbody>
      </table>
      <br/>
-     <button onClick={() => addRow('experience')} className="btn btn-primary">Add Row</button>
+     {/* <button className="btn btn-primary" onClick={() => addRow('experience')}>Add Row</button> */}
       </div>
     </div>
-    <br/>               
+    <br/>              
 
     <div className="row">
-      <div className="col-sm-6">
-        <button className="btn btn-primary" onClick={handleReferenceClick}>
-          <i className="bi bi-plus"></i> Reference Details
-        </button>
-      </div>
+    <div className="col-sm-6" onClick={handleReferenceClick}>
+  <i className="bi bi-plus" style={{ color: "skyblue",textDecoration:"underline",fontFamily:"serif"}}>Reference Details</i>
+</div>
+<br/>
+
       <br/>
       {showReferenceDetails && (
         <div>
-         <br/>
-          <div>
+       
+          <div className="row">
             <b>REFERENCE OF PREVIOUS COMPANY:</b>
           </div>
-          <br/>
+     
+          <div className="row">
+              <div >
+              <i style={{float:"right", color: "skyblue",marginRight:"6%"}}className="bi bi-plus fa-2x" title="Add New Row" onClick={() => addRow('reference')}></i>
+              </div>    
+              </div>
+              <br/>
+
           <table className="table table-bordered">
             <thead>
               <tr>
-                <th>Sl.No</th>
-                <th>References:Name</th>
-                <th>Organization</th>
-                <th>Designation</th>
-                <th>Contact No/Email</th>
+                <th style={{ padding: "10px", fontSize:"15px" ,fontFamily:"serif"}}>Sl.No</th>
+                <th style={{ padding: "10px", fontSize:"15px" ,fontFamily:"serif"}}>References:Name</th>
+                <th style={{ padding: "10px", fontSize:"15px" ,fontFamily:"serif"}}>Organization</th>
+                <th style={{ padding: "10px", fontSize:"15px",fontFamily:"serif" }}>Designation</th>
+                <th style={{ padding: "10px", fontSize:"15px",fontFamily:"serif" }}>Contact No/Email</th>
               </tr>
             </thead>
             <tbody>
-              {referenceData.map((data, index) => (
-                <tr key={index}>
-                  <td>{data.SlNo}</td>
-                  <td contentEditable onBlur={(e) => handleReferenceContentEditableChange(index, "references", e.target.textContent)}>
-                    {data.references}
-                    <div style={{ color: "red" }}>{validateReferences(data.references)}</div>
-                  </td>
-                  <td contentEditable onBlur={(e) => handleReferenceContentEditableChange(index, "Organization", e.target.textContent)}>
-                    {data.Organization}
-                    <div style={{ color: "red" }}>{validateReferences(data.Organization)}</div>
-                  </td>
-                  <td contentEditable onBlur={(e) => handleReferenceContentEditableChange(index, "designation", e.target.textContent)}>
-                    {data.designation}
-                    <div style={{ color: "red" }}>{validateReferences(data.designation)}</div>
-                  </td>
-                  <td contentEditable onBlur={(e) => handleReferenceContentEditableChange(index, "ContactNo", e.target.textContent)}>
-                    {data.ContactNo}
-                    <div style={{ color: "red" }}>{validaterefContactNo(data.ContactNo)}</div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            {referenceData.map((data, index) => (
+      <tr key={index}>
+        <td>{data.SlNo}</td>
+        <td>
+          <input style={{border:"none",padding:"15px"}}
+            type="text"
+            value={data.references}
+            onChange={(e) => {
+              handleOnChangeReference(e, index, "references");
+              validateReferences(e.target.value);
+            }}
+          />
+          <div style={{ color: "red" }}>{validateReferences(data.references)}</div>
+        </td>
+        <td>
+          <input style={{border:"none",padding:"15px"}}
+            type="text"
+            value={data.Organization}
+            onChange={(e) => {
+              handleOnChangeReference(e, index, "Organization");
+              validateReferences(e.target.value);
+            }}
+          />
+          <div style={{ color: "red" }}>{validateReferences(data.Organization)}</div>
+        </td>
+        <td>
+          <input style={{border:"none",padding:"15px"}}
+            type="text"
+            value={data.designation}
+            onChange={(e) => {
+              handleOnChangeReference(e, index, "designation");
+              validateReferences(e.target.value);
+            }}
+          />
+          <div style={{ color: "red" }}>{validateReferences(data.designation)}</div>
+        </td>
+        <td>
+    <input  style={{border:"none",padding:"15px"}}
+      type="text"
+      value={data.ContactNo}
+      onChange={(e) => {
+        handleOnChangeReference(e, index, "ContactNo");
+        validaterefContactNo(e.target.value);
+      }}
+    />
+     <div style={{ color: "red" }}>{validaterefContactNo(data.ContactNo)}</div>
+  </td>
+      </tr>
+    ))}
+  </tbody>
           </table>
-          <button className="btn btn-primary" onClick={handleAddRow}>Add Row</button>
-              <br/>   <br/>
-          <div>
-            <button className="btn btn-primary" onClick={handleCloseReferenceDetails}>Close</button>
+          {/* <button className="btn btn-primary" onClick={() => addRow('reference')}>Add Row</button> */}
+              <br/>  
+          <div >
+            <button className="btn btn-primary" onClick={handleCloseReferenceDetails} style={{color:"white",backgroundColor:"skyblue",border:"none"}}>Close</button>
           </div>
         </div>
       )}
     </div>
-
    </Form>
             )
           },
@@ -1478,7 +1571,6 @@ function Addemp()
             title: "Offer Information",
             content: (
               <Form onSubmit={handleSubmit(onSubmit)}>
-
                 <br/>
                 <div>
 
@@ -1516,7 +1608,7 @@ function Addemp()
                           <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>TnmcNo</div>
                         </label>
                         <div className="col-sm-7">
-                          <input 
+                          <input
                             className="mx-4 form-control"
                             type="text"
                             placeholder="Enter your TnmcNo"
@@ -1535,7 +1627,7 @@ function Addemp()
                           <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>RnrNo</div>
                         </label>
                         <div className="col-sm-7">
-                          <input 
+                          <input
                             className="mx-4 form-control"
                             type="text"
                             placeholder="Enter your RnrNo"
@@ -1554,21 +1646,18 @@ function Addemp()
                           <div className="form-control-label text-muted" style={{ font: "caption", fontStyle: "italic", fontFamily: "-moz-initial", fontSize: "20px" }}>ValidlityDate</div>
                         </label>
                         <div className="col-sm-7">
-                          <input 
-                            className="mx-4 form-control"
-                            type="text"
-                            placeholder="Enter your ValidlityDate"
-                            ref={register("ValidlityDate")}
-                            required
-                            autoComplete="off"
-                            onChange={e => { setValidlityDate(e.target.value); }}
-                          />
+                        <DatePicker
+                        selected={ValidlityDate}
+                        onChange={(date) => setValidlityDate(date)}
+                        dateFormat="yyyy-MM-dd"
+                        placeholderText="Select Validity Date"
+                      />
                         </div>
                       </Form.Field>
                     )}
 
                        <div className="col-md-3">
-                        <input 
+                        <input
                         className=" mx-4 form-control"
                         type="text"
                         value={designation}
@@ -1606,8 +1695,8 @@ function Addemp()
      <br/>
 
    <div className="row">
-                       <div className="col-md-3">   
-                       <input 
+                       <div className="col-md-3">  
+                       <input
                         className="form-control"
                         type="text"
                         value={salary}
@@ -1633,7 +1722,7 @@ function Addemp()
                     <div style={{ color: "red", marginLeft: "6%", marginTop: "1%", whiteSpace:"nowrap",fontSize:"12px"}}>{validatePF(PF) ? <p>{validatePF(PF)}</p> : null}</div>
                     </div>
 
-                    
+                   
                     <div className="col-md-3">
                         <label htmlFor="form11" className="bi bi-plus fa-lg" style={{
                               fontFamily:"serif",
@@ -1659,7 +1748,7 @@ function Addemp()
                                     </button>
                                   </>
                                 )}
-                        
+                       
                       </div>
 
                       <div className="col-md-3">
@@ -1701,9 +1790,9 @@ function Addemp()
                             />
                           </div>
 
+                   
                          
-                          
-                            <div className="col-md-3"> 
+                            <div className="col-md-3">
                               <DatePicker
                                 selected={validityDateFrom}
                                 onChange={handleFromDateChange}
@@ -1726,8 +1815,8 @@ function Addemp()
                                 showYearDropdown
                                 dropdownMode="select"
                                 placeholderText="Validity Date To"
-                                className="mx-4 small-text-input" 
-                                
+                                className="mx-4 small-text-input"
+                               
                               />
                             </div>
                      
@@ -1770,29 +1859,30 @@ function Addemp()
                             <h4 style={{ fontFamily: 'serif' }}>Asset Details</h4>
                           </center>
                             <br/>    
-
-                          
+   
+   <i style={{float:"right", color: "skyblue",marginRight:"6%"}}className="bi bi-plus fa-2x" title="Add New Row" onClick={() => addRow('asset')}></i>
+                         
         <table className="table table-bordered">
         <thead>
           <tr align="center">
-            <th>SL.No</th>
-            <th >Description</th>
-            <th >Model/Serial No</th>
+            <th style={{ padding: "0 30px", fontSize:"15px" ,fontFamily:"serif"}}>SL.No</th>
+            <th style={{ padding: "0 30px", fontSize:"15px" ,fontFamily:"serif"}}>Description</th>
+            <th style={{ padding: "0 30px", fontSize:"15px" ,fontFamily:"serif"}}>Model/Serial No</th>
           </tr>
         </thead>
         <tbody>
-          {assetDetails.map((row, index) => (
-            <tr key={index}>
+          {assetDetails.map((row, index3) => (
+            <tr key={index3}>
               <td>{row.slNo}</td>
               <td
                 contentEditable
-                onBlur={(e) => handleAssetContentEditableChange(index, 'description', e.target.textContent)}
+                onBlur={(e) => handleAssetContentEditableChange(index3, 'description', e.target.textContent)}
               >
                 {row.description}
               </td>
               <td
                 contentEditable
-                onBlur={(e) => handleAssetContentEditableChange(index, 'modelSerialNo', e.target.textContent)}
+                onBlur={(e) => handleAssetContentEditableChange(index3, 'modelSerialNo', e.target.textContent)}
               >
                 {row.modelSerialNo}
               </td>
@@ -1800,17 +1890,72 @@ function Addemp()
           ))}
         </tbody>
       </table>
-      <button onClick={() => addRow('asset')} className="btn btn-primary">Add Row</button>
+      {/* <button className="btn btn-primary" onClick={() => addRow('asset')}>Add Row</button> */}
       </div>
 
   </Form>
             ),
           },
+
+
       {
         title: "Preview",
           content:(
-            <Form onSubmit={handleSubmit(onSubmit)}>
-           
+      <Form onSubmit={handleSubmit(onSubmit)}>    
+      <br/>
+      <br/>
+  <div style={{display: 'flex', justifyContent: 'center'  }}>
+  <div style={{ width:"80%" }}>
+    <div className="row">
+      <div className="col-md-3">
+        <div>Name&nbsp;{name}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>ID&nbsp;{id}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Gender&nbsp;{Gender}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Date of Birth&nbsp;{dob ? dob.toDateString() : ''} Age&nbsp;{age}</div><br />
+      </div>
+    </div>
+    <div className="row">
+      <div className="col-md-3">
+        <div>Marital Status&nbsp;{Maritalstatus}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Mobile&nbsp;{mobile}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Department&nbsp;{selectedDepartment}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>RNRNO&nbsp;{RNRNO}</div><br />
+        {RNRNO && (
+          <div>
+            <div>ValidlityDate&nbsp;{ValidlityDate ? ValidlityDate.toDateString() : ''}</div>
+          </div>
+        )}
+      </div>
+    </div>
+    <div className="row">
+      <div className="col-md-3">
+        <div>TNMCNO&nbsp;{TNMCNO}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Email&nbsp;{email}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Date of Joining: {dateofjoining ? dateofjoining.toDateString() : ''}</div><br />
+      </div>
+      <div className="col-md-3">
+        <div>Bank Account Number&nbsp;{bankaccnum}</div><br />
+      </div>
+    </div>
+  </div>
+</div>
+<br/>
       <button
         className="button-71 Add-employee-button"
         role="button"
@@ -1819,21 +1964,19 @@ function Addemp()
       >
         ADD EMPLOYEE
       </button>
-      <p>{message}</p> 
+      <p>{message}</p>
       {uploadSuccess && <p>Upload successful!</p>}
- 
-    
-       </Form>
+           </Form>
+         
            )
-   
-      },
-      
- ]
+         },
+     ]
   return (
     <body className="addemp">      
     <div className="App">
    <HorizontalTabs tabs={tabs} />
     </div>
+   
    
        </body>
   );
