@@ -11,41 +11,25 @@ import EmployeeHours from './EmployeeHours';
 import AdminReg from '../Adminreg';
 import Deleteemp from './Deleteemp';
 import ViewempTable from './ViewempTable';
-import EmployeeExitForm from "./EmployeeExitForm";
 import profile from "../images/smrft(1).png";
+import ForgetPassword from './ForgetPassword';
+import ResetPassword from './ResetPassword';
+import Event from './Event';
+import EmployeeExitForm from './EmployeeExitForm';
 export default class NavbarComp extends Component {
   // Active link function to keep the navlink active when clicked
+  state = {
+    activeLink: '',
+  };
+  handleNavItemClick = (linkName) => {
+    this.setState({ activeLink: linkName });
+  };
   constructor(props) {
     super(props);
     this.state = {
       isHR: true, // Set this to true if HR is logged in
     };
   }
-
-  componentDidMount() {
-    // You can call the fetchUserData function here or wherever it's needed.
-    this.fetchUserData();
-  }
-
-  fetchUserData = async () => {
-    const adminDetails = localStorage.getItem('adminDetails');
-    if (adminDetails) {
-      const { email, name, mobile, role } = JSON.parse(adminDetails);
-
-      // Check if the role is "hr" and set isHR accordingly
-      const isHR = role === 'HR';
-      this.setState({ isHR });
-
-      try {
-        const response = await axios.get('http://127.0.0.1:7000/attendance/UserDetails', {
-          params: { email: email }
-        });
-        // Handle the response and setUserData and setError as needed
-      } catch (error) {
-        // Handle errors and setUserData and setError as needed
-      }
-    }
-  };
   render() {
     return (
       <body>
@@ -56,6 +40,7 @@ export default class NavbarComp extends Component {
               className="sidenav"
               style={{
               height: '100%',
+              width: '13%',
               position: 'fixed',
               zIndex: 1,
               left: 0,
@@ -83,7 +68,6 @@ export default class NavbarComp extends Component {
                         Home
                       </Nav.Link>
                     </div>
-                    
                     <div className="sidebar-nav-item">
                       <Nav.Link
                         as={Link}
@@ -122,7 +106,6 @@ export default class NavbarComp extends Component {
                         Dashboard
                       </Nav.Link>
                     </div>
-                    
                     {this.state.isHR && ( // Conditionally render HR-specific links
                       <div className="sidebar-nav-item">
                         <Nav.Link
@@ -154,6 +137,18 @@ export default class NavbarComp extends Component {
                     <div className="sidebar-nav-item">
                       <Nav.Link
                         as={Link}
+                        to="Event" // Define the route for the Event page
+                        className={`Event ${
+                          this.state.activeLink === 'Event' ? 'sticky' : ''
+                        }`}
+                        onClick={() => this.handleNavItemClick('Event')}
+                      >
+                        Event
+                      </Nav.Link>
+                    </div>
+                     <div className="sidebar-nav-item">
+                      <Nav.Link
+                        as={Link}
                         to="EmployeeExitForm"
                         className={`EmployeeExitForm ${
                           this.state.activeLink === 'EmployeeExitForm' ? 'sticky' : ''
@@ -163,12 +158,15 @@ export default class NavbarComp extends Component {
                         Employee Exit Form
                       </Nav.Link>
                     </div>
-                  
-                 
-                  </ul>
-                  
+                   </ul>
                 </div>
               </div>
+              {/* <div style={{marginLeft:"-70%",marginTop:"70%"}}>
+              <Nav.Link as={Link} to="EmployeeExitForm" >
+              <i style={{ fontSize: "250%", color: "white", cursor:"pointer" }}
+                className="bi bi-person"
+                title="Employee Exit Form"
+              ></i></Nav.Link></div> */}
             </div>
           </div>
           <main>
@@ -181,6 +179,9 @@ export default class NavbarComp extends Component {
               <Route exact path="/ViewempTable" element={<ViewempTable />} />
               <Route exact path="/Deleteemp" element={<Deleteemp />} />
               <Route exact path="/AdminReg" element={<AdminReg />} />
+              <Route exact path="/ForgetPassword" element={<ForgetPassword />} />
+              <Route exact path="/ResetPassword" element={<ResetPassword />} />
+              <Route exact path="/Event" element={<Event/>} />
               <Route exact path="/EmployeeExitForm" element={<EmployeeExitForm />} />
             </Routes>
           </main>

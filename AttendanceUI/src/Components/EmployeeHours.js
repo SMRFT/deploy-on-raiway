@@ -4,7 +4,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { CSVLink } from 'react-csv';
 import Select from 'react-select';
 import "./EmployeeHours.css";
-
 function App() {
   const [Userdata, setUserdata] = useState([]);
   const [selectedMonthYear, setSelectedMonthYear] = useState(null);
@@ -13,13 +12,10 @@ function App() {
   const [month, setMonth] = useState(null);
   const [year, setYear] = useState(null);
   const [selectedId, setSelectedId] = useState("");
-
   const [error, setError] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [users, setUsers] = useState([]);
-
   const options = users.map(user => ({value: user.id, label: user.name}));
-
   useEffect(() => {
     fetch("http://127.0.0.1:7000/attendance/showemp")
       .then((res) => res.json())
@@ -34,11 +30,9 @@ function App() {
         }
       );
   }, []);
-
   const handleEmpIdChange = (selectedOption) => {
     setSelectedId(selectedOption);
   };
-
   const handleMonthYearChange = (date) => {
     setSelectedMonthYear(date);
     if (date) {
@@ -46,7 +40,6 @@ function App() {
       setYear(date.getFullYear());
     }
   };
-
   const handleDateChange = (date) => {
     setSelectedDate(date);
     if (date) {
@@ -59,7 +52,6 @@ function App() {
       setYear(null);
     }
   };
-
   useEffect(() => {
     const getuserdata = async () => {
       fetch("http://127.0.0.1:7000/attendance/Employeehours", {
@@ -79,14 +71,11 @@ function App() {
     };
     getuserdata();
   }, [day, month, year, selectedId]);
-
-
   function refreshPage() {
     {
        window.location.reload();
      }
  }
-
   return (
     <body className="EmployeeHours">
     <div>
@@ -99,7 +88,6 @@ function App() {
             onChange={handleEmpIdChange}
             options={options}
           />
-
           <label htmlFor="date">Select Month & Year:</label>
           <DatePicker
             selected={selectedMonthYear}
@@ -122,12 +110,10 @@ function App() {
         {year && <p style={{ fontWeight: "bold" }}>year: {year}</p>}
         </div>
       </div>
-
       <div className="download-csv3">
         <div className="button">
             <CSVLink data={Userdata} onClick= {() => {refreshPage();}} filename={"latelogin & earlylogout details"} title="Download CSV">
-            {/* <div class="text">Download</div> */}
-              <span>
+              <span style={{color:"white"}}>
                 <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" height="3em" width="3em" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" stroke="currentColor" fill="none"></path>
                 </svg>

@@ -4,11 +4,11 @@ body {
 
 .files {
 display: inline-block;
-box-shadow: 2px 5px #f7f6f6;
-padding: 40px;
-border-radius: 5%;
+border-radius: 0.2cm;
+/* margin-left: 10%; */
+border: 1px solid rgb(191, 193, 194);
 background-color: rgb(255, 255, 255) !important;
-height: 50% !important;
+height: 20% !important;
 width: 20% !important;
 }
 
@@ -44,7 +44,8 @@ box-shadow: 0 8px 16px rgb(156, 215, 233), 0 4px 16px rgb(97, 182, 207);
 .overtime-container,
 .attendance-container,
 .payroll-container,
-.EmployeeHours-container
+.EmployeeHours-container,
+.loginlogout-container
 {
   margin: 50%;
   margin-top: 4%;
@@ -56,12 +57,17 @@ box-shadow: 0 8px 16px rgb(156, 215, 233), 0 4px 16px rgb(97, 182, 207);
   align-items: center;
 }
 
+.loginlogout-container{
+width: 40%;
+}
+
 
 .summary-table-container,
 .overtime-table-container,
 .attendance-table-container,
 .payroll-table-container,
-.employeehours-table-container{
+.employeehours-table-container,
+.loginlogout-table-container{
   margin: 15%;
   margin-left: 16%;
   margin-top: -47%;
@@ -84,6 +90,11 @@ box-shadow: 0 8px 16px rgb(156, 215, 233), 0 4px 16px rgb(97, 182, 207);
 .employeehours-table-container{
 margin-top: -38%;
 margin-left: 8%;
+}
+
+.loginlogout-table-container{
+margin-left: -40%;
+margin-top: 1%;
 }
 
 .payroll-table-container{
@@ -125,8 +136,7 @@ align-items: center;
   padding: 10px;
   border: none;
   background-color: #cce9eede;
-  width: 40%;
-  border-radius: 5%;
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -141,12 +151,14 @@ align-items: center;
   font-weight: bold;
   margin-right: 10px;
   width: 180px;
+  font-family: serif;
 }
 
 .details-value {
   display: flex;
   align-items: center;
   margin-right: 20px;
+  font-family: serif;
 }
 
 .colon {
@@ -160,10 +172,11 @@ align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  margin-top: -10%;
+  margin-top: -8.2%;
+  /* margin-left: 32%; */
   margin-left: 22%;
   padding: 10px;
-  width: 72% !important;
+  width: 60% !important;
   height: 2.5cm !important;
   border: 1px solid rgb(191, 193, 194);
   border-radius: 0.2cm;
@@ -194,28 +207,5 @@ align-items: center;
   margin: 20px;
   padding: 20px;
   background-color: #f8f8f8;
-
-}
-
-
-/* Style for the button */
-.button-container4 {
-  text-align: center; /* Align the button to the center */
-  margin-top: 20px; /* Add some top margin for spacing */
-}
-
-.button-container4 button {
-
-  color: #2ec9db; 
-  border: none; 
-
-  cursor: pointer; /* Show pointer cursor on hover */
-  border-radius: 5px; /* Add border radius for rounded corners */
-}
-
-
-
-
-.button-container4 i {
-  margin-right: 5px; /* Add some margin to the right of the icon */
+  /* Add additional styles as needed */
 }

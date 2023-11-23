@@ -18,7 +18,7 @@ class EmployeeShowSerializer(serializers.ModelSerializer):
     # imgSrc = serializers.ImageField(use_url=False)
     class Meta:
         model = Employee
-        fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining',  'languages', 'bankaccnum', 'dob','age', 'Maritalstatus', 'Gender','salary','medicalClaimPolicyNo','validityDateFrom','validityDateTo','bankName','ifscCode','employmentCategory')
+        fields = ('id', 'name', 'mobile', 'designation', 'address', 'department', 'email', 'BloodGroup', 'educationData', 'experienceData', 'referenceData', 'Aadhaarno', 'PanNo', 'RNRNO', 'TNMCNO', 'ValidlityDate', 'dateofjoining',  'languages', 'bankaccnum', 'dob','age', 'Maritalstatus', 'Gender','salary','medicalClaimPolicyNo','validityDateFrom','validityDateTo','bankName','ifscCode','employmentCategory',"employeeType")
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -144,3 +144,14 @@ class UserPermissionSerializer(serializers.ModelSerializer):
             'pending_approval',  
             'admin_registration',
         )
+
+
+
+class EmployeeHoursSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeHours
+        fields = ('id', 'name', 'month', 'year', 'date', 'day', 'department','designation','latelogin', 'earlyLogout', 'totallatelogin', 'Totalearlylogouttime', 'totlateearlyhours')
+class EmployeeHoursdaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeHours
+        fields = ('id', 'name', 'month', 'year', 'date', 'day', 'department','designation','latelogin', 'earlyLogout')

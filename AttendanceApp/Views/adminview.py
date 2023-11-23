@@ -343,7 +343,6 @@ class GeneratePDF(View):
             "Languages": employee.languages,
             "Aadhaar No": employee.Aadhaarno,
             "Pan No": employee.PanNo,
-            "Identification Mark": employee.IdentificationMark,
             "Blood Group": employee.BloodGroup,
             "RNRNO": employee.RNRNO,
             "TNMC No": employee.TNMCNO,
@@ -359,12 +358,11 @@ class GeneratePDF(View):
             "Name": (100, 180),
             "Email": (100, 200),
             "Mobile": (100, 220),
-            "Department": (100, 420),
-            "Address": (100, 400),
-            "Languages": (100, 380),
-            "Aadhaar No": (100, 360),
-            "Pan No": (100, 340),
-            "Identification Mark": (100, 320),
+            "Department": (100, 400),
+            "Address": (100, 380),
+            "Languages": (100, 360),
+            "Aadhaar No": (100, 340),
+            "Pan No": (100, 320),
             "Blood Group":( 100, 300),
             "RNRNO":( 100, 280),
             "TNMC No":(100, 260),
@@ -534,3 +532,44 @@ def get_employee_exit_form(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+
+
+
+from django.http import JsonResponse
+from datetime import date
+from dateutil.parser import parse as parse_date
+def employee_events(request):
+    today = date.today()
+    employees = Employee.objects.all()
+    joining_anniversaries = []
+    birthdays = []
+    for employee in employees:
+        # Check if dob and dateofjoining are not None before parsing
+        if employee.dob and employee.dateofjoining:
+            # Try parsing the custom format first
+            try:
+                dob = parse_date(str(employee.dob), fuzzy=True).date()
+                dateofjoining = parse_date(str(employee.dateofjoining), fuzzy=True).date()
+            except ValueError:
+                # If parsing with the custom format fails, try the standard format
+                dob = parse_date(str(employee.dob)).date()
+                dateofjoining = parse_date(str(employee.dateofjoining)).date()
+            if today.month == dob.month and today.day == dob.day:
+                birthdays.append(employee.name + '_' + str(employee.id))
+                print(f"Today is the birthday of: {employee.name}")
+            work_anniversary = today.year - dateofjoining.year
+            if today.month < dateofjoining.month or (today.month == dateofjoining.month and today.day < dateofjoining.day):
+                work_anniversary -= 1
+            if work_anniversary > 0 and today.month == dateofjoining.month and today.day == dateofjoining.day:
+                joining_anniversaries.append({"name": employee.name, "anniversary": work_anniversary})
+                print(f"{employee.name} is celebrating {work_anniversary} years of joining")
+        else:
+            # Handle cases where dob or dateofjoining is missing or None
+            print(f"Missing date information for employee: {employee.name}")
+    response_data = {
+        "birthdays": birthdays,
+        "joining_anniversaries": joining_anniversaries,
+    }
+    return JsonResponse(response_data)

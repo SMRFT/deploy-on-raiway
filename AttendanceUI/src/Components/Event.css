@@ -1,4 +1,43 @@
-.event-birthday{
-    margin-top:5% ;
-    margin-left: 40%;
-}
+/* Event.css */
+
+.event-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .event-section {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .birthday-container {
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .anniversary-container {
+    background-color: #eaf6fd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-top: -10%;
+  }
+  
+  .event-item {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-family: 'serif';
+  }
+  
+  /* Add more styles as needed */
+  

@@ -3,12 +3,17 @@
 .addemployee,
 .dashboard,
 .Deleteemp,
-.AdminReg,.EmployeeExitForm{
+.AdminReg,
+.Event,
+.EmployeeExitForm,
+.LeaveApproval{
   display: block;
-  padding: 10px;
-  margin: 8% 0;
+  padding: 12px;
+  margin-left: -10%;
+  justify-content:center;
+  align-items: center;
   color: rgb(255, 249, 249);
-  font-size:medium;
+  font-size:large;
   font-family: serif;
   font-style: unset;
   white-space: nowrap;
@@ -19,20 +24,22 @@
 .dashboard:hover,
 .Deleteemp:hover,
 .AdminReg:hover,
-.EmployeeExitForm:hover {
-  color: #085C69;
+.Event:hover,
+.EmployeeExitForm:hover,
+.LeaveApproval:hover {
+  color: #00869B;
 }
-.home.active,
-.employeedetails.active,
-.addemployee.active,
-.dashboard.active,
-.Deleteemp.active,
-.AdminReg .active,
-.EmployeeExitForm.active
+.home:active,
+.employeedetails:active,
+.addemployee:active,
+.dashboard:active,
+.Deleteemp:active,
+.AdminReg:active,
+.Event:active,
+.EmployeeExitForm:active,
+.LeaveApproval:active
 {
   color:rgb(255, 255, 255)!important;
   font-weight:bold !important;
   font-size:larger !important;
 }
-
-

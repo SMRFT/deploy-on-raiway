@@ -27,7 +27,7 @@ from rest_framework.decorators import api_view
 from .constants import Login, Logout
 from django.db.models.functions import TruncDate
 from AttendanceApp.models import Employee, Admincalendarlogin, Hour, Breakhours, DeletedEmployee
-from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer,EmployeeShowbydepartmentSerializer, EmployeedepartmentSerializer
+from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer,EmployeeShowbydepartmentSerializer, EmployeedepartmentSerializer,EmployeeHoursdaySerializer
 from django.db.models import Q
 import json
 import calendar
@@ -738,6 +738,7 @@ def get_file(request):
 
 
 
+from datetime import timedelta
 class RetrieveEmployeehours(APIView):
     def post(self, request):
         data = request.data
@@ -745,15 +746,36 @@ class RetrieveEmployeehours(APIView):
         month = data.get("month")
         year = data.get("year")
         emp_id = data.get("id")
-        # Get all employees who have logged in during the specified month and year
-        emp_data = Admincalendarlogin.objects.filter(
-            Q(day=day) & Q(month=month) & Q(year=year))
-        # Filter by employee ID if it is provided
         if emp_id:
-            emp_data = emp_data.filter(id=emp_id)
-        emp_data = emp_data.values()
-        # Serialize the employee details list and return the response
-        serializer = EmployeeHoursSerializer(emp_data, many=True)
+            emp_data = Admincalendarlogin.objects.filter(Q(id=emp_id) & Q(month=month) & Q(year=year)).values()
+            for record in emp_data:
+                emp_totlatelogin = timedelta()  # initialize the total late login time for this employee to zero
+                emp_Totalearlylogouttime = timedelta()  # initialize the total early logout time for this employee to zero
+                # extract the time from the "latelogin" field and add it to the employee's total
+                if record['latelogin']:
+                    latelogin_time = timedelta(hours=record['latelogin'].hour, minutes=record['latelogin'].minute, seconds=record['latelogin'].second)
+                    emp_totlatelogin += latelogin_time
+                # extract the time from the "earlyLogout" field and add it to the employee's total
+                if record['earlyLogout']:
+                    earlylogout_time = timedelta(hours=record['earlyLogout'].hour, minutes=record['earlyLogout'].minute, seconds=record['earlyLogout'].second)
+                    emp_Totalearlylogouttime += earlylogout_time
+                # calculate the sum of total late login and early logout time and store in a new field
+                record['totallatelogin'] = str(emp_totlatelogin)
+                record['Totalearlylogouttime'] = str(emp_Totalearlylogouttime)
+                record['totlateearlyhours'] = str(emp_totlatelogin + emp_Totalearlylogouttime)
+                # get the department and designation fields from the Employee model and add them to the record
+                employee = Employee.objects.get(id=emp_id)
+                record['department'] = employee.department
+                record['designation'] = employee.designation
+            serializer = EmployeeHoursSerializer(emp_data, many=True)
+        else:
+            emp_data = Admincalendarlogin.objects.filter(Q(day=day) & Q(month=month) & Q(year=year)).values()
+            for record in emp_data:
+                # get the employee id from the record and get the department and designation fields from the Employee model
+                employee = Employee.objects.get(id=record['id'])
+                record['department'] = employee.department
+                record['designation'] = employee.designation
+            serializer = EmployeeHoursdaySerializer(emp_data, many=True)
         return Response(serializer.data)
 
     # Retrieve Break Hours

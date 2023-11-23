@@ -208,23 +208,6 @@ function Addemp()
     setAssetDetails(updatedAssetDetails);
   };
    
-   
- 
-
-  // experience Handle date changes
-  const handleDateChange = (index, fieldName, newValue) => {
-    const updatedExperienceData = [...experienceData];
-    updatedExperienceData[index][fieldName] = newValue;
-    // setExperienceData(updatedExperienceData);
-  if (type === "experienceFrom") {
-    rowData.experience= date;
-  } else if (type === "experienceTo") {
-    rowData.experience = date;
-  }
-
-  // Update the state with the new data
-  setExperienceData(updatedExperienceData);
-};
 
 const handleexpFromDateChange = (date) => {
   setexperienceFrom(date);
@@ -236,31 +219,55 @@ const handleexpToDateChange = (date) => {
   handleExperienceChange();
 };
 
-// Calculate years and months of experience when date changes
+
+
+
+/// Calculate years and months of experience when date changes
 const calculateYearsOfExperience = (fromDate, toDate) => {
   if (fromDate && toDate) {
     const from = fromDate.toLocaleDateString();
     const to = toDate.toLocaleDateString();
-    const combinedExperience = `from${from} to ${to}`;
+    const combinedExperience = `from ${from} to ${to}`;
     setexperience(combinedExperience);
 
     const diff = toDate - fromDate;
     const years = diff / 31536000000; // 1000 milliseconds * 60 seconds * 60 minutes * 24 hours * 365 days
     const months = (years % 1) * 12;
 
-    setYearsOfExperience({
+    const yearsOfExperienceData = {
       years: Math.floor(years),
       months: Math.round(months),
-    });
+    };
+
+    setYearsOfExperience(yearsOfExperienceData);
+
+    // Store the result in setExperienceData
+    setExperienceData([
+      {
+        SlNo: 1,
+        Organization: "",
+        designation: "",
+        lastdrawnsalary: "",
+        location: "",
+        experience: combinedExperience,
+        yearsOfExperience: yearsOfExperienceData,
+      },
+    ]);
   } else {
     setexperience(''); // Reset to an empty string if dates are not selected
     setYearsOfExperience({ years: 0, months: 0 }); // Reset yearsOfExperience
+
+    // Reset setExperienceData
+    setExperienceData([
+      { SlNo: 1, Organization: "", designation: "", lastdrawnsalary: "", location: "", experience: "", yearsOfExperience: "" },
+    ]);
   }
 };
 
 useEffect(() => {
   calculateYearsOfExperience(experienceFrom, experienceTo);
 }, [experienceFrom, experienceTo]);
+
 
 console.log("experience:", experience);
 console.log("yearsOfExperience",yearsOfExperience)
@@ -366,6 +373,7 @@ console.log("yearsOfExperience",yearsOfExperience)
     data.append("ifscCode",ifscCode);
     data.append("companyEmail",companyEmail);
     data.append("reportedBy",reportedBy);
+    data.append("experience",experience);
     data.append("yearsOfExperience",yearsOfExperience);
        
         try {
@@ -713,7 +721,7 @@ console.log("yearsOfExperience",yearsOfExperience)
   const[uploadFile,setuploadFile]=useState(null);
 
 
-  useEffect(() => {
+    useEffect(() => {
     if (imgSrc) {
       setImage(URL.createObjectURL(imgSrc));
     }
@@ -1270,15 +1278,14 @@ console.log("yearsOfExperience",yearsOfExperience)
                         <b>EDUCATIONAL QUALIFICATIONS:</b>
                         </div>
                         </div>
-                       
+                   
 
              <div className="row">
               <div >
               <i style={{float:"right", color: "skyblue",marginRight:"6%"}}className="bi bi-plus fa-2x" title="Add New Row" onClick={() => addRow('education')}></i>
-
               </div>    
               </div>
-              <br/>
+             
              
        <div className="row">
        <div >
@@ -1350,8 +1357,7 @@ console.log("yearsOfExperience",yearsOfExperience)
      
       {certificatesFile && (
             <>
-              {/* <span className="mx-3">{certificatesFile.name}</span> */}
-              <button style={{ height: "0.5cm", width: "0.5cm", backgroundColor: "red", border: "none", color: "white", fontSize: "14px" , marginLeft: "4%",whiteSpace:"nowrap"  }} onClick={handleRemoveFile3}>
+                <button style={{ height: "0.5cm", width: "0.5cm", backgroundColor: "red", border: "none", color: "white", fontSize: "14px" , marginLeft: "4%",whiteSpace:"nowrap"  }} onClick={handleRemoveFile3}>
                 <i className="fa fa-times"></i>
               </button>
             </>
@@ -1467,7 +1473,6 @@ console.log("yearsOfExperience",yearsOfExperience)
 </tbody>
      </table>
      <br/>
-     {/* <button className="btn btn-primary" onClick={() => addRow('experience')}>Add Row</button> */}
       </div>
     </div>
     <br/>              
@@ -1572,8 +1577,11 @@ console.log("yearsOfExperience",yearsOfExperience)
             content: (
               <Form onSubmit={handleSubmit(onSubmit)}>
                 <br/>
-                <div>
-
+                <div className="row">
+                <b><div style={{ textAlign: "right" ,fontFamily:"serif"}}>Name: {name}</div></b>  
+                </div>
+                <br/>
+  <div>
   <div className="row">
                 <div className="col-md-3">
                   <Form.Field>
@@ -1815,8 +1823,7 @@ console.log("yearsOfExperience",yearsOfExperience)
                                 showYearDropdown
                                 dropdownMode="select"
                                 placeholderText="Validity Date To"
-                                className="mx-4 small-text-input"
-                               
+                                className="mx-4 small-text-input"                          
                               />
                             </div>
                      
@@ -1858,8 +1865,7 @@ console.log("yearsOfExperience",yearsOfExperience)
                             <center>
                             <h4 style={{ fontFamily: 'serif' }}>Asset Details</h4>
                           </center>
-                            <br/>    
-   
+                               
    <i style={{float:"right", color: "skyblue",marginRight:"6%"}}className="bi bi-plus fa-2x" title="Add New Row" onClick={() => addRow('asset')}></i>
                          
         <table className="table table-bordered">
@@ -1897,65 +1903,398 @@ console.log("yearsOfExperience",yearsOfExperience)
             ),
           },
 
-
       {
         title: "Preview",
           content:(
       <Form onSubmit={handleSubmit(onSubmit)}>    
       <br/>
       <br/>
-  <div style={{display: 'flex', justifyContent: 'center'  }}>
-  <div style={{ width:"80%" }}>
-    <div className="row">
-      <div className="col-md-3">
-        <div>Name&nbsp;{name}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>ID&nbsp;{id}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Gender&nbsp;{Gender}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Date of Birth&nbsp;{dob ? dob.toDateString() : ''} Age&nbsp;{age}</div><br />
-      </div>
-    </div>
-    <div className="row">
-      <div className="col-md-3">
-        <div>Marital Status&nbsp;{Maritalstatus}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Mobile&nbsp;{mobile}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Department&nbsp;{selectedDepartment}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>RNRNO&nbsp;{RNRNO}</div><br />
-        {RNRNO && (
-          <div>
-            <div>ValidlityDate&nbsp;{ValidlityDate ? ValidlityDate.toDateString() : ''}</div>
-          </div>
+      <div style={{ display: "flex" }}>
+                <div className="preview-details-container">
+                <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",marginLeft:"35%",marginTop:"4%"}}>{name}'s Details</div><br/>
+                <div className="preview-details-row">
+                    <div className="details-heading">Employee ID</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{id}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Mobile Number</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{mobile}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Email Id</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{email}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Address</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{address}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Gender</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{Gender}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Date of Birth</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{dob}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Martial Status</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{Maritalstatus}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Blood Group</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{BloodGroup}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Languages known</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{languages}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Aadhaar No</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{Aadhaarno}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Pan No</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{PanNo}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Bank A/c Number</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{bankaccnum}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">Bank Name</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{bankName}</div>
+                </div>
+
+                <div className="preview-details-row">
+                    <div className="details-heading">IFSC Code</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{ifscCode}</div>
+                </div>
+
+                 <div className="preview-details-row">
+                    <div className="details-heading">Company Email</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{companyEmail}</div>
+                </div>
+
+                <div className="preview-details-row">
+                  <div className="details-heading">Selected Department</div>
+                  <div className="colon">:</div>
+                  <div className="details-value">{selectedDepartment}</div>
+                </div>
+                {selectedDepartment === "DOCTOR" && (
+                  <div className="preview-details-row">
+                    <div className="details-heading">TNMC NO</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{TNMCNO}</div>
+                  </div>
+                )}
+                {selectedDepartment === "NURSE" && (
+                  <>
+                    <div className="preview-details-row">
+                      <div className="details-heading">RNR NO</div>
+                      <div className="colon">:</div>
+                      <div className="details-value">{RNRNO}</div>
+                    </div>
+                    <div className="preview-details-row">
+                      <div className="details-heading">Validity Date</div>
+                      <div className="colon">:</div>
+                      <div className="details-value">{ValidlityDate ? ValidlityDate.toISOString().split('T')[0] : ""}</div>
+                    </div>
+                  </>
+                )}
+
+                    <div className="preview-details-row">
+                    <div className="details-heading">Designation</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{designation}</div>
+                   </div>
+
+                   <div className="preview-details-row">
+                    <div className="details-heading">date of joining</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{dateofjoining}</div>
+                   </div>
+
+                   <div className="preview-details-row">
+                    <div className="details-heading">Salary(CTC)</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{salary}</div>
+                   </div>
+
+                   <div className="preview-details-row">
+                    <div className="details-heading">ESINO</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{ESINO}</div>
+                   </div>
+
+                   <div className="preview-details-row">
+                    <div className="details-heading">Reported To</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{reportedBy}</div>
+                   </div>
+
+
+                   <div className="preview-details-row">
+                    <div className="details-heading">MedicalClaimPolicyNo</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{medicalClaimPolicyNo}</div>
+                   </div>
+
+                     <div className="preview-details-row">
+                      <div className="details-heading">validity Date From</div>
+                      <div className="colon">:</div>
+                      <div className="details-value">{validityDateFrom ? validityDateFrom.toISOString().split('T')[0] : ""}</div>
+                    </div>
+
+
+                    <div className="preview-details-row">
+                      <div className="details-heading">validity Date To</div>
+                      <div className="colon">:</div>
+                      <div className="details-value">{validityDateTo ? validityDateTo.toISOString().split('T')[0] : ""}</div>
+                    </div>
+
+
+                    <div className="preview-details-row">
+                    <div className="details-heading">Employment Category</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employmentCategory}</div>
+                   </div>
+
+                   <div className="preview-details-row">
+                    <div className="details-heading">Employment Type</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employeeType}</div>
+                   </div>
+
+  </div>      
+  </div>
+
+
+
+  <div className="row">
+ <b>Upload File Pan/Aadhaar</b>
+  {proofFile && (
+    <div>
+      <br />
+      <div>
+        {/* <h5>Preview:</h5> */}
+        {proofFile.type === 'application/pdf' ? (
+          // You can embed a PDF viewer here or provide a link to open the PDF
+          <embed
+            src={URL.createObjectURL(proofFile)}
+            type="application/pdf"
+            width="50%"
+            height="400px"
+          />
+        ) : (
+          <p>Preview not available for this file type</p>
         )}
       </div>
     </div>
-    <div className="row">
-      <div className="col-md-3">
-        <div>TNMCNO&nbsp;{TNMCNO}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Email&nbsp;{email}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Date of Joining: {dateofjoining ? dateofjoining.toDateString() : ''}</div><br />
-      </div>
-      <div className="col-md-3">
-        <div>Bank Account Number&nbsp;{bankaccnum}</div><br />
-      </div>
-    </div>
-  </div>
+  )}
 </div>
 <br/>
+<div className="row">
+ <b>Upload File Certificates</b>
+  {certificatesFile && (
+    <div>
+      <br />
+      <div>
+       
+        {certificatesFile.type === 'application/pdf' ? (
+          // You can embed a PDF viewer here or provide a link to open the PDF
+          <embed
+            src={URL.createObjectURL(certificatesFile)}
+            type="application/pdf"
+            width="50%"
+            height="400px"
+          />
+        ) : (
+          <p>Preview not available for this file type</p>
+        )}
+      </div>
+    </div>
+  )}
+</div>
+
+<br/>
+<div className="row">
+ <b>Form11</b>
+  {uploadFile && (
+    <div>
+      <br />
+      <div>
+       
+        {uploadFile.type === 'application/pdf' ? (
+          // You can embed a PDF viewer here or provide a link to open the PDF
+          <embed
+            src={URL.createObjectURL(uploadFile)}
+            type="application/pdf"
+            width="50%"
+            height="400px"
+          />
+        ) : (
+          <p>Preview not available for this file type</p>
+        )}
+      </div>
+    </div>
+  )}
+</div>
+
+<br/>
+<div className="row">
+  <center><b>Educational Details</b></center>
+<br/><br/>
+                            {educationData ? (
+                                <table className="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>SlNo</th>
+                                            <th>Degree</th>
+                                            <th>Major</th>
+                                            <th>Institution</th>
+                                            <th>Marks</th>
+                                            <th>Year</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {educationData.map((edu, index) => (
+                                            <tr key={index}>
+                                                <td>{edu.slNo}</td>
+                                                <td>{edu.degree}</td>
+                                                <td>{edu.major}</td>
+                                                <td>{edu.institution}</td>
+                                                <td>{edu.marks}</td>
+                                                <td>{edu.year}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No education data available</p>
+                            )}
+                        </div>
+
+
+                        <div className="row">
+                        <center><b>Experience Data</b></center>
+<br/><br/>
+                            {experienceData ? (
+                                <table className="table table-hover">
+                                    <thead className='thead'>
+                                        <tr>
+                                            <th>SlNo</th>
+                                            <th>Organization</th>
+                                            <th>Designation</th>
+                                            <th>Last Drawn Salary</th>
+                                            <th>Location</th>
+                                            <th>years Of Experience</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {experienceData.map((exp, index) => (
+                                            <tr key={index}>
+                                                <td>{exp.SlNo}</td>
+                                                <td>{exp.Organization}</td>
+                                                <td>{exp.designation}</td>
+                                                <td>{exp.lastdrawnsalary}</td>
+                                                <td>{exp.location}</td>
+                                                <td>
+                                                  Years: {experienceData[0].yearsOfExperience.years}&nbsp;
+                                                  Months: {experienceData[0].yearsOfExperience.months}
+                                                  </td>
+                                                 </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No experience data available</p>
+                            )}
+                        </div>
+
+                        <div className="row">
+                        <center><b>Reference Data</b></center> <br/>
+                            {referenceData ? (
+                                <table className="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>SlNo</th>
+                                            <th>References</th>
+                                            <th>Organization</th>
+                                            <th>Designation</th>
+                                            <th>Contact No.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {referenceData.map((ref, index) => (
+                                            <tr key={index}>
+                                                <td>{ref.SlNo}</td>
+                                                <td>{ref.references}</td>
+                                                <td>{ref.Organization}</td>
+                                                <td>{ref.designation}</td>
+                                                <td>{ref.ContactNo}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No reference data available</p>
+                            )}
+                        </div>
+                   
+                        <div className="row">
+                        <center><b>Assest Details</b></center>
+                        <br/>  <br/>
+                            {assetDetails ? (
+                                <table className="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ padding: "0.1px", fontSize:"15px" }}>SlNo</th>
+                                            <th style={{ padding: "0.1px", fontSize:"15px" }}>Description</th>
+                                            <th style={{ padding: "0.1px",fontSize:"15px" }}>Model/SerialNo</th>
+                                         </tr>
+                                    </thead>
+                                    <tbody>
+                                        {assetDetails.map((row, index3) => (
+                                            <tr key={index3}>
+                                                <td >{row.slNo}</td>
+                                                <td>{row.description}</td>
+                                                <td >{row.modelSerialNo}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No reference data available</p>
+                            )}
+                        </div>
+                   
       <button
         className="button-71 Add-employee-button"
         role="button"

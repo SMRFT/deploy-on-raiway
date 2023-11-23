@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef} from "react";
+import axios from 'axios';
 import * as ReactBootStrap from "react-bootstrap";
 import { Modal, Button , OverlayTrigger, Tooltip } from "react-bootstrap";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -18,6 +19,10 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { red } from "@material-ui/core/colors";
 import Myconstants from './Myconstants';
 import { BsPersonFill, BsPersonDash, BsCheckLg } from 'react-icons/bs';
+import { FaClock } from 'react-icons/fa';
+import * as XLSX from 'xlsx';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 
 
 ///view employee
@@ -28,8 +33,6 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
 
-
-  
   const handleImageLoad = () => {
     setIsLoading(false);
   };
@@ -38,16 +41,9 @@ const Home = () => {
     setIsLoading(false);
     setIsError(true);
   };
-  const adminDetails = localStorage.getItem('adminDetails');
-  const { email, name, mobile, role, jwt } = JSON.parse(adminDetails);
- 
+
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp", {
-      method: "GET",
-      headers: {
-        "Authorization": ` ${jwt}`
-      }
-    })
+    fetch("http://127.0.0.1:7000/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
@@ -110,6 +106,7 @@ const handleCloseModal = () => {
   const Fileviewer = useNavigate();
   const navigateToFileviewer = () => {
   };
+
   ///delete employee
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedEmployeeToDelete, setSelectedEmployeeToDelete] = useState(null);
@@ -129,7 +126,7 @@ const handleCloseModal = () => {
     try {
       await fetch("http://127.0.0.1:7000/attendance/delemp", {
         method: "POST",
-        headers: { "Content-Type": "application/json", 'Authorization': `${jwt}` },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           id: selectedEmployeeToDelete.id,
@@ -148,21 +145,14 @@ const handleCloseModal = () => {
     }
   }
 };
+  
 // fetch the data from the server and update the state
 const [breakusers, setBreakusers] = useState([]);
 const [employeesOnBreak, setEmployeesOnBreak] = useState([]);
 const [employeesActive, setEmployeesActive] = useState([]);
 const [employeesNotActive, setEmployeesNotActive] = useState([]);
 const fetchData = useCallback(() => {
-   // Replace with your actual JWT token
-
-  fetch("http://127.0.0.1:7000/attendance/breakdetails", {
-    method: 'GET',
-    headers: {
-      'Authorization': `${jwt}`,
-      'Content-Type': 'application/json'
-    }
-  })
+  fetch("http://127.0.0.1:7000/attendance/breakdetails")
     .then((res) => res.json())
     .then(
       (data) => {
@@ -178,7 +168,6 @@ const fetchData = useCallback(() => {
       }
     );
 }, []);
-
  // initially set to "active"
 // Call the fetchData function when the component mounts
 // refresh the details every 3 minutes
@@ -190,14 +179,63 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [fetchData]);
 
+//Bulk Upload
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      // Assuming the Excel sheet is named 'employees'
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      // Convert Excel data to JSON
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
+      // Send JSON data to your backend API
+      await uploadEmployeeData(jsonData);
+    } catch (error) {
+      console.error('Error parsing Excel file:', error);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+};
+const uploadEmployeeData = async (jsonData) => {
+  try {
+    // Send the JSON data to your backend API endpoint
+    const response = await axios.post('http://127.0.0.1:7000/attendance/upload-employees/', {
+      employees: jsonData,
+    });
+    // Handle the response if needed
+    console.log('Employees uploaded successfully', response.data);
+  } catch (error) {
+    // Handle error
+    console.error('Error uploading employees:', error);
+  }
+};
+
+
 // ///search employee
-const [listType, setListType] = useState("all");
-const DEPARTMENT_OPTIONS = Myconstants.departments.map((department) => department.toUpperCase());
+const [employeeType, setEmployeeType] = useState("");
+const [employeeCategoryType, setCategoryType] = useState("");
 const [selectedDepartment, setSelectedDepartment] = useState("all");
-const [selectedRole, setSelectedRole] = useState("all");
+const DEPARTMENT_OPTIONS = Myconstants.departments.map((department) => department.toUpperCase());
 const [searchString, setSearchString] = useState("");
+const [listType, setListType] = useState("all");
+const [selectedRole, setSelectedRole] = useState("all");
+const [employeeFilter, setEmployeeFilter] = useState("all");
 
-
+const handleEmployeeFilterChange = (value) => {
+  setEmployeeFilter(value);
+  const [type, selectedValue] = value.split("_");
+  if (type === "type") {
+    setEmployeeType(selectedValue);
+    setCategoryType("all");
+  } else if (type === "category") {
+    setCategoryType(selectedValue);
+    setEmployeeType("all");
+  }
+};
 
 const filterByDepartment = (employee) => {
   if (selectedDepartment === "all") {
@@ -214,28 +252,23 @@ const filteredResults = useMemo(() => {
       const matchesSearch = Object.values(employee).some((value) =>
         value?.toString().toLowerCase().includes(searchString?.toString().toLowerCase() ?? "")
       );
-
       const matchesDepartment = filterByDepartment(employee);
+      const matchesListType =
+        listType === "all" ||
+        (listType === "active" && employeesActive.some((activeEmployee) => activeEmployee.id === employee.id)) ||
+        (listType === "notActive" &&
+          employeesNotActive.some((notActiveEmployee) => notActiveEmployee.id === employee.id));
 
-      if (listType === "active") {
-        return (
-          employeesActive.some((activeEmployee) => activeEmployee.id === employee.id) &&
-          matchesDepartment
-        );
-      } else if (listType === "all") {
-        return matchesSearch && matchesDepartment;
-      } else if (listType === "notActive") {
-        return (
-          employeesNotActive.some((notActiveEmployee) => notActiveEmployee.id === employee.id) &&
-          matchesDepartment
-        );
-      }
+      const matchesEmploymentCategory = employeeFilter === "all" ||
+      employeeCategoryType === "all" || employee.employmentCategory === employeeCategoryType;
+
+      const matchesEmployeeType = employeeFilter === "all" ||
+        employeeType === "all" || employee.employeeType === employeeType;
+
+      return matchesSearch && matchesDepartment && matchesListType && matchesEmploymentCategory && matchesEmployeeType;
     })
   );
-}, [users.blogs, searchString, selectedRole, selectedDepartment, listType]);
-
-
-
+}, [users.blogs, searchString, employeeType, selectedDepartment, listType, employeesActive, employeesNotActive, selectedRole]);
 
   const countFilteredResults = filteredResults.length;
   const countData = users.blogs.length;
@@ -272,13 +305,12 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
 
  
     return (
-      <body className="viewemp"><br/>
-      <div >
+      <body><br/>
+      <div className="viewemp">
         <Link style={{color:"rgb(103, 180, 204)"}} to="/Admin/ViewempTable">Table View</Link>
         <br/><br/>
 <div className="row">
-  <div className="col-lg-4">
-    <label htmlFor="listType" style={{color:"rgb(103, 180, 204)",fontWeight:"bold",fontFamily:"-moz-initial"}}> Employee: </label>
+  <div className="col-lg-3">
     <select style={{ marginLeft:"5px",borderRadius: '10px',fontSize:"14px",fontFamily:"serif",height:"1cm",textAlign:"center",borderColor:"rgb(103, 180, 204)",borderWidth:"2px",color:'rgb(145, 180, 204)'}}
     id="listType"  value={listType} onChange={(e) => setListType(e.target.value)}>
       <option value="all">All Employees</option>
@@ -286,14 +318,9 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
       <option value="notActive">Not Active Employees</option>
     </select>
   </div>
-  <div className="col-lg-4" style={{ marginLeft: "-10%" }}>
-  <label htmlFor="department" style={{ color: "rgb(103, 180, 204)", fontWeight: "bold", fontFamily: "-moz-initial" }}>
-    Department:
-  </label>
+  <div className="col-lg-3" style={{ marginLeft: "-10%" }}>
   <select
-    style={{
-      marginLeft: "5px",
-      borderRadius: "10px",
+    style={{      borderRadius: "10px",
       fontSize: "14px",
       fontFamily: "serif",
       height: "1cm",
@@ -306,7 +333,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     value={selectedDepartment}
     onChange={(e) => setSelectedDepartment(e.target.value)}
   >
-     <option value="all">All </option>
+      <option value="all">All</option>
     {DEPARTMENT_OPTIONS.map((department) => (
       <option key={department} value={department}>
         {department}
@@ -314,17 +341,55 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     ))}
   </select>
   </div>
-  <button className="col-lg-4 viewEmp-button"
-  style={{marginLeft:"-10%"}}
+  <div className="col-lg-3" style={{ marginLeft: "-8%" }}>
+  <select
+    style={{
+      borderRadius: '10px',
+      fontSize: '14px',
+      fontFamily: 'serif',
+      width: '4cm',
+      height: '1cm',
+      textAlign: 'center',
+      borderColor: 'rgb(103, 180, 204)',
+      borderWidth: '2px',
+      color: 'rgb(145, 180, 204)',
+    }}
+    id="employeeFilter"
+    value={employeeFilter}
+    onChange={(e) => handleEmployeeFilterChange(e.target.value)}
+  >
+    <option value="all">All Employees</option>
+    {Myconstants.employeeTypeOptions.map((typeOption) => (
+      <option key={`type_${typeOption.value}`} value={`type_${typeOption.value}`}>
+        {typeOption.label}
+      </option>
+    ))}
+    {Myconstants.employmentCategoryOptions.map((categoryOption) => (
+      <option key={`category_${categoryOption.value}`} value={`category_${categoryOption.value}`}>
+        {categoryOption.label}
+      </option>
+    ))}
+  </select>
+</div>
+
+  <button className="col-lg-3 viewEmp-button"
+  style={{ marginLeft: "-10%" }}
   color="primary"
   onClick={handleShowModal}
   title="Download Employee Summary">
 <CloudDownloadIcon/>
 </button>
-<button className="col-lg-4 viewEmp-button" onClick={handleclicktoaddemp} title="Add New Employee">
+<button className="col-lg-3 viewEmp-button" onClick={handleclicktoaddemp} title="Add New Employee">
   <PersonAddIcon/>
 </button>
-<div className="col-lg-4" style={{marginLeft:"2%"}}>
+<button className="col-lg-3 viewEmp-button" title="Employee Details Bulk Upload to Database">
+<label htmlFor="file-upload" >
+    <FontAwesomeIcon style={{cursor:"pointer"}} icon={faUpload} className="upload-icon" />
+</label>
+<input id="file-upload" type="file" onChange={handleFileUpload} style={{ display: 'none' }} />
+</button>
+
+<div className="col-lg-4">
       <div className="form-outline">
         <input style={{ height:"1.1cm",borderColor:"rgb(103, 180, 204)",borderRadius:10,
         borderWidth:"2px",color:'rgb(145, 180, 204)',marginLeft:"2%",paddingLeft:"2.5rem",width:"50%"}}
@@ -336,7 +401,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
         </button>
       </div>
     </div>
-<div className="col-lg-2 employee-count" style={{marginLeft:"-13%"}}>
+<div className="col-lg-2 employee-count" style={{marginLeft:"-15%",marginTop:"0.5%"}}>
     {filteredResults.length > 0 ? (
       <>{countFilteredResults} Employees</>
     ) : (
@@ -348,95 +413,92 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
  <div className="row">
   {paginatedResults.map((user) => (
     <div className="col-md-3 mb-3" key={user.id} style={{ borderRadius: "5px" }}>
-      <Card md={2} className="employee"><br/>
+     <Card md={4} className="employee"><br/>
      
-      <div>
-        <i style={{ float: "right", marginRight: '5%', marginTop: "-7%", cursor: "pointer" }} onClick={() => handleHide(user)} className="fa fa-ellipsis-h"></i>
-        <div className="button-container" style={{ float: "left", marginRight: "5%", marginTop: "-7%" }}>
-          {employeesOnBreak.some((breakUser) => breakUser.id === user.id) ? (
-            <button className="break-btn">Break</button>
-          ) : employeesActive.some((activeUser) => activeUser.id === user.id) ? (
-            <BsPersonFill className="active-icon" style={{ color: "green" }} />
-          ) : (
-            <BsPersonDash className="not-active-icon" style={{ color: "red" }} />
-          )}
-        </div>
+     <div>
+       <i style={{ float: "right", marginRight: '5%', marginTop: "-7%", cursor: "pointer" }} onClick={() => handleHide(user)} className="fa fa-ellipsis-h"></i>
+       <div className="button-container" style={{ float: "left", marginRight: "5%", marginTop: "-12%" }}>
+         {employeesOnBreak.some((breakUser) => breakUser.id === user.id) ? (
+           <FaClock className="break-btn" style={{ color: "blue", fontSize: "150%" }} />
+         ) : employeesActive.some((activeUser) => activeUser.id === user.id) ? (
+           <BsPersonFill className="active-icon" style={{ color: "green", fontSize: "150%"  }} />
+         ) : (
+           <BsPersonDash className="not-active-icon" style={{ color: "red", fontSize: "150%"  }} />
+         )}
+       </div>
 
 {showActionsBox && selectedUseraction === user && (
-  <div
-    ref={showActionsBoxRef}
-    style={{
-      position: "absolute",
-      borderRadius:"5%",
-      backgroundColor:"ghostwhite",
-      boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
-      padding: "4px 4px",
-      zIndex: 1,
-      top: "40px",
-      right: 0
-    }}
-    >
-        <button
-          onClick={() => deleteEmployee(user)}
-          className="btn btn-act"
-          data-toggle="modal"
-          style={{border:"none",color:'red'}}
-        >
-        <i className="bi bi-trash-fill"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}> Delete</div>
-      </button><br/>
-      <Link
-          to={`/AdminCalendar/${user.name + '_' + user.id}`}
-          activeClassName="current">
-          <button
-            onClick={() => navigateToCalendar(user)}
-            className="btn btn-act"
-            data-toggle="modal"
-            style={{border:"none",color:"blue"}}
-          >
-          <i className="bi bi-calendar3-week"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}> Calendar</div>
-          </button>
-        </Link><br/>
-        <Link
-          to={`/Fileviewer/${user.name + '_' + user.id}`}
-          activeClassName="current"
-          >
-          <button
-            onClick={() => navigateToFileviewer(user)}
-            className="btn btn-act"
-            data-toggle="modal"
-            style={{border:"none",color:"ThreeDDarkShadow"}}
-          >
-          <i className="bi bi-eye"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}>View more</div>
-          </button>
-        </Link><br/>
-        </div> )}
-        </div>
-  <Card.Body style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',marginRight:"11%"}}>
-  <img
-    src={`http://127.0.0.1:7000/attendance/get_file?filename=${user.name + '_' + user.id + '_' + 'profile' + '.jpg'}`}
-    style={{
-      width: '80px',
-      height: '80px',
-      borderRadius: '50%',
-      marginTop:'-10%'
-    }}
-    alt="Profile Picture"
-  />
+ <div
+   ref={showActionsBoxRef}
+   style={{
+     position: "absolute",
+     borderRadius:"5%",
+     backgroundColor:"ghostwhite",
+     boxShadow: "0px 8px 16px 0px rgba(0,0,0,0.2)",
+     padding: "4px 4px",
+     zIndex: 1,
+     top: "40px",
+     right: 0
+   }}
+   >
+       <button
+         onClick={() => deleteEmployee(user)}
+         className="btn btn-act"
+         data-toggle="modal"
+         style={{border:"none",color:'red'}}
+       >
+       <i className="bi bi-trash-fill"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}> Delete</div>
+     </button><br/>
+     <Link
+         to={`/AdminCalendar/${user.name + '_' + user.id}`}
+         activeClassName="current">
+         <button
+           onClick={() => navigateToCalendar(user)}
+           className="btn btn-act"
+           data-toggle="modal"
+           style={{border:"none",color:"blue"}}
+         >
+         <i className="bi bi-calendar3-week"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}> Calendar</div>
+         </button>
+       </Link><br/>
+       <Link
+         to={`/Fileviewer/${user.name + '_' + user.id}`}
+         activeClassName="current"
+         >
+         <button
+           onClick={() => navigateToFileviewer(user)}
+           className="btn btn-act"
+           data-toggle="modal"
+           style={{border:"none",color:"ThreeDDarkShadow"}}
+         >
+         <i className="bi bi-eye"></i><div style={{color:"#7F8487",float:"right",marginLeft:"10px",fontSize:"14px"}}>View more</div>
+         </button>
+       </Link><br/>
+       </div> )}
+       </div>
+ <Card.Body style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center',marginRight:"11%"}}>
+ <img
+   src={`http://127.0.0.1:7000/attendance/get_file?filename=${user.name + '_' + user.id + '_' + 'profile' + '.jpg'}`}
+   style={{
+     width: '80px',
+     height: '80px',
+     borderRadius: '50%',
+     marginTop:'-10%'
+   }}
+   alt="Profile Picture"
+ />
 
-  <div >
-    <div style={{ color: "#525E75", fontWeight: "bold", fontFamily: "'Latobold', sans-serif", fontSize: "14px" }}>
-      {user.id} - {user.name}
-    </div>
-    <div style={{ color: "#BFBFBF", fontFamily: "initial" }}>
-      {/* Content */}
-    </div>
-    <div style={{ color: "#BFBFBF", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
-      {user.designation}
-    </div>
-    <div style={{ color: "#525E75", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
-      {user.email}
-    </div>
-  </div>
+ <div >
+   <div style={{ color: "#525E75", fontWeight: "bold", fontFamily: "'Latobold', sans-serif", fontSize: "14px" }}>
+     {user.id} - {user.name}
+   </div>
+   <div style={{ color: "#BFBFBF", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+     {user.department}
+   </div>
+   <div style={{ color: "#525E75", fontFamily: "'LatoWeb', sans-serif", fontSize: "13px" }}>
+     {user.email}
+   </div>
+ </div>
 </Card.Body>
 
 </Card>
@@ -457,6 +519,7 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     </Button>
   </Modal.Footer>
 </Modal>
+
 <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
   <Modal.Header style={{ padding: "2%"}} closeButton>
     <Modal.Title style={{fontFamily:"serif"}}>Confirm Delete</Modal.Title>
@@ -470,6 +533,8 @@ const paginatedResults = filteredResults.slice(indexOfFirstItem, indexOfLastItem
     </Button>
   </Modal.Footer>
 </Modal>
+
+
     </>
     <div style={{float:"left",marginTop:"10px"}}>
       <span style={{fontSize:"18px",color: 'rgb(103, 180, 204)',fontFamily:"cursive"}}>Views per page: </span>

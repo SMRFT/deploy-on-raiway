@@ -5,7 +5,7 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
-from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events,get_employee_exit_form,submit_employee_exit_form
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events,get_employee_exit_form,submit_employee_exit_form,employee_events
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById, facial_recognition_view,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
@@ -64,7 +64,8 @@ urlpatterns = [
     path('attendance/userpermission/<str:role>/', user_permission, name='user_permission'),
     path('employee_events/', employee_events, name='employee_events'),
     path('submit-employee-exit-form/', submit_employee_exit_form, name='submit_employee_exit_form'),
-    path('get-employee-exit-form/', get_employee_exit_form, name='get_employee_exit_form')
+    path('get-employee-exit-form/', get_employee_exit_form, name='get_employee_exit_form'),
+    path('employee_events/', employee_events, name='employee_events'),
 ]
 
 

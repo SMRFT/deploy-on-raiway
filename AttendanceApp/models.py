@@ -259,8 +259,11 @@ class EmployeeHours(models.Model):
     day = models.IntegerField()
     latelogin = models.TimeField()
     earlyLogout = models.TimeField()
-    # department = models.CharField(max_length=500)
-    # designation = models.CharField(max_length=500)
+    totallatelogin = models.TimeField()
+    Totalearlylogouttime = models.TimeField()
+    totlateearlyhours = models.TimeField()
+    department = models.CharField(max_length=500)
+    designation = models.CharField(max_length=500)
 
 
 class UserPermission(models.Model):

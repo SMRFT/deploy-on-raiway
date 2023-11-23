@@ -20,6 +20,7 @@ import Header from './Header';
 import Layout from './Layout';
 import EditForm from "./EditForm";
 import DatePicker from "react-datepicker";
+import TimePicker from 'react-time-picker';
 import { BrowserRouter as Router, Routes, Route, Link, useParams } from "react-router-dom";
 import moment from 'moment';
 import Card from 'react-bootstrap/Card';
@@ -38,7 +39,7 @@ function DownloadButton(props) {
     const [year, setYear] = useState(null);
     const [selectedId, setSelectedId] = useState("");
     const [users, setUsers] = useState([]);
-    // const options = users.map(user => ({value: user.id, label: user.name}));
+    const options = users.map(user => ({value: user.id, label: user.name}));
 
     // Get the name parameter from the URL
     const params = useParams();
@@ -68,10 +69,12 @@ function DownloadButton(props) {
             } else if (activeIcon === "table") {
                 toggleTables(); // close Table content
             } else if (activeIcon === "payroll") {
-              togglePayrollPicker(); // close Table content
+                togglePayrollPicker(); // close Table content
             } else if (activeIcon === "EmployeeHours") {
-              toggleEmployeeHoursPicker();
-          }
+                toggleEmployeeHoursPicker();
+            } else if (activeIcon === "LoginLogout") {
+                toggleLoginLogoutPicker();
+            }
             }
         };
          // Click event handler for the proof icon
@@ -84,8 +87,8 @@ function DownloadButton(props) {
             setShowEmployeeHoursTable(false);
             closePreviousContent(); // close previous content
             setActiveIcon("proof"); // set active icon
-            viewFile1(); 
-            closeIframe(); 
+            viewFile1();
+            closeIframe();
             };
 
         // Click event handler for the certificates icon
@@ -96,12 +99,12 @@ function DownloadButton(props) {
             setShowTable(false);
             setShowEmployeeHoursTable(false);
             setShowPayrollTable(false);
-            closePreviousContent(); 
-            setActiveIcon("certificates"); 
-            viewFile(); 
-            closeIframe(); 
+            closePreviousContent();
+            setActiveIcon("certificates");
+            viewFile();
+            closeIframe();
             };
-  
+ 
         // Click event handler for the summary icon
         const handleSummaryIconClick = () => {
             setShowTables(false);
@@ -109,10 +112,10 @@ function DownloadButton(props) {
             setShowOvertimeTable(false);
             setShowPayrollTable(false);
             setShowEmployeeHoursTable(false);
-            closePreviousContent(); 
-            setActiveIcon("summary"); 
-            toggleSummaryPicker(); 
-            closeIframe(); 
+            closePreviousContent();
+            setActiveIcon("summary");
+            toggleSummaryPicker();
+            closeIframe();
         };
 
         // Click event handler for the attendance icon
@@ -123,9 +126,9 @@ function DownloadButton(props) {
             setShowPayrollTable(false);
             setShowEmployeeHoursTable(false);
             closePreviousContent();
-            setActiveIcon("attendance"); 
-            toggleAttendancePicker(); 
-            closeIframe(); 
+            setActiveIcon("attendance");
+            toggleAttendancePicker();
+            closeIframe();
         };
 
         // Click event handler for the overtime icon
@@ -135,10 +138,10 @@ function DownloadButton(props) {
             setShowAttendanceTable(false);
             setShowTable(false);
             setShowEmployeeHoursTable(false);
-            closePreviousContent(); 
-            setActiveIcon("overtime"); 
-            toggleOvertimePicker(); 
-            closeIframe(); 
+            closePreviousContent();
+            setActiveIcon("overtime");
+            toggleOvertimePicker();
+            closeIframe();
         };
 
         // Click event handler for the payroll icon
@@ -148,10 +151,10 @@ function DownloadButton(props) {
               setShowOvertimeTable(false);
               setShowTable(false);
               setShowEmployeeHoursTable(false);
-              closePreviousContent(); 
-              setActiveIcon("payroll"); 
-              togglePayrollPicker(); 
-              closeIframe(); 
+              closePreviousContent();
+              setActiveIcon("payroll");
+              togglePayrollPicker();
+              closeIframe();
           };
 
         // Click event handler for the EmployeeHours icon
@@ -163,8 +166,8 @@ function DownloadButton(props) {
                 setShowPayrollTable(false);
                 closePreviousContent(); // close previous content
                 setActiveIcon("EmployeeHours"); // set active icon
-                toggleEmployeeHoursPicker(); 
-                closeIframe(); 
+                toggleEmployeeHoursPicker();
+                closeIframe();
             };
 
         // Click event handler for the employee details icon
@@ -176,9 +179,23 @@ function DownloadButton(props) {
             setShowEmployeeHoursTable(false);
             closePreviousContent(); // close previous content
             setActiveIcon("table"); // set active icon
-            toggleTables(); 
+            toggleTables();
             closeIframe(); // close the iframe
             };
+
+       // Click event handler for the login & logout icon
+        const handleLoginLogoutIconClick = () => {
+          setShowTable(false);
+          setShowTables(false);
+          setShowAttendanceTable(false);
+          setShowOvertimeTable(false);
+          setShowPayrollTable(false);
+          setShowEmployeeHoursTable(false);
+          closePreviousContent();
+          setActiveIcon("LoginLogout");
+          toggleLoginLogoutPicker();
+          closeIframe();
+      };
 
     // Click event handler for the editform icon
     const handleEditIconClick = () => {
@@ -190,7 +207,7 @@ function DownloadButton(props) {
       setShowEmployeeHoursTable(false);
       closePreviousContent();
       setActiveIcon("edit");
-      
+     
       if (showEditForm) {
         window.location.reload();
       } else {
@@ -198,7 +215,7 @@ function DownloadButton(props) {
         closeIframe();
       }
     };
-    
+   
 
       //View the file in an iframe when the View button is clicked
       const viewFile1 = () => {
@@ -296,10 +313,11 @@ function DownloadButton(props) {
               );
           });
       };
-      
+     
     const [educationData, setEducationData] = useState([]);
     const [experienceData, setExperienceData] = useState(null);
     const [referenceData, setReferenceData] = useState(null);
+    const [assetDetails, setAssetDetails] = useState(null);
     const [showTables, setShowTables] = useState(false);
 
     const toggleTables = () => {
@@ -317,69 +335,31 @@ function DownloadButton(props) {
         navigate(`/AdminCalendar/${employee.name + '_' + employee.id}`)
         closeIframe();
     };
-    const adminDetails = localStorage.getItem('adminDetails');
-    const { jwt } = JSON.parse(adminDetails);
+     
     useEffect(() => {
         const apiUrl = `http://127.0.0.1:7000/attendance/showemp?id=${id}`;
-        const headers = {
-            'Authorization': `${jwt}`
-        };
-    
-        fetch(apiUrl, {
-            method: 'GET',
-            headers: headers
-        })
-        .then((res) => res.json())
-        .then(
-            (data) => {
-                setEmployee(data);
-                setEducationData(JSON.parse(data.educationData));
-                setExperienceData(JSON.parse(data.experienceData));
-                setReferenceData(JSON.parse(data.referenceData));
-            },
-            (error) => {
-                console.error(error);
-            }
-        );
-    }, [id, jwt]);
-    
+        fetch(apiUrl)
+            .then((res) => res.json())
+            .then(
+                (data) => {
+                    setEmployee(data);
+                    setEducationData(JSON.parse(data.educationData));
+                    setExperienceData(JSON.parse(data.experienceData));
+                    setReferenceData(JSON.parse(data.referenceData));
+                    setAssetDetails(JSON.parse(data.assetDetails));
+                },
+                (error) => {
+                    console.error(error);
+                }
+            );
+    }, [id]);
 
-
-    
-  const generatePDF = async () => {
-    try {
-      const response = await fetch(`http://127.0.0.1:7000/attendance/generate-pdf/${id}/`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Create a blob from the response data
-        const blob = await response.blob();
-        // Create a URL for the blob
-        const url = window.URL.createObjectURL(blob);
-        // Create a link and trigger a click to download the file
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${employee.name + '_' + employee.id}.pdf`;
-        a.click();
-        // Release the URL object
-        window.URL.revokeObjectURL(url);
-      } else {
-        console.error('PDF generation failed');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-    
     const [showSummaryPicker, setShowSummaryPicker] = useState(false);
     const [showAttendancePicker, setShowAttendancePicker] = useState(false);
     const [showOvertimePicker, setShowOvertimePicker] = useState(false);
     const [showPayrollPicker, setShowPayrollPicker] = useState(false);
     const[showEmpolyeeHours,setShowEmpolyeeHourspicker]= useState(false);
+    const[ShowLoginLogoutpicker,setShowLoginLogoutpicker]= useState(false);
     const [userdata, setUserdata] = useState([]);
     const [myMonth, setMyMonth] = useState(new Date());
     const [myYear, setMyYear] = useState(new Date());
@@ -392,7 +372,8 @@ function DownloadButton(props) {
     const [showOvertimeTable, setShowOvertimeTable] = useState(false);
     const [showPayrollTable, setShowPayrollTable] = useState(false);
     const [showEmployeeHoursTable, setShowEmployeeHoursTable] = useState(false);
-    
+    const [showLoginLogoutTable, setShowLoginLogoutTable] = useState(false);
+   
     const toggleSummaryPicker = () => {
         setShowSummaryPicker(!showSummaryPicker);
         setShowTables(false);
@@ -443,6 +424,17 @@ function DownloadButton(props) {
         closeIframe();
       };
 
+      const toggleLoginLogoutPicker = () => {
+        setShowLoginLogoutpicker(!ShowLoginLogoutpicker);
+        setShowTables(false);
+        setShowTable(false);
+        setShowAttendanceTable(false);
+        setShowOvertimeTable(false);
+        setShowPayrollTable(false);
+        setShowEmployeeHoursTable(false);
+        closeIframe();
+      };
+
       const handleSummaryClick = () => {
         setShowTable(!showTable);
         setShowTables(false);
@@ -461,7 +453,7 @@ function DownloadButton(props) {
         setShowPayrollTable(false);
         setShowEmployeeHoursTable(false);
         closeIframe();
-      };   
+      };  
 
       const handleAttendanceClick = () => {
         setShowAttendanceTable(!showAttendanceTable);
@@ -471,7 +463,7 @@ function DownloadButton(props) {
         setShowTable(false);
         setShowEmployeeHoursTable(false);
         closeIframe();
-      }; 
+      };
 
       const handlePayrollClick = () => {
         setShowPayrollTable(!showPayrollTable);
@@ -481,7 +473,7 @@ function DownloadButton(props) {
         setShowTable(false);
         setShowEmployeeHoursTable(false);
         closeIframe();
-      }; 
+      };
 
       const handleEmployeeHoursClick = () => {
         setShowEmployeeHoursTable(!showEmployeeHoursTable);
@@ -492,7 +484,7 @@ function DownloadButton(props) {
         setShowPayrollTable(false);
         closeIframe();
       };
-  
+
     useEffect(() => {
         const getuserdata = async () => {
           fetch("http://127.0.0.1:7000/attendance/EmployeeExport", {
@@ -550,6 +542,14 @@ function DownloadButton(props) {
         return <span>{date.getDate()}</span>;
     };
 
+    const [endTimes, setEndTimes] = useState(Array(userdata.length).fill('12:00'));
+
+  const handleTimeChange = (index, time) => {
+    const newEndTimes = [...endTimes];
+    newEndTimes[index] = time;
+    setEndTimes(newEndTimes);
+  };
+
 
 const [error, setError] = useState(null);
 const [isLoaded, setIsLoaded] = useState(false);
@@ -561,20 +561,13 @@ state = {
     setState({ activeLink: linkName });
   };
 
-
- 
   useEffect(() => {
-    fetch("http://127.0.0.1:7000/attendance/showemp", {
-      method: "GET",
-      headers: {
-        "Authorization": ` ${jwt}`
-      }
-    })
+    fetch("http://127.0.0.1:7000/attendance/showemp")
       .then((res) => res.json())
       .then(
         (data) => {
           setIsLoaded(true);
-          setUsers({ blogs: data });
+          setUsers(data);
         },
         (error) => {
           setIsLoaded(true);
@@ -628,7 +621,7 @@ state = {
     return (
         <React.Fragment>
           <Header/>
-          <body style={{marginTop:"7%",marginLeft:"15%"}}>
+          <body style={{marginTop:"7%",marginLeft:"14.5%"}}>
         <div className="wrapper">
         <div className="sidenav" style={{height: '100%',width: '14%',position: 'fixed',zIndex: 1,top: 80,left: 0,backgroundColor: 'rgb(103, 180, 204)',
         transition: '.5s ease',overflowX: 'hidden',paddingTop: '1%',display: 'flex',flexDirection: 'column',alignItems: 'center',
@@ -676,7 +669,7 @@ state = {
                 <Route exact path='/Addemp' element={<Addemp />} ></Route>
                 <Route exact path='/Dashboard' element={<Dashboard />} ></Route>
                 <Route exact path='/Summary' element={<Summary />} ></Route>
-                <Route exact path='/EmployeeHours' element={<EmployeeHours/>} ></Route>   
+                <Route exact path='/EmployeeHours' element={<EmployeeHours/>} ></Route>  
                 <Route exact path='/Deleteemp' element={<Deleteemp/>} ></Route>
                 <Route exact path='/AdminReg' element={<AdminReg/>} ></Route>
             </Routes>
@@ -691,7 +684,7 @@ state = {
             height: '70px',
             borderRadius: '20%',
             marginTop:'-16%',
-            marginLeft: '-6%'
+            marginLeft: '-4%'
           }}
           alt="Profile Picture"
         />
@@ -708,39 +701,21 @@ state = {
           </div>
         </div>
         )}
-  <div className="button-container4">
-      <button onClick={generatePDF} title="Employee details ">
-        <i className="fas fa-download"></i>
-      </button>
-    </div>
         </Card.Body>
              </Card>  <br/>    
 
             <div className="icon-container">
                 <a onClick={() =>{handleTableIconClick();closeIframe();}} className="view-link" style={{ marginLeft:"2%",marginTop:"-0.5%",cursor: "pointer"}} >
                 <i style={{fontFamily:"serif",fontSize:"40px",color:"darkolivegreen"}} className="bi bi-person-lines-fill"></i>
-                {showTables ? "" : ""} 
+                {showTables ? "" : ""}
                 </a>
                 <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-60px',marginTop:"50px",whiteSpace:"nowrap"}}>Employee Details</div>
-                <div className="divider"></div>
-                <i onClick={() => {handleEditIconClick();setEditMode(!editMode)}} className="bi bi-pencil-square" style={{fontSize:"35px",color:"darkslategrey",marginTop:"-0.3%",cursor:"pointer"}}></i>
-                <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-45px',marginTop:"50px",whiteSpace:"nowrap"}}>Edit Details</div> 
-                <div className="divider"></div>
-                <a onClick={handleProofIconClick} className="view-link" style={{marginLeft:"-1%", marginTop:"-0.3%",cursor: "pointer"}} disabled={isLoading}>
-                   {isLoading && activeIcon === "proof" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
-                </a>
-                <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-35px',marginTop:"50px"}}>Proof</div>
-                <div className="divider"></div>
-                <a onClick={handleCertificatesIconClick} className="view-link" disabled={isLoading} style={{marginLeft: '4px', marginTop:"-0.3%",cursor: "pointer" }}>
-                    {isLoading && activeIcon === "certificates" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
-                </a>
-                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-48px',marginTop:"50px"}}>Certificates</div>  
                 <div className="divider"></div>
                 <i  onClick={() => {navigateToCalendar(employee);closeIframe();}} style={{fontSize:"35px",color:"darkblue",marginTop:"-0.3%",cursor:"pointer"}} className="bi bi-calendar-week"></i>
                 <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-45px',marginTop:"50px"}}>Calendar</div>
                 <div className="divider"></div>
                 <i onClick={() => {handleSummaryIconClick();closeIframe();}} className="bi bi-journal-text" style={{fontSize:"35px",color:"darkmagenta",marginTop:"-0.3%",cursor:"pointer"}}></i>
-                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-45px',marginTop:"50px"}}>Summary</div> 
+                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-45px',marginTop:"50px"}}>Summary</div>
                 <div className="divider"></div>
                 <i onClick={() => {handleAttendanceIconClick();closeIframe();}} style={{fontSize:"45px",color:"darkslategrey",marginTop:"-1%",marginLeft: '5px',cursor:"pointer"}} className="bi bi-person-check-fill"></i>
                 <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-60px',marginTop:"50px"}}>Attendance</div>
@@ -748,17 +723,11 @@ state = {
                 <i onClick={() => {handleOvertimeIconClick();closeIframe();}} style={{fontSize:"35px",color:"darkslateblue",marginLeft: '2px',marginTop:"-0.3%",cursor:"pointer"}} className="bi bi-calendar-plus"></i>
                 <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-45px',marginTop:"50px",whiteSpace:"nowrap"}}>Over Time</div>
                 <div className="divider"></div>
-               <i onClick={() => {handleEmployeeHoursIconClick();closeIframe();}} className="far fa-clock fa-2x" style={{fontsize:"45px",color:"darkslateblue",marginTop:"0.5%",cursor:"pointer"}}></i>
+               <i onClick={() => {handleEmployeeHoursIconClick();closeIframe();}} className="far fa-clock fa-2x" style={{marginLeft:"2px",color:"darkslateblue",marginTop:"0.5%",cursor:"pointer"}}></i>
                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-45px',marginTop:"50px",whiteSpace:"nowrap"}}>Late & Early</div>
-                <div className="divider"></div>
+               <div className="divider"></div>
                 <i onClick={() => {handlePayrollIconClick();closeIframe();}} style={{fontSize:"35px",color:"darkslateblue",marginTop:"0.2%",marginLeft: '-0.5%',cursor:"pointer"}} className="fa fa-dollar"></i>
-                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-25px',marginTop:"50px",whiteSpace:"nowrap"}}>Pay roll</div>
-                {/* <div className="divider">
-           
-      <button onClick={generatePDF} style={{fontSize:"15px",color:"darkslateblue",marginTop:"0.10%",marginLeft: '-0.5%',cursor:"pointer"}}title="Employee details ">
-        <i className="fas fa-download"></i>
-      </button>
-    </div> */}
+                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-30px',marginTop:"50px",whiteSpace:"nowrap"}}>Pay roll</div>
             </div>
 
             <div style={{marginLeft:'40%',marginTop:"4%",color:'red',whiteSpace:"nowrap"}} className="message">
@@ -781,7 +750,7 @@ state = {
                    showMonthYearPicker
                  /><br/>
                  <div style={{marginLeft:'5%',marginTop:"10%"}}>
-                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}}
                    onClick={handleSummaryClick}>View</button>
                  </div>
                  <div style={{marginLeft:'55%',marginTop:"-24%"}}>
@@ -841,7 +810,7 @@ state = {
                    showMonthYearPicker
                  />
                  <div style={{marginLeft:'35%',marginTop:"10%"}}>
-                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}}
                    onClick={handleAttendanceClick}>View</button>
                  </div>
                  </div>
@@ -901,7 +870,7 @@ state = {
                    showMonthYearPicker
                  />
                  <div style={{marginLeft:'30%',marginTop:"10%"}}>
-                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}}
                    onClick={handleOvertimeClick}>View</button>
                  </div>
                  </div>
@@ -942,11 +911,49 @@ state = {
                         </tbody>
                     </table>
                     ) : (
-                    <p style={{marginLeft:"-18%"}}>No overtime done.</p>
+                    <p style={{marginLeft:"2%"}}>No overtime done.</p>
                     )}
                 </div>
                 )}
 
+              {ShowLoginLogoutpicker && (
+                 <div className='loginlogout-container'>
+                <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Login & Logout Report</div><br/>
+                <div className='loginlogout-table-container'>
+                    <table className="table table-hover">
+                    <thead style={{fontSize:"15px"}} >
+                        <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {userdata.map((data,index) => (
+                        <tr style={{fontSize:"15px"}} key={data.id}>
+                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize:"15px" }}>{data.id}</td>
+                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.name}</td>
+                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.date}</td>
+                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{data.start.substring(11, 16)}</td> {/* Extract time from datetime string */}
+                            <td style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div style={{ width: '150px', fontSize: '30px' }}>
+                                <TimePicker
+                                  onChange={(time) => handleTimeChange(index, time)}
+                                  value={endTimes[index]}
+                                  clearIcon={null}
+                                />
+                              </div>
+                            </td>
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
+                </div>
+               </div>
+                )}
+               
               {showPayrollPicker && (
                  <div className='payroll-container'>
                  <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",whiteSpace:"nowrap"}}>Payroll Report</div><br/>
@@ -957,7 +964,7 @@ state = {
                    showMonthYearPicker
                  />
                  <div style={{marginLeft:'26%',marginTop:"10%"}}>
-                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+                   <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}}
                    onClick={handlePayrollClick}>View</button>
                 </div>
                 </div>
@@ -1016,7 +1023,7 @@ state = {
                             </div>
                             );
                         }
-                        return null; 
+                        return null;
                       })
                     }
               </div>
@@ -1081,7 +1088,7 @@ state = {
             />
           </div>
           <div style={{marginLeft:'15%',marginTop:"10%"}}>
-            <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}} 
+            <button style={{backgroundColor:"powderblue",fontWeight:"bold",width:'2cm',height:"1.1cm",borderColor:"powderblue",borderRadius: 10,color:"white"}}
               onClick={handleEmployeeHoursClick}>View</button>
           </div>
           <div style={{marginLeft:'55%',marginTop:"-17%"}}>
@@ -1124,11 +1131,35 @@ state = {
                 </div>
                 )}
 
-                <div >    
+                <div className='row'>
                 {showTables && (
                 <>
-                <div style={{fontFamily:"serif",fontSize:"25px",color:"darkcyan",marginLeft:"35%",marginTop:"4%"}}>{employee.name}'s Details</div><br/>
-                <div style={{ display: "flex" }}>
+                <div style={{display:"flex",marginLeft:"2%"}}>
+                <i onClick={() => {handleEditIconClick();setEditMode(!editMode)}} className="bi bi-pencil-square" title='Edit Employee Details' style={{fontSize:"35px",color:"darkslategrey",marginTop:"-0.3%",cursor:"pointer"}}></i>
+                <a onClick={handleProofIconClick} className="view-link" title='Proof' style={{marginLeft:"2%", marginTop:"-0.3%",cursor: "pointer"}} disabled={isLoading}>
+                   {isLoading && activeIcon === "proof" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse" ></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
+                </a>
+                <a onClick={handleCertificatesIconClick} className="view-link" title='Certificates' disabled={isLoading} style={{marginLeft: '2%', marginTop:"-0.3%",cursor: "pointer" }}>
+                    {isLoading && activeIcon === "certificates" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
+                </a>
+                </div>
+                {/* <div style={{display:"flex",marginLeft:"4%"}}>
+                <i onClick={() => {handleEditIconClick();setEditMode(!editMode)}} className="bi bi-pencil-square" style={{fontSize:"35px",color:"darkslategrey",marginTop:"-0.3%",cursor:"pointer"}}></i>
+                <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-45px',marginTop:"50px",whiteSpace:"nowrap"}}>Edit Details</div>
+                <div className="divider"></div>
+                <a onClick={handleProofIconClick} className="view-link" style={{marginLeft:"-1%", marginTop:"-0.3%",cursor: "pointer"}} disabled={isLoading}>
+                   {isLoading && activeIcon === "proof" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
+                </a>
+                <div style={{fontFamily:"serif",fontSize:"14px",color: 'black',marginLeft: '-35px',marginTop:"50px"}}>Proof</div>
+                <div className="divider"></div>
+                <a onClick={handleCertificatesIconClick} className="view-link" disabled={isLoading} style={{marginLeft: '4px', marginTop:"-0.3%",cursor: "pointer" }}>
+                    {isLoading && activeIcon === "certificates" ? <i style={{fontSize:"30px",fontWeight:"bold"}} className="fas fa-spinner fa-pulse"></i> : <i style={{fontSize:"35px",color:"darkred"}} className="bi bi-filetype-pdf"></i>}
+                </a>
+                <div style={{fontFamily:"serif",fontSize:"16px",color: 'black',marginLeft: '-48px',marginTop:"50px"}}>Certificates</div>  
+                <div className="divider"></div>
+                </div> */}
+                <div className='col-sm-6'>
+                <div style={{display:"flex"}}>
                 <div className="employee-details-container">
                 <div className="details-row">
                     <div className="details-heading">Employee ID</div>
@@ -1144,6 +1175,71 @@ state = {
                     <div className="details-heading">Email</div>
                     <div className="colon">:</div>
                     <div className="details-value">{employee.email}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Address</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.address}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Gender</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.Gender}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Dob</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.dob.substring(0, 15)}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Age</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.age}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Maritalstatus</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.Maritalstatus}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Blood Group</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.BloodGroup}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Languages Known</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.languages}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Aadhaar Number</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.Aadhaarno}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Pan Number</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.PanNo}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Bank Name</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.bankName}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Bank Account Number</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.bankaccnum}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">IFSC Code</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.ifscCode}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Company Email</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.companyEmail}</div>
                 </div>
                 <div className="details-row">
                     <div className="details-heading">Department</div>
@@ -1167,7 +1263,7 @@ state = {
                     <div className="details-row">
                         <div className="details-heading">ValidityDate</div>
                         <div className="colon">:</div>
-                        <div className="details-value">{employee.ValidlityDate}</div>
+                        <div className="details-value">{employee.ValidlityDate.substring(0, 15)}</div>
                     </div>
                     </React.Fragment>
                 )}
@@ -1177,64 +1273,74 @@ state = {
                     <div className="details-value">{employee.designation}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Gender</div>
+                    <div className="details-heading">Date of Joining</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.Gender}</div>
+                    <div className="details-value">{employee.dateofjoining.substring(0, 15)}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Blood Group</div>
+                    <div className="details-heading">PF Number</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.BloodGroup}</div>
+                    <div className="details-value">{employee.PF}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Dob</div>
+                    <div className="details-heading">ESI Number</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.dob.substring(0, 16)}</div>
+                    <div className="details-value">{employee.ESINO}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Maritalstatus</div>
+                    <div className="details-heading">Medical Claim Policy Number</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.Maritalstatus}</div>
+                    <div className="details-value">{employee.medicalClaimPolicyNo}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Aadhaar Number</div>
+                    <div className="details-heading">Validity Date From</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.Aadhaarno}</div>
+                    <div className="details-value">{employee.validityDateFrom}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Bank Account Number</div>
+                    <div className="details-heading">Validity Date To</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.bankaccnum}</div>
+                    <div className="details-value">{employee.validityDateTo}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Pan Number</div>
+                    <div className="details-heading">Salary</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.PanNo}</div>
+                    <div className="details-value">{employee.salary}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Identification Mark</div>
+                    <div className="details-heading">Reported To</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.IdentificationMark}</div>
+                    <div className="details-value">{employee.reportedBy}</div>
                 </div>
                 <div className="details-row">
-                    <div className="details-heading">Languages Known</div>
+                    <div className="details-heading">Employeement Category</div>
                     <div className="colon">:</div>
-                    <div className="details-value">{employee.languages}</div>
+                    <div className="details-value">{employee.employmentCategory}</div>
+                </div>
+                <div className="details-row">
+                    <div className="details-heading">Type Of Employee</div>
+                    <div className="colon">:</div>
+                    <div className="details-value">{employee.employeeType}</div>
                 </div>
                 </div>
-                        <div style={{marginLeft:"2%",marginTop:"2%"}}>
-                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Education Data</caption><br/>
+                </div>
+                </div>
+ 
+                <div className='col-sm-6' style={{marginLeft:"-3%"}}>
+                        <div>
+                          <br/>
+                        <caption style={{ fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',fontSize:"120%" }}>Education Details</caption><br/>
                             {educationData ? (
                                 <table className="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>SlNo</th>
-                                            <th>Degree</th>
-                                            <th>Major</th>
-                                            <th>Institution</th>
-                                            <th>Marks</th>
-                                            <th>Division</th>
-                                            <th>Year</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>SlNo</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Degree</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Major</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Institution</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Marks</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Division</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Year</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1255,21 +1361,20 @@ state = {
                                 <p>No education data available</p>
                             )}
                         </div>
-                        </div>
+                        <br/>
 
-                        <div style={{ display: "flex",marginLeft: '2%' ,marginTop:"4%"}}>
                         <div>
-                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Experience Data</caption><br/>
+                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize:"120%" }}>Experience Details</caption><br/>
                             {experienceData ? (
                                 <table className="table table-hover">
                                     <thead className='thead'>
                                         <tr>
-                                            <th>SlNo</th>
-                                            <th>Organization</th>
-                                            <th>Designation</th>
-                                            <th>Last Drawn Salary</th>
-                                            <th>Location</th>
-                                            <th>Experience</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>SlNo</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Organization</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Designation</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Last Drawn Salary</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Location</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Experience</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1289,17 +1394,19 @@ state = {
                                 <p>No experience data available</p>
                             )}
                         </div>
-                        <div style={{ marginLeft: '2%' }}>
-                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Reference Data </caption><br/>
+                        <br/>
+
+                        <div>
+                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize:"120%" }}>Reference Details </caption><br/>
                             {referenceData ? (
                                 <table className="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>SlNo</th>
-                                            <th>References</th>
-                                            <th>Organization</th>
-                                            <th>Designation</th>
-                                            <th>Contact No.</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>SlNo</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>References</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Organization</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Designation</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Contact No.</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1318,10 +1425,36 @@ state = {
                                 <p>No reference data available</p>
                             )}
                         </div>
+                       
+                        <div>
+                        <caption style={{fontFamily:"serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize:"120%" }}>Asset Details </caption><br/>
+                            {assetDetails ? (
+                                <table className="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>SlNo</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Description</th>
+                                            <th style={{ fontFamily:"serif", fontSize:"15px" }}>Model/Serial Number</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {assetDetails.map((asset, index) => (
+                                            <tr key={index}>
+                                                <td>{asset.slNo}</td>
+                                                <td>{asset.description}</td>
+                                                <td>{asset.modelSerialNo}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            ) : (
+                                <p>No Asset data available</p>
+                            )}
+                        </div>
                         </div>
                     </>
                 )}
-            </div>
+                </div>
             </body>
         </React.Fragment >
     );
