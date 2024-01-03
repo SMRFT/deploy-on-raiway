@@ -26,8 +26,8 @@ from django.db.models import Count
 from rest_framework.decorators import api_view
 from .constants import Login, Logout
 from django.db.models.functions import TruncDate
-from AttendanceApp.models import Employee, Admincalendarlogin, Hour, Breakhours, DeletedEmployee
-from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer,EmployeeShowbydepartmentSerializer, EmployeedepartmentSerializer,EmployeeHoursdaySerializer
+from AttendanceApp.models import Employee, Admincalendarlogin, Hour, Breakhours, DeletedEmployee,AWSCredentials
+from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer,EmployeeShowbydepartmentSerializer, EmployeedepartmentSerializer,EmployeeHoursdaySerializer,AWSCredentialsForm
 from django.db.models import Q
 import json
 import calendar
@@ -89,83 +89,18 @@ class RetriveEmpById(APIView):
         serializer = EmployeeShowSerializer(emp)
         return Response(serializer.data)
 
-# import os
-# import cv2
-# import numpy as np
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"]= "-1"
-# import face_recognition
-# import face_recognition
-# import datetime
-# import io
-# import gridfs
-# from pymongo import MongoClient
+@csrf_exempt
+def upload_aws_credentials(request):
+    if request.method == 'POST':
+        form = AWSCredentialsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponse('AWS credentials uploaded successfully')
+    else:
+        form = AWSCredentialsForm()
+    return render(request, 'upload_aws_credentials.html', {'form': form})
 
 
-
-# # Load known faces and names only once when the server starts
-# client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
-# db = client['data']
-# fs = gridfs.GridFS(db)
-
-# known_faces = []
-# known_names = []
-
-# # Iterate through GridFS to retrieve known images
-# for file in db.fs.files.find({'filename': {'$regex': '.*\.(jpg|png)$'}}):
-#     file_id = file['_id']
-#     # Check if the file still exists in GridFS
-#     if fs.exists(file_id):
-#         file_data = fs.get(file_id).read()
-    
-#     # Load the image data as bytes
-#     known_image = face_recognition.load_image_file(io.BytesIO(file_data))
-    
-#     # Get the face encodings if faces are detected
-#     face_encodings = face_recognition.face_encodings(known_image)
-    
-#     if face_encodings:
-#         # Extract the name without the file extension
-#         filename_parts = file['filename'].split('_')
-#         if len(filename_parts) >= 2:
-#             name_without_extension = '_'.join(filename_parts[:-1])
-#             known_names.append(name_without_extension)
-#             known_faces.append(face_encodings[0])
-# @csrf_exempt
-# def facial_recognition_view(request):
-#     if request.method == 'POST':
-#         # Get the uploaded image from the request
-#         image = request.FILES.get('image')
-
-#         if image:
-#             # Load the unknown image
-#             unknown_image = face_recognition.load_image_file(image)
-#             unknown_face_encodings = face_recognition.face_encodings(unknown_image)
-
-#             # Check if any faces are found in the unknown image
-#             if unknown_face_encodings:
-#                 face_distances = face_recognition.face_distance(known_faces, unknown_face_encodings[0])
-#                 min_distance_index = face_distances.argmin()
-#                 min_distance = face_distances[min_distance_index]
-#                 recognized_name = known_names[min_distance_index]
-
-#                 # Compare the distance to a threshold value to determine if it's a match
-#                 if min_distance < 0.6:
-#                     # Face recognized
-#                     response_data = {'recognized': True, 'name': recognized_name}
-#                 else:
-#                     # Face not recognized
-#                     response_data = {'recognized': False}
-#             else:
-#                 # No faces found in the unknown image
-#                 response_data = {'recognized': False}
-#         else:
-#             # Handle the case where no image is provided in the request
-#             response_data = {'recognized': False}
-
-#         return JsonResponse(response_data)
-
-#     return JsonResponse({'recognized': False})
 
 
 
