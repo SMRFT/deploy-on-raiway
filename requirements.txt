@@ -6,7 +6,7 @@ asgiref
 astunparse 
 async-timeout 
 attrs 
-beautifulsoup 
+beautifulsoup4
 blinker 
 boto3
 botocore 
