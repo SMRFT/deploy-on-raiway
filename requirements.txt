@@ -18,7 +18,6 @@ clarifai-grpc
 click 
 colorama 
 configparser 
-contextlib 
 Deprecated 
 dj-database-url 
 Django 
