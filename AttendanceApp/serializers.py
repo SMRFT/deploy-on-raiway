@@ -1,9 +1,13 @@
 from curses.ascii import EM
 from dataclasses import fields
+from django import forms
 from rest_framework import serializers
-from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest,UserPermission 
+from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest,UserPermission,AWSCredentials
 
-
+class AWSCredentialsForm(forms.ModelForm):
+    class Meta:
+        model = AWSCredentials
+        fields = ['access_key_id', 'secret_access_key', 'bucket_name', 's3_region']
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
