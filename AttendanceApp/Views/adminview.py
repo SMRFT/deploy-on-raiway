@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import jwt
 import datetime
 from .constants import Addemployee
-from AttendanceApp.models import Admin,PasswordResetRequest,Employee,UserPermission,EmployeeExitForm
+from AttendanceApp.models import Admin,PasswordResetRequest,Employee,UserPermission,EmployeeExitForm,AWSCredentials
 from AttendanceApp.serializers import EmployeeSerializer, AdminSerializer,UserPermissionSerializer
 # from Attendance_Management.settings import SIMPLE_JWT,REST_FRAMEWORK
 from PIL import Image
@@ -34,12 +34,29 @@ from django.http import JsonResponse
 from django.http import JsonResponse, HttpResponse,HttpResponseBadRequest
 
 
+@csrf_exempt
+def get_aws_credentials(request):
+    try:
+        aws_credentials = AWSCredentials.objects.first()
+        if aws_credentials:
+            credentials = {
+                'access_key_id': aws_credentials.access_key_id,
+                'secret_access_key': aws_credentials.secret_access_key,
+                'bucket_name': aws_credentials.bucket_name,
+                's3_region': aws_credentials.s3_region,
+            }
+            return JsonResponse(credentials)
+        else:
+            return JsonResponse({'error': 'AWS credentials not found'}, status=404)
+    except Exception as e:
+        # Handle exceptions (e.g., database connection issues)
+        print(f"Error retrieving AWS credentials: {e}")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
 
-
-
-    
-
-    
+import boto3
+from django.http import HttpResponseServerError
+from io import BytesIO
+from boto3.s3.transfer import S3Transfer
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST':
@@ -47,22 +64,35 @@ def upload_file(request):
         client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
         db = client['data']
         fs = GridFS(db)
+        # Connect to AWS S3
+        aws_credentials = get_aws_credentials()
+        if aws_credentials:
+            aws_access_key_id = aws_credentials['access_key_id']
+            aws_secret_access_key = aws_credentials['secret_access_key']
+            aws_bucket_name = aws_credentials['bucket_name']
+            aws_s3_region = aws_credentials['s3_region']
+        s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_s3_region)
+        transfer = S3Transfer(s3_client)
         # Retrieve employee information
         employee_name = request.POST.get('employee_name')
         employee_id = request.POST.get('employee_id')
+        # Upload imgSrc file to AWS S3
+        imgsrc_profile = request.FILES['imgSrc']
+        file_contents3 = imgsrc_profile.read()
+        imgsrc_filename = f'{employee_name}_{employee_id}_profile.jpg'
+        imgsrc_key = f'{imgsrc_filename}'
+        # s3_client.upload_fileobj(file_contents3, aws_bucket_name, imgsrc_key)
+        # Retrieve employee information
+        file_contents3_io = BytesIO(file_contents3)
+        # Upload to AWS S3
+        s3_client.upload_fileobj(file_contents3_io, aws_bucket_name, imgsrc_key)
         # Check if proof file exists and read its contents
         if 'proof' in request.FILES:
             proof_file = request.FILES['proof']
             file_contents1 = proof_file.read()
             proof_filename = f'{employee_name}_{employee_id}_proof.pdf'
             proof_id = fs.put(file_contents1, filename=proof_filename)
-        # Check if certificates file exists and read its contents
-        if 'certificates' in request.FILES:
-            certificates_file = request.FILES['certificates']
-            file_contents2 = certificates_file.read()
-            certificates_filename = f'{employee_name}_{employee_id}_certificates.pdf'
-            certificates_id = fs.put(file_contents2, filename=certificates_filename)
-         # Check if uploadfile file exists and read its contents
+        # Check if uploadfile file exists and read its contents
         if 'uploadFile' in request.FILES:
             uploadFile_file = request.FILES['uploadFile']
             file_contents4 = uploadFile_file.read()
@@ -76,15 +106,52 @@ def upload_file(request):
         # Save file information in the database
         db.fs.files.insert_one({
             'proof_id': str(proof_id) if 'proof' in request.FILES else None,
-            'certificates_id': str(certificates_id) if 'certificates' in request.FILES else None,
-            'uploadFile_id':str(uploadFile_id) if 'uploadFile' in request.FILES else None,
+            'uploadFile_id': str(uploadFile_id) if 'uploadFile' in request.FILES else None,
             'imgsrc_id': str(imgsrc_id),
             'employee_name': employee_name,
             'employee_id': employee_id,
-           
         })
+        # Extract regular certificates information
+        degrees = []
+        for index in range(len(request.FILES)):
+            certificates_key = f'certificates-{index}'
+            if certificates_key in request.FILES:
+                degree = request.POST.get(f'degree-{index}')
+                degrees.append(degree)
+        # Check and handle regular certificates files
+        for index, degree in enumerate(degrees):
+            certificates_key = f'certificates-{index}'
+            if certificates_key in request.FILES:
+                certificates_file = request.FILES[certificates_key]
+                file_contents2 = certificates_file.read()
+                certificates_filename = f'{employee_name}_{employee_id}_{degree}_certificates.pdf'
+                certificates_id = fs.put(file_contents2, filename=certificates_filename)
+                # Save regular certificates file information in the database
+                db.fs.files.insert_one({
+                    'certificates_id': str(certificates_id),
+                    'employee_name': employee_name,
+                    'employee_id': employee_id,
+                    'degree': degree,
+                })
+        # Extract experience certificates information
+        experience_certificates = []
+        for index in range(len(request.FILES)):
+            exp_certificates_key = f'expCertificate-{index}'
+            if exp_certificates_key in request.FILES:
+                experience_certificate_file = request.FILES[exp_certificates_key]
+                exp_file_contents = experience_certificate_file.read()
+                exp_certificates_filename = f'{employee_name}_{employee_id}_exp_certificate_{index}.pdf'
+                exp_certificates_id = fs.put(exp_file_contents, filename=exp_certificates_filename)
+                # Save experience certificates file information in the database
+                db.fs.files.insert_one({
+                    'experience_certificates_id': str(exp_certificates_id),
+                    'employee_name': employee_name,
+                    'employee_id': employee_id,
+                    'exp_certificate_index': index,
+                })
         return HttpResponse('Files uploaded successfully')
     return HttpResponseBadRequest('Invalid request method')
+
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
@@ -536,38 +603,38 @@ def get_employee_exit_form(request):
 
 
 
-
 from django.http import JsonResponse
 from datetime import date
-from dateutil.parser import parse as parse_date
+from dateutil.parser import parse as parse_date, ParserError
+def parse_date_with_flexibility(date_str):
+    try:
+        return parse_date(str(date_str)).date()
+    except ParserError:
+        # Handle cases where parsing fails
+        print(f"Error parsing date: {date_str}")
+        return None
 def employee_events(request):
     today = date.today()
     employees = Employee.objects.all()
     joining_anniversaries = []
     birthdays = []
     for employee in employees:
-        # Check if dob and dateofjoining are not None before parsing
-        if employee.dob and employee.dateofjoining:
-            # Try parsing the custom format first
-            try:
-                dob = parse_date(str(employee.dob), fuzzy=True).date()
-                dateofjoining = parse_date(str(employee.dateofjoining), fuzzy=True).date()
-            except ValueError:
-                # If parsing with the custom format fails, try the standard format
-                dob = parse_date(str(employee.dob)).date()
-                dateofjoining = parse_date(str(employee.dateofjoining)).date()
-            if today.month == dob.month and today.day == dob.day:
+        try:
+            dob = parse_date_with_flexibility(employee.dob)
+            dateofjoining = parse_date_with_flexibility(employee.dateofjoining)
+            if dob is not None and today.month == dob.month and today.day == dob.day:
                 birthdays.append(employee.name + '_' + str(employee.id))
-                print(f"Today is the birthday of: {employee.name}")
             work_anniversary = today.year - dateofjoining.year
             if today.month < dateofjoining.month or (today.month == dateofjoining.month and today.day < dateofjoining.day):
                 work_anniversary -= 1
             if work_anniversary > 0 and today.month == dateofjoining.month and today.day == dateofjoining.day:
                 joining_anniversaries.append({"name": employee.name, "anniversary": work_anniversary})
                 print(f"{employee.name} is celebrating {work_anniversary} years of joining")
-        else:
-            # Handle cases where dob or dateofjoining is missing or None
-            print(f"Missing date information for employee: {employee.name}")
+        except Exception as e:
+            # Handle other exceptions
+            print(f"Error processing employee {employee.name}: {e}")
+            print(f"Today: {today}")
+            print(f"Employee: {employee.name}, DOB: {dob}")
     response_data = {
         "birthdays": birthdays,
         "joining_anniversaries": joining_anniversaries,
