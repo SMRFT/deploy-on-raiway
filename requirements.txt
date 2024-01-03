@@ -78,7 +78,6 @@ PyPDF
 PySocks 
 python-dateutil 
 python-rapidjson 
-pytz post
 PyYAML 
 reportlab 
 requests 
