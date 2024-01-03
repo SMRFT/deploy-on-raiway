@@ -5,6 +5,8 @@ from pickle import FROZENSET
 from django.urls import path, include
 from AttendanceApp import views
 from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, PermanentDeleteEmp, RestoreEmployee
+from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events,get_employee_exit_form,submit_employee_exit_form,employee_events,get_aws_credentials
+from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment,upload_aws_credentials
 from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events,get_employee_exit_form,submit_employee_exit_form,employee_events
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,   Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment
 from .views import EmployeeView
@@ -18,7 +20,6 @@ from rest_framework_simplejwt.views import (
 )
 # from .views import send_email
 urlpatterns = [
-
     path('addemp/', EmployeeView.as_view(), name='addemp'),
     path('showemp', RetriveEmp.as_view()),
     path('showempById', RetriveEmpById.as_view()),
@@ -48,7 +49,6 @@ urlpatterns = [
     path('permanentdelete', PermanentDeleteEmp.as_view()),
     path('restore-employee/', RestoreEmployee.as_view()),
     path("UserDetails", UserDetails.as_view()),
-
     # path('facial-recognition/', facial_recognition_view, name='recognize_faces'),
     path('showempdesignation', RetriveEmpdepartmentCount.as_view()),
     path('empbydesignation', RetriveEmpBydepartment.as_view()),
@@ -66,8 +66,8 @@ urlpatterns = [
     path('submit-employee-exit-form/', submit_employee_exit_form, name='submit_employee_exit_form'),
     path('get-employee-exit-form/', get_employee_exit_form, name='get_employee_exit_form'),
     path('employee_events/', employee_events, name='employee_events'),
+    path('upload-aws-credentials/', upload_aws_credentials, name='upload_aws_credentials'),
+    path('get_aws_credentials/', get_aws_credentials, name='get_aws_credentials'),
 ]
-
-
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
