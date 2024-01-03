@@ -43,7 +43,6 @@ colorama==0.4.4
 compreface-sdk==0.6.0
 configobj==5.0.8
 contextlib2==21.6.0
-contourpy==1.1.0
 coreapi==2.3.3
 coreschema==0.0.4
 crispy-forms-gds==0.2.4
