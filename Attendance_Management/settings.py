@@ -26,7 +26,7 @@ ALLOWED_HOSTS = [
     'http://smrft.s3-website.us-east-2.amazonaws.com',
     '127.0.0.1:7000',
     "3.135.24.9", '.vercel.app', '.now.sh',
-    '44.216.255.174'
+    '35.154.23.156'
 
 ]
 
