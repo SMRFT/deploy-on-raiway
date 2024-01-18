@@ -30,6 +30,9 @@ ALLOWED_HOSTS = [
 
 ]
 
+# settings.py
+SECURE_SSL_REDIRECT = True
+USE_X_FORWARDED_PROTO = True
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
@@ -43,8 +46,6 @@ CORS_ALLOWED_ORIGINS = [
     'https://127.0.0.1:7000'  # Use https://127.0.0.1:7000 if possible
 ]
 
-# settings.py
-SECURE_SSL_REDIRECT = True
 
 
 
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'AttendanceApp',
+    'sslserver',
     # 'upload.apps.UploadConfig'
 ]
 
