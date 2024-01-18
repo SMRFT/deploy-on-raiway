@@ -52,11 +52,36 @@ from rest_framework.permissions import IsAuthenticated
 
 
 class RetriveEmp(APIView):
+    """
+    API view for retrieving employee details.
+
+    This view supports GET requests to retrieve details of a specific employee or all employees.
+
+    Attributes:
+        authentication_classes (list): List of authentication classes (commented out for now).
+        permission_classes (list): List of permission classes (commented out for now).
+    """
+
+    # Uncomment the following lines if using JWTAuthentication and IsAuthenticated
     # authentication_classes = [JWTAuthentication]
     # permission_classes = [IsAuthenticated]
+
     @csrf_exempt
     def get(self, request):
+        """
+        Handle GET requests to retrieve employee details.
+
+        If 'id' parameter is provided, retrieve details of the specified employee.
+        If 'id' is not provided, retrieve details of all employees.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            Response: JSON response containing employee details or an error message.
+        """
         emp_id = request.query_params.get('id')
+
         if emp_id:
             try:
                 # Check if emp_id is not an empty string before attempting to convert it to an integer
@@ -69,10 +94,10 @@ class RetriveEmp(APIView):
             except Employee.DoesNotExist:
                 return Response({'error': f'Employee with ID {emp_id} does not exist'}, status=status.HTTP_404_NOT_FOUND)
         else:
+            # Retrieve details of all employees
             emp_details = Employee.objects.all()
             serializer = EmployeeShowSerializer(emp_details, many=True)
             return Response(serializer.data)
-
 
 
 
@@ -81,23 +106,73 @@ class RetriveEmp(APIView):
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
 class RetriveEmpById(APIView):
+    """
+    API view for retrieving an employee's details by ID.
+
+    This view supports POST requests to retrieve details of a specific employee by providing the employee ID.
+    The view is configured to allow any user (no authentication required).
+
+    Attributes:
+        permission_classes (list): List of permission classes allowing any user to access this view.
+    """
+
     permission_classes = [AllowAny]
+
     @csrf_exempt
     def post(self, request):
+        """
+        Handle POST requests to retrieve an employee's details by ID.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing the employee ID in the request data.
+
+        Returns:
+            Response: JSON response containing the employee's details or an error message.
+        """
         data = request.data
-        emp = Employee.objects.get(id=int(data["id"]))
-        serializer = EmployeeShowSerializer(emp)
-        return Response(serializer.data)
+
+        try:
+            # Attempt to retrieve the employee by ID
+            emp = Employee.objects.get(id=int(data["id"]))
+            serializer = EmployeeShowSerializer(emp)
+            return Response(serializer.data)
+
+        except Employee.DoesNotExist:
+            # Handle the case where the employee with the provided ID does not exist
+            return Response({'error': f'Employee with ID {data["id"]} does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        except ValueError:
+            # Handle the case where the provided ID is not a valid integer
+            return Response({'error': 'Invalid employee ID format'}, status=status.HTTP_400_BAD_REQUEST)
 
 @csrf_exempt
 def upload_aws_credentials(request):
+    """
+    View for uploading AWS credentials.
+
+    This view supports both GET and POST requests.
+    - GET: Renders the form for uploading AWS credentials.
+    - POST: Processes the submitted form and saves AWS credentials if the form is valid.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: HTTP response indicating the success or failure of AWS credentials upload.
+    """
     if request.method == 'POST':
+        # If the request method is POST, process the submitted form
         form = AWSCredentialsForm(request.POST)
+
         if form.is_valid():
+            # If the form is valid, save the AWS credentials and provide a success response
             form.save()
             return HttpResponse('AWS credentials uploaded successfully')
     else:
+        # If the request method is GET, render the form for uploading AWS credentials
         form = AWSCredentialsForm()
+
+    # Render the HTML template with the form
     return render(request, 'upload_aws_credentials.html', {'form': form})
 
 
@@ -108,61 +183,117 @@ def upload_aws_credentials(request):
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
 class EmployeeEditView(APIView):
-      def put(self, request, *args, **kwargs):
+    @csrf_exempt
+    def put(self, request, *args, **kwargs):
         data = request.data
         employee = Employee.objects.get(id=data["id"])
         employee.name = data["name"]
         employee.mobile = data["mobile"]
-        employee.designation = data["designation"]
-        employee.address = data["address"]
-        employee.department = data["department"]
         employee.email = data["email"]
-        employee.Aadhaarno = data["Aadhaarno"]
-        employee.PanNo = data["PanNo"]
-        employee.educationData = data["educationData"]
-        employee.bankaccnum = data["bankaccnum"]
-        employee.Maritalstatus = data["Maritalstatus"]
-        employee.BloodGroup = data["BloodGroup"]
-        if employee.department == "Nurse":
-            employee.RNRNO = data.get("RNRNO")
-            employee.ValidlityDate = data.get("ValidlityDate")
-        if employee.department == "Doctor":
-            employee.TNMCNO = data.get("TNMCNO")
+        employee.address = data["address"]
         dob = data.get("dob")
         if dob is not None:
             employee.dob = dob
         age = data.get("age")
         if age is not None:
             employee.age = age
-
+        employee.Maritalstatus = data["Maritalstatus"]
+        employee.BloodGroup = data["BloodGroup"]
+        employee.Aadhaarno = data["Aadhaarno"]
+        employee.PanNo = data["PanNo"]
+        employee.bankaccnum = data["bankaccnum"]
+        employee.bankName = data["bankName"]
+        employee.ifscCode = data["ifscCode"]
+        # Update educationData
+        education_data = data.get("educationData", [])
+        employee.educationData = education_data
+        employee.companyEmail = data["companyEmail"]
+        employee.department = data["department"]
+        if employee.department == "Nurse":
+            employee.RNRNO = data.get("RNRNO")
+            employee.ValidlityDate = data.get("ValidlityDate")
+        if employee.department == "Doctor":
+            employee.TNMCNO = data.get("TNMCNO")
+        employee.designation = data["designation"]
+        employee.dateofjoining = data["dateofjoining"]
+        employee.medicalClaimPolicyNo = data["medicalClaimPolicyNo"]
+        validityDateFrom = data.get("validityDateFrom")
+        if validityDateFrom:
+            employee.validityDateFrom = validityDateFrom
+        validityDateTo = data.get("validityDateTo")
+        if validityDateTo:
+            employee.validityDateTo = validityDateTo
+        employee.ESINO = data["ESINO"]
+        employee.PF = data["PF"]
+        employee.salary = data["salary"]
+        employee.reportedBy = data["reportedBy"]
         # Get the GridFS instance
         client = MongoClient(
             "mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority")
         db = client["data"]
         fs = GridFS(db)
+        # Delete existing image and insert the new image
+        if 'profileImageFile' in request.FILES:
+            profileImageFile_file = request.FILES['profileImageFile']
+            file_contents = profileImageFile_file.read()
+            # Generate the filename for the new profile image
+            new_filename = f"{employee.name}_{employee.id}_profile.jpg"
+
+            # Check if any existing profile images with the same filename exist
+            existing_profileImageFile_files = fs.find({"filename": new_filename})
+            
+            # Delete all existing profile images with the same filename
+            for existing_file in existing_profileImageFile_files:
+                fs.delete(existing_file._id)
+                print("Deleted Existing Profile Image:", existing_file._id)
+
+            # Save the new profile image
+            profileImageFile_file_id = fs.put(
+                file_contents, filename=new_filename, employee_id=employee.id, employee_name=employee.name
+            )
+
+            # Print some information for debugging
+            print("New Profile Image ID:", profileImageFile_file_id)
+            print("New Profile Image Filename:", new_filename)
+            print("Existing Profile Images:", list(existing_profileImageFile_files))
 
         # Delete existing proof file and insert the new proof file
         if 'proof' in request.FILES:
             proof_file = request.FILES['proof']
             file_contents1 = proof_file.read()
-            existing_proof_file = fs.find_one(
-                {"employee_id": employee.id, "filename": employee.name + "_" + employee.id + "_proof.pdf"})
+            existing_proof_file = fs.find_one({"employee_id": employee.id, "filename": employee.name + "_" + employee.id + "_proof.pdf"})
             if existing_proof_file:
                 fs.delete(existing_proof_file._id)
-            proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id +
-                                   "_proof.pdf", employee_id=employee.id, employee_name=employee.name)
-
+            proof_file_id = fs.put(file_contents1, filename=employee.name + "_" + employee.id + "_proof.pdf", employee_id=employee.id, employee_name=employee.name)
         # Delete existing certificates file and insert the new certificates file
-        if 'certificates' in request.FILES:
-            certificates_file = request.FILES['certificates']
-            file_contents = certificates_file.read()
-            existing_certificates_file = fs.find_one(
-                {"employee_id": employee.id, "filename": employee.name + "_" + employee.id + "_certificates.pdf"})
-            if existing_certificates_file:
-                fs.delete(existing_certificates_file._id)
-            certificates_file_id = fs.put(file_contents, filename=employee.name + "_" + employee.id +
-                                          "_certificates.pdf", employee_id=employee.id, employee_name=employee.name)
-
+        # Extract degrees information
+        degrees = data.get("degrees", [])
+        certificates_files = request.FILES.getlist("certificates", [])
+        # Iterate over degrees and corresponding certificates
+        for index, degree in enumerate(degrees):
+            certificates_file = certificates_files[index] if index < len(certificates_files) else None
+            if certificates_file:
+                file_contents2 = certificates_file.read()
+                certificates_filename = f'{employee.name}_{employee.id}_{degree}_certificates.pdf'
+                existing_certificates_file = fs.find_one({"employee_id": employee.id, "filename": certificates_filename})
+                if existing_certificates_file:
+                    fs.delete(existing_certificates_file._id)
+                certificates_file_id = fs.put(file_contents2, filename=certificates_filename, employee_id=employee.id, employee_name=employee.name)
+                # Save certificates file information in the database
+                db.fs.files.insert_one({
+                    'certificates_id': str(certificates_file_id),
+                    'employee_name': employee.name,
+                    'employee_id': employee.id,
+                    'degree': degree,
+                })
+        # Delete existing form 11 file and insert the new form 11 file
+        if 'uploadFile' in request.FILES:
+            uploadFile_file = request.FILES['uploadFile']
+            file_contents3 = uploadFile_file.read()
+            existing_uploadFile_file = fs.find_one({"employee_id": employee.id, "filename": employee.name + "_" + employee.id + "_uploadFile.pdf"})
+            if existing_uploadFile_file:
+                fs.delete(existing_uploadFile_file._id)
+            uploadFile_file_id = fs.put(file_contents3, filename=employee.name + "_" + employee.id + "_uploadFile.pdf", employee_id=employee.id, employee_name=employee.name)
         employee.save()
         return Response("Updated Successfully")
 
@@ -172,87 +303,237 @@ class EmployeeEditView(APIView):
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
 class EmployeeSearchView(APIView):
-    @ csrf_exempt
+    """
+    API view for searching employees based on various criteria.
+
+    This view supports PUT requests to search for employees using a key, which can be an ID, name, mobile number,
+    designation, or address.
+
+    Attributes:
+        csrf_exempt: Exempt this view from CSRF protection since it's a search functionality.
+    """
+
+    @csrf_exempt
     def put(self, request):
+        """
+        Handle PUT requests to search for employees.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing the search key in the request data.
+
+        Returns:
+            Response: JSON response containing the details of the matched employees.
+        """
         data = request.data
-        user = Employee.objects.filter(Q(id=int(data["key"])) |
-                                       Q(name=data["key"])
-                                       | Q(mobile=data["key"])
-                                       | Q(designation=data["key"])
-                                       | Q(address=data["key"])
-                                       ).values()
+
+        # Perform a search based on various criteria using the provided key
+        user = Employee.objects.filter(
+            Q(id=int(data["key"])) |
+            Q(name=data["key"]) |
+            Q(mobile=data["key"]) |
+            Q(designation=data["key"]) |
+            Q(address=data["key"])
+        ).values()
+
+        # Serialize the matched employee data
         serializer = EmployeeShowSerializer(user, many=True)
+
+        # Return the serialized data as a JSON response
         return Response(serializer.data)
 
 # Admincalendar data get method
 
 
 class AdminCalendarView(APIView):
-    @ csrf_exempt
+    """
+    API view for retrieving calendar data related to admin logins.
+
+    This view supports GET requests to retrieve calendar data associated with admin logins.
+    The view is exempt from CSRF protection as it is a read-only operation.
+
+    Attributes:
+        csrf_exempt: Exempt this view from CSRF protection since it's a read-only operation.
+    """
+
+    @csrf_exempt
     def get(self, request):
-        data = request.data
-        data = Admincalendarlogin.objects.all()
-        serializers = CalendarSerializer(data, many=True)
-        return Response(serializers.data)
+        """
+        Handle GET requests to retrieve calendar data related to admin logins.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            Response: JSON response containing the calendar data for admin logins.
+        """
+        # Fetch all calendar data related to admin logins
+        calendar_data = Admincalendarlogin.objects.all()
+
+        # Serialize the calendar data
+        serializer = CalendarSerializer(calendar_data, many=True)
+
+        # Return the serialized data as a JSON response
+        return Response(serializer.data)
 
 # Admincalendar For Login
 
 
 class AdmincalendarloginView(APIView):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
-    @ csrf_exempt
+    """
+    API view for creating calendar data related to admin logins.
+
+    This view supports POST requests to add calendar data associated with admin logins.
+
+    Attributes:
+        csrf_exempt: Exempt this view from CSRF protection since it's a data creation operation.
+    """
+
+    @csrf_exempt
     def post(self, request):
+        """
+        Handle POST requests to add calendar data related to admin logins.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing the calendar data.
+
+        Returns:
+            Response: JSON response indicating the success or failure of adding calendar data.
+        """
         data = request.data
-        # print(data)
+
+        # Create a serializer instance with the provided data
         serializer = AdmincalendarSerializer(data=request.data)
+
+        # Validate the serializer, raising an exception for any validation errors
         serializer.is_valid(raise_exception=True)
-        # print("calendar details", request.data)
+
+        # Save the validated data using the serializer
         serializer.save()
-        data = 'calendardata has Been Added Successfully'
-        return Response(data, status=status.HTTP_200_OK)
+
+        # Provide a success response
+        response_data = 'Calendar data has been added successfully'
+        return Response(response_data, status=status.HTTP_200_OK)
 
 # Admincalendar For Logout
 
 
 class AdmincalendarlogoutView(APIView):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    """
+    API view for updating calendar data related to admin logouts.
+
+    This view supports PUT requests to update calendar data associated with admin logouts.
+
+    Attributes:
+        csrf_exempt: Exempt this view from CSRF protection since it's an update operation.
+    """
+
     @csrf_exempt
     def put(self, request, *args, **kwargs):
+        """
+        Handle PUT requests to update calendar data related to admin logouts.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing the updated calendar data.
+            args: Additional positional arguments.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            Response: JSON response indicating the success or failure of updating calendar data.
+        """
         data = request.data
-        user = (Admincalendarlogin.objects.get(
-            id=data["id"], date=data["date"]))
+
+        # Retrieve the corresponding Admincalendarlogin instance based on the provided ID and date
+        user = Admincalendarlogin.objects.get(id=data["id"], date=data["date"])
+
+        # Update the attributes of the Admincalendarlogin instance with the provided data
         user.name = data["name"]
         user.end = data["end"]
         user.date = data["date"]
         user.earlyLogout = data["earlyLogout"]
+
+        # Save the updated Admincalendarlogin instance
         user.save()
-        data = Logout
-        return Response(data, status=status.HTTP_200_OK)
+
+        # Provide a success response
+        response_data = Logout
+        return Response(response_data, status=status.HTTP_200_OK)
 
 # Retrieve Data By Designation
 # @authentication_classes([JWTAuthentication])
 # @permission_classes([IsAuthenticated])
 class RetriveEmpBydepartment(APIView):
+    """
+    API view for retrieving employees based on department.
+
+    This view supports POST requests to retrieve employees based on the specified department.
+
+    Attributes:
+        csrf_exempt: Exempt this view from CSRF protection since it's a read-only operation.
+    """
+
     @csrf_exempt
     def post(self, request):
+        """
+        Handle POST requests to retrieve employees based on the specified department.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing the department data.
+
+        Returns:
+            Response: JSON response containing the employee data based on the department.
+        """
         data = request.data
-        Empbydepartment = Employee.objects.filter(department=data["department"]).values()
-        serializer = EmployeeShowbydepartmentSerializer(Empbydepartment, many=True)
+
+        # Retrieve employees based on the specified department
+        employees_by_department = Employee.objects.filter(department=data["department"]).values()
+
+        # Serialize the retrieved employee data
+        serializer = EmployeeShowbydepartmentSerializer(employees_by_department, many=True)
+
+        # Return the serialized data as a JSON response
         return Response(serializer.data)
+    
+
+
+
 # Retrieve Designation Count (Donut chart get method)
 # This view retrieves the count of employees for each designation and returns it in a serialized format.
 class RetriveEmpdepartmentCount(APIView):
+    """
+    API view for retrieving the count of employees in each department.
+
+    This view supports GET requests to retrieve the count of employees in each department.
+
+    Attributes:
+        csrf_exempt: Exempt this view from CSRF protection since it's a read-only operation.
+    """
+
     @csrf_exempt
     def get(self, request):
-        empdsg = Employee.objects.values("department").annotate(value=Count('department')).order_by()
+        """
+        Handle GET requests to retrieve the count of employees in each department.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            Response: JSON response containing the count of employees in each department.
+        """
+        # Retrieve the count of employees in each department
+        emp_department_count = Employee.objects.values("department").annotate(value=Count('department')).order_by()
+
         # To Count Designation and name it as label and dumps the data into json_object
-        for department in empdsg:
+        for department in emp_department_count:
             department["label"] = department.pop("department")
             json_object = json.dumps(department)
-        print(empdsg)
-        serializer = EmployeedepartmentSerializer(empdsg, many=True)
+
+        # Print the result (for debugging purposes)
+        # print(emp_department_count)
+
+        # Serialize the retrieved department count data
+        serializer = EmployeedepartmentSerializer(emp_department_count, many=True)
+
+        # Return the serialized data as a JSON response
         return Response(serializer.data)
 
 # Retrieve Calendar data By Id
@@ -507,14 +788,14 @@ class RetriveSummaryExport(APIView):
             total_weekoff += total_sundays
             remaining_weekoff = total_weekoff - weekoff_used
             current_date = datetime.date.today().day
-            print("current_date:",current_date )
+            # print("current_date:",current_date )
            # Include weekoffs until the current date
             weekoff_until_current_date = min(current_date, remaining_weekoff)
-            print("@@@:",weekoff_until_current_date)
+            # print("@@@:",weekoff_until_current_date)
             loss_of_pay = current_date - (working_days + cl_taken + sl_taken + weekoff_until_current_date)
 
-            print("current_date:", current_date)
-            print("loss_of_pay:", loss_of_pay)
+            # print("current_date:", current_date)
+            # print("loss_of_pay:", loss_of_pay)
 
             if id:
                 emp_det = Employee.objects.filter(id=id).values('department', 'designation')
@@ -558,49 +839,125 @@ class RetriveSummaryExport(APIView):
         return Response(serializer.data)
 
 class BreakhoursView(APIView):
-    @ csrf_exempt
+    """
+    API view for handling Breakhours-related operations.
+
+    This view supports POST requests to save Breakhours data.
+
+    Attributes:
+        None
+    """
+
+    @csrf_exempt
     def post(self, request):
+        """
+        Handle POST requests to save Breakhours data.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing Breakhours data.
+
+        Returns:
+            Response: JSON response indicating the status of the operation.
+        """
         data = request.data
+
+        # Validate the Breakhours data using the serializer
         serializer = BreakhoursSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # Save the validated Breakhours data
         serializer.save()
-        data = Login
-        return Response(data, status=status.HTTP_200_OK)
+
+        # Response data (assuming Login is a placeholder, you may need to replace it with appropriate data)
+        response_data = 'Login'
+
+        # Return the response
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class BreakhourslogoutView(APIView):
+    """
+    API view for handling Breakhours logout-related operations.
+
+    This view supports POST requests to update Breakhours data during logout.
+
+    Attributes:
+        None
+    """
+
     @csrf_exempt
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests to update Breakhours data during logout.
+
+        Args:
+            request (HttpRequest): The HTTP request object containing Breakhours logout data.
+            *args, **kwargs: Additional arguments and keyword arguments.
+
+        Returns:
+            Response: JSON response indicating the status of the operation.
+        """
         data = request.data
-        user = (Breakhours.objects.get(
-            id=data["id"], date=data["date"]))
+
+        # Retrieve Breakhours object based on provided id and date
+        user = Breakhours.objects.get(id=data["id"], date=data["date"])
+
+        # Update Breakhours data with logout information
         user.name = data["name"]
         user.lunchEnd = data["lunchEnd"]
         user.date = data["date"]
         lunch_start = user.lunchstart
 
-        start_datetime = datetime.datetime.strptime(
-            lunch_start, '%Y-%m-%d %I:%M %p')
-        end_datetime = datetime.datetime.strptime(
-            user.lunchEnd, '%Y-%m-%d %I:%M %p')
+        # Convert lunch start and end times to datetime objects for calculating the break duration
+        start_datetime = datetime.datetime.strptime(lunch_start, '%Y-%m-%d %I:%M %p')
+        end_datetime = datetime.datetime.strptime(user.lunchEnd, '%Y-%m-%d %I:%M %p')
         difference = end_datetime - start_datetime
-        # print("Lunch break duration: ", difference)
+
+        # Update Breakhour field with the calculated break duration
         user.Breakhour = difference
+
+        # Save the updated Breakhours data
         user.save()
-        data = Logout
-        return Response({'lunchStart': lunch_start, 'logout': data,  'Breakhour': str(difference)}, status=status.HTTP_200_OK)
+
+        # Response data (assuming Logout is a placeholder, you may need to replace it with appropriate data)
+        response_data = {'lunchStart': lunch_start, 'logout': 'Logout', 'Breakhour': str(difference)}
+
+        # Return the response
+        return Response(response_data, status=status.HTTP_200_OK)
+
 
 
 class RetriveBreakhours(APIView):
+    """
+    API view for retrieving Breakhours data.
+
+    This view supports POST requests to retrieve Breakhours data based on provided id and date.
+
+    Attributes:
+        None
+    """
+
     @csrf_exempt
     def post(self, request):
-        data = request.data
-        Empbreak = Breakhours.objects.filter(
-            id=data["id"], date=data["date"]).values()
-        serializer = BreakhoursSerializer(
-            Empbreak, many=True)
-        return Response(serializer.data)
+        """
+        Handle POST requests to retrieve Breakhours data.
 
+        Args:
+            request (HttpRequest): The HTTP request object containing Breakhours retrieval parameters.
+
+        Returns:
+            Response: JSON response containing Breakhours data.
+        """
+        data = request.data
+
+        # Query Breakhours data based on provided id and date
+        Empbreak = Breakhours.objects.filter(id=data["id"], date=data["date"]).values()
+
+        # Serialize the retrieved Breakhours data
+        serializer = BreakhoursSerializer(Empbreak, many=True)
+
+        # Return the serialized data as a JSON response
+        return Response(serializer.data)
 # Email
 
 
@@ -629,44 +986,72 @@ def send_email(request):
 
 @csrf_exempt
 def send_whatsapp(request):
+    """
+    View to send a WhatsApp message using the Twilio API.
+
+    This view handles a POST request to send a WhatsApp message using the Twilio API.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the message content and recipient.
+
+    Returns:
+        HttpResponse: An HTTP response indicating the status of the WhatsApp message sending process.
+    """
+    # Twilio account SID and auth token
     account_sid = 'ACe1d37f2342c44648499add958166abe2'
     auth_token = 'c6ff1b2f81b4fcac652d4d71fce766a2'
 
+    # Parse the request body to get message content and recipient
     data = json.loads(request.body)
     message = data['message']
     to = data['to']
+
+    # Signature for the WhatsApp message
     signature = 'Contact Us, \n Shanmuga Hospital, \n 24, Saradha College Road,\n Salem-636007 Tamil Nadu,\n 8754033833,\n info@shanmugahospital.com,\n https://shanmugahospital.com/'
+
+    # Initialize Twilio client
     client = Client(account_sid, auth_token)
+
+    # Send the WhatsApp message
     client.messages.create(
         to=to,
         from_='whatsapp:+14155238886',
-        body=message+"\n\n"+signature)
-    return HttpResponse("whatsapp message sent sucessfully")
+        body=message + "\n\n" + signature
+    )
+
+    return HttpResponse("WhatsApp message sent successfully")
 
 
 ...
-
 @csrf_exempt
 def get_file(request):
-    # Connect to MongoDB
+    """
+    View to retrieve a file from MongoDB GridFS.
 
-    client = MongoClient(
-        'mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
+    This view handles GET requests to retrieve a file from MongoDB GridFS based on the provided filename.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the filename to retrieve.
+
+    Returns:
+        HttpResponse: An HTTP response containing the file contents or a 404 error if the file is not found.
+    """
+    # Connect to MongoDB
+    client = MongoClient('mongodb+srv://madhu:salem2022@attedancemanagement.oylt7.mongodb.net/?retryWrites=true&w=majority')
     db = client['data']
     fs = GridFS(db)
-    # print("gridfs",fs)
+
+    # Get the filename from the request parameters
     filename = request.GET.get('filename')
-    # print("filename",filename)
-    # file = fs.find_one({"filename": "parthiban.pdf"})
+
+    # Find the file in MongoDB GridFS
     file = fs.find_one({"filename": filename})
-    # print("file",file)
+
     if file is not None:
         # Return the file contents as an HTTP response
         response = HttpResponse(file.read())
-        # print("type",response )
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Disposition'] = 'attachment; filename=%s' % file.filename
-        # print("filename",file.filename)
         return response
     else:
         # Return a 404 error if the file is not found
@@ -783,3 +1168,88 @@ class RetrieveBreak(APIView):
             "employees_not_active": emp_details_not_on_break
         }
         return Response(response_data)
+
+
+
+
+
+from dateutil import parser
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+class UploadEmployeeData(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            employees_data = request.data.get('employees', [])
+            employees_df = pd.DataFrame(employees_data)
+            # Map DataFrame column names to corresponding model field names
+            field_mapping = {
+                'id': 'id',
+                'name': 'name',
+                'Gender': 'Gender',
+                'dob': 'dob',
+                'age': 'age',
+                'Maritalstatus': 'Maritalstatus',
+                'mobile': 'mobile',
+                'department': 'department',
+                'RNRNO': 'RNRNO',
+                'TNMCNO': 'TNMCNO',
+                'ValidlityDate': 'ValidlityDate',
+                'email': 'email',
+                'dateofjoining': 'dateofjoining',
+                'bankaccnum': 'bankaccnum',
+                'designation': 'designation',
+                'Aadhaarno': 'Aadhaarno',
+                'PanNo': 'PanNo',
+                'BloodGroup': 'BloodGroup',
+                'address': 'address',
+                'languages': 'languages',
+                'salary': 'salary',
+                'PF': 'PF',
+                'ESINO': 'ESINO',
+                'employmentCategory': 'employmentCategory',
+                'employeeType': 'employeeType',
+                'medicalClaimPolicyNo': 'medicalClaimPolicyNo',
+                'validityDateFrom': 'validityDateFrom',
+                'validityDateTo': 'validityDateTo',
+                'bankName': 'bankName',
+                'ifscCode': 'ifscCode',
+                'companyEmail': 'companyEmail',
+                'reportedBy': 'reportedBy',
+            }
+            # Loop through the DataFrame and create Employee objects
+            for index, row in employees_df.iterrows():
+                # Create a dictionary for Employee object using mapped field names
+                employee_fields = {}
+                for data_frame_column, model_field in field_mapping.items():
+                    if data_frame_column in row.index:
+                        # Handle date parsing separately
+                        if model_field in ['dob', 'dateofjoining', 'validityDateFrom', 'validityDateTo']:
+                            value = row[data_frame_column]
+                            if pd.notna(value):
+                                try:
+                                    # Convert integer to string before parsing
+                                    if isinstance(value, int):
+                                        value = str(value)
+                                    employee_fields[model_field] = parser.isoparse(value)
+                                except ValueError:
+                                    employee_fields[model_field] = None
+                            else:
+                                employee_fields[model_field] = None
+                        else:
+                            # Check if the value is blank and set it to None if it is
+                            value = row[data_frame_column]
+                            if pd.isnull(value) or (isinstance(value, str) and value.strip() == ''):
+                                employee_fields[model_field] = None
+                            else:
+                                employee_fields[model_field] = value
+                    else:
+                        employee_fields[model_field] = None
+                # Print the employee fields for debugging
+                print("Employee Fields:", employee_fields)
+                # Create the Employee object with the dynamically obtained fields
+                Employee.objects.create(**employee_fields)
+            return Response("Employees uploaded successfully", status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
