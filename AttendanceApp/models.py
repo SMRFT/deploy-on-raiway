@@ -23,21 +23,20 @@ import uuid
 # Employee
 
 gridfs_storage = GridFSStorage()
-
 class Employee(models.Model):
     id = models.CharField(primary_key=True, max_length=500)
     name = models.CharField(max_length=500)
     Gender = models.CharField(max_length=10)
-    dob = models.CharField(max_length=500,blank=True)
+    dob = models.DateField(null=True)
     age = models.CharField(max_length=500,blank=True)
     Maritalstatus = models.CharField(max_length=10,blank=True)
     mobile = models.CharField(max_length=500)
     department = models.CharField(max_length=500)
     RNRNO = models.CharField(max_length=1000,blank=True, null=True)
     TNMCNO = models.CharField(max_length=500, blank=True, null=True)
-    ValidlityDate = models.CharField(max_length=500,blank=True, null=True)
+    ValidlityDate = models.DateField(null=True)
     email = models.CharField(max_length=500,blank=True)
-    dateofjoining = models.CharField(max_length=500,blank=True)
+    dateofjoining = models.DateField(null=True)
     bankaccnum = models.CharField(max_length=500,blank=True)
     designation = models.CharField(max_length=500)
     Aadhaarno = models.CharField(max_length=500)
@@ -53,9 +52,9 @@ class Employee(models.Model):
     ESINO = models.CharField(max_length=1200,blank=True)
     employmentCategory=models.CharField(max_length=500)
     employeeType=models.CharField(max_length=500)
-    medicalClaimPolicyNo=models.CharField(max_length=500)
-    validityDateFrom=models.CharField(max_length=500,blank=True, null=True)
-    validityDateTo=models.CharField(max_length=500,blank=True, null=True)
+    medicalClaimPolicyNo=models.CharField(max_length=500 ,null=True)
+    validityDateFrom=models.DateField(null=True)
+    validityDateTo=models.DateField(null=True)
     bankName=models.CharField(max_length=500)
     ifscCode=models.CharField(max_length=500)
     companyEmail=models.CharField(max_length=500,blank=True, null=True)
@@ -79,12 +78,13 @@ class DeletedEmployee(models.Model):
     Aadhaarno = models.CharField(max_length=500)
     PanNo = models.CharField(max_length=500, blank=True, null=True)
     BloodGroup = models.CharField(max_length=500)
-    RNRNO = models.IntegerField(blank=True, null=True)
+    RNRNO = models.IntegerField(blank=True, null=True, default=None)
     TNMCNO = models.CharField(max_length=500, blank=True, null=True)
     ValidlityDate = models.DateField(blank=True, null=True)
     dateofjoining = models.CharField(max_length=500, blank=True, null=True)
     bankaccnum = models.IntegerField(blank=True, null=True)
     salary = models.IntegerField(blank=True, null=True)
+
 
 # Admin Login
 from bson import ObjectId
