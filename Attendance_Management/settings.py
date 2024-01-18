@@ -43,6 +43,8 @@ CORS_ALLOWED_ORIGINS = [
     'https://127.0.0.1:7000'  # Use https://127.0.0.1:7000 if possible
 ]
 
+# settings.py
+SECURE_SSL_REDIRECT = True
 
 
 
