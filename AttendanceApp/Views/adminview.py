@@ -34,8 +34,43 @@ from django.http import JsonResponse
 from django.http import JsonResponse, HttpResponse,HttpResponseBadRequest
 
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+ # Import your AWSCredentials model here
+
+# Use the @csrf_exempt decorator to exempt the view from CSRF protection
 @csrf_exempt
 def get_aws_credentials(request):
+    try:
+        # Retrieve the first AWS credentials object from the database
+        aws_credentials = AWSCredentials.objects.first()
+
+        # Check if AWS credentials were found
+        if aws_credentials:
+            # If credentials are found, create a dictionary with the relevant information
+            credentials = {
+                'access_key_id': aws_credentials.access_key_id,
+                'secret_access_key': aws_credentials.secret_access_key,
+                'bucket_name': aws_credentials.bucket_name,
+                's3_region': aws_credentials.s3_region,
+            }
+            # Return the AWS credentials as a JSON response
+            return JsonResponse(credentials)
+        else:
+            # If no AWS credentials are found, return a JSON response with a 404 status code
+            return JsonResponse({'error': 'AWS credentials not found'}, status=404)
+    except Exception as e:
+        # Handle exceptions that may occur (e.g., database connection issues)
+        print(f"Error retrieving AWS credentials: {e}")
+
+        # Return a JSON response indicating an internal server error with a 500 status code
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+
+import requests
+import boto3
+
+@csrf_exempt
+def get_aws_credentials1(request):
     try:
         aws_credentials = AWSCredentials.objects.first()
         if aws_credentials:
@@ -45,13 +80,14 @@ def get_aws_credentials(request):
                 'bucket_name': aws_credentials.bucket_name,
                 's3_region': aws_credentials.s3_region,
             }
-            return JsonResponse(credentials)
+            return credentials  # Return the dictionary directly
         else:
-            return JsonResponse({'error': 'AWS credentials not found'}, status=404)
+            return {'error': 'AWS credentials not found'}  # Return a default dictionary
     except Exception as e:
         # Handle exceptions (e.g., database connection issues)
         print(f"Error retrieving AWS credentials: {e}")
-        return JsonResponse({'error': 'Internal server error'}, status=500)
+        return {'error': 'Internal server error'}
+    
 
 import boto3
 from django.http import HttpResponseServerError
@@ -65,27 +101,22 @@ def upload_file(request):
         db = client['data']
         fs = GridFS(db)
         # Connect to AWS S3
-        aws_credentials = get_aws_credentials()
-        if aws_credentials:
-            aws_access_key_id = aws_credentials['access_key_id']
-            aws_secret_access_key = aws_credentials['secret_access_key']
-            aws_bucket_name = aws_credentials['bucket_name']
-            aws_s3_region = aws_credentials['s3_region']
+        aws_credentials = get_aws_credentials1(request)
+        
+        if 'error' in aws_credentials:
+            return JsonResponse(aws_credentials, status=500)  # Return error response if there's an issue
+        # print("DDDDDD",aws_credentials)
+        aws_access_key_id = aws_credentials.get('access_key_id')
+        aws_secret_access_key = aws_credentials.get('secret_access_key')
+        aws_bucket_name = aws_credentials.get('bucket_name')
+        aws_s3_region = aws_credentials.get('s3_region')
         s3_client = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key, region_name=aws_s3_region)
         transfer = S3Transfer(s3_client)
         # Retrieve employee information
         employee_name = request.POST.get('employee_name')
         employee_id = request.POST.get('employee_id')
         # Upload imgSrc file to AWS S3
-        imgsrc_profile = request.FILES['imgSrc']
-        file_contents3 = imgsrc_profile.read()
-        imgsrc_filename = f'{employee_name}_{employee_id}_profile.jpg'
-        imgsrc_key = f'{imgsrc_filename}'
-        # s3_client.upload_fileobj(file_contents3, aws_bucket_name, imgsrc_key)
-        # Retrieve employee information
-        file_contents3_io = BytesIO(file_contents3)
-        # Upload to AWS S3
-        s3_client.upload_fileobj(file_contents3_io, aws_bucket_name, imgsrc_key)
+
         # Check if proof file exists and read its contents
         if 'proof' in request.FILES:
             proof_file = request.FILES['proof']
@@ -103,6 +134,13 @@ def upload_file(request):
         file_contents3 = imgsrc_profile.read()
         imgsrc_filename = f'{employee_name}_{employee_id}_profile.jpg'
         imgsrc_id = fs.put(file_contents3, filename=imgsrc_filename)
+
+        imgsrc_key = f'{imgsrc_filename}'
+        # s3_client.upload_fileobj(file_contents3, aws_bucket_name, imgsrc_key)
+        # Retrieve employee information
+        file_contents3_io = BytesIO(file_contents3)
+        # Upload to AWS S3
+        s3_client.upload_fileobj(file_contents3_io, aws_bucket_name, imgsrc_key)
         # Save file information in the database
         db.fs.files.insert_one({
             'proof_id': str(proof_id) if 'proof' in request.FILES else None,
@@ -229,12 +267,31 @@ from rest_framework.permissions import IsAuthenticated
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def admin_registration(request):
-    permission_classes = (IsAuthenticated,)
+    """
+    View for handling the registration of admin users.
+
+    This view supports the POST method for creating a new admin user.
+    Requires authentication for access.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        Response: JSON response containing the result of the registration attempt.
+    """
     if request.method == 'POST':
+        # Deserialize the incoming data using the AdminSerializer
         serializer = AdminSerializer(data=request.data)
+        
+        # Check if the data is valid
         if serializer.is_valid():
+            # Save the new admin user
             serializer.save()
+            
+            # Return a success response with the serialized data and a 201 status code
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        # Return an error response with the validation errors and a 400 status code
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 from django.utils.http import urlsafe_base64_decode
@@ -251,21 +308,41 @@ from django.shortcuts import render
 
 @api_view(['GET'])
 def activate_account(request, uidb64, token):
+    """
+    View for activating a user account based on a provided UID and token.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        uidb64 (str): The base64-encoded user ID.
+        token (str): The token for account activation.
+
+    Returns:
+        HttpResponse: A rendered HTML response with a message indicating the result of the activation attempt.
+    """
     try:
+        # Decode the base64-encoded user ID to obtain the actual user ID
         uid = force_str(urlsafe_base64_decode(uidb64))
+
+        # Retrieve the user based on the decoded user ID
         user = User.objects.get(pk=uid)
 
+        # Check if the provided token is valid for the user
         if default_token_generator.check_token(user, token):
+            # Activate the user's account
             user.is_active = True
             user.save()
             message = 'Account activated successfully!'
         else:
+            # Invalid activation link
             message = 'Activation link is invalid.'
     except User.DoesNotExist:
+        # User not found
         message = 'User not found.'
     except Exception as e:
+        # Handle other exceptions (e.g., decoding errors)
         message = str(e)
 
+    # Render the activation result message in the 'activation.html' template
     return render(request, 'AttendanceApp/activation.html', {'message': message})
 
 
@@ -275,14 +352,26 @@ from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 @api_view(['POST'])
 def send_reset_code(request):
+    """
+    View for sending a password reset code to the user's email address.
+
+    This view supports the POST method and requires an email address in the request data.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        Response: JSON response containing a success or error message.
+    """
     if request.method == 'POST':
         # Get the user's email address from the request data
         user_email = request.data.get('email')
 
         if user_email:
+            # Generate a reset code using a utility function
             reset_code = generate_reset_code() 
             
-            # Create a PasswordResetRequest object
+            # Create a PasswordResetRequest object and save it to the database
             reset_request = PasswordResetRequest(email=user_email, reset_code=reset_code)
             reset_request.save()
 
@@ -294,13 +383,17 @@ def send_reset_code(request):
             recipient_list = [user_email]
 
             try:
+                # Attempt to send the email
                 send_mail(subject, plain_message, from_email, recipient_list, html_message=html_message)
                 return Response({'message': 'Reset code sent successfully'})
             except Exception as e:
+                # Return an error response if email sending fails
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
+            # Return an error response if email address is not provided
             return Response({'error': 'Email address not provided'}, status=status.HTTP_400_BAD_REQUEST)
     else:
+        # Return an error response for invalid request method
         return Response({'error': 'Invalid request method'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
 import secrets
@@ -341,11 +434,25 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import TokenError
 
 class UserDetails(APIView):
-    permission_classes = (IsAuthenticated,)
+    # Uncomment the line below to require authentication for accessing this view
+    # permission_classes = (IsAuthenticated,)
 
     def get(self, request):
-        user = request.user  # User details are obtained from the token
+        """
+        API view for retrieving details of the authenticated user.
 
+        This view returns information such as email, name, role, and mobile number of the authenticated user.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            Response: JSON response containing user details.
+        """
+        # Obtain user details from the request's user object (authenticated user)
+        user = request.user  
+
+        # Create a dictionary with relevant user information
         user_data = {
             'email': user.email,
             'name': user.name,
@@ -353,6 +460,7 @@ class UserDetails(APIView):
             'mobile': user.mobile
         }
 
+        # Return a JSON response containing the user details
         return Response(user_data)
 
 from django.http import FileResponse
@@ -416,7 +524,15 @@ class GeneratePDF(View):
             "Validity Date": employee.ValidlityDate,
             "Date of Joining": employee.dateofjoining,
             "Salary": employee.salary,
-            "Bank Account Number": employee.bankaccnum  
+            "Bank Account Number": employee.bankaccnum  ,
+            "Medical Claim Policy No": employee.medicalClaimPolicyNo,
+            "Validity Date From": str(employee.validityDateFrom),
+            "Validity Date To": str(employee.validityDateTo),
+            "Bank Name": employee.bankName,
+            "IFSC Code": employee.ifscCode,
+            "Company Email": employee.companyEmail,
+            # "Asset Details": employee.assetDetails,
+            # "Reported By": employee.reportedBy,
         }
 
         # Define positions for placing the data on the PDF
@@ -425,25 +541,32 @@ class GeneratePDF(View):
             "Name": (100, 180),
             "Email": (100, 200),
             "Mobile": (100, 220),
-            "Department": (100, 400),
-            "Address": (100, 380),
-            "Languages": (100, 360),
-            "Aadhaar No": (100, 340),
+            "Department": (100, 240),
+            "Address": (100, 260),
+            "Languages": (100, 280),
+            "Aadhaar No": (100, 300),
             "Pan No": (100, 320),
-            "Blood Group":( 100, 300),
-            "RNRNO":( 100, 280),
-            "TNMC No":(100, 260),
-            "Validity Date": (100, 240),
-            "Date of Joining": (100, 440),
-            "Salary": (100, 460),
-            "Bank Account Number": (100, 480),
-            "Designation":  (100, 500)
+            "Blood Group":( 100, 340),
+            "RNRNO":( 100, 360),
+            "TNMC No":(100, 380),
+            "Validity Date": (100, 400),
+            "Date of Joining": (100, 420),
+            "Salary": (100, 440),
+            "Bank Account Number": (100, 460),
+            "Designation":  (100, 480),
+            "Medical Claim Policy No": (100, 500),
+            "Validity Date From": (100, 520),
+            "Validity Date To": (100, 540),
+            "Bank Name": (100, 560),
+            "IFSC Code": (100, 580),
+            "Company Email": (100, 600),
+            "Asset Details": (100, 620),
+            "Reported By": (100, 640),
         }
 
         # Iterate over data and add it to the PDF
         for label, value in data.items():
             page.insert_text((positions[label][0], positions[label][1]), f"{label}: {value}", fontsize=font_size, fontname=font)
-
         # Save the modified PDF to a BytesIO buffer
         buffer = BytesIO()
         pdf_document.save(buffer, garbage=4, deflate=True, clean=True)
@@ -473,7 +596,7 @@ def user_permission(request):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            print("Serializer errors:", serializer.errors)  # Add this line for debugging
+            # print("Serializer errors:", serializer.errors)  # Add this line for debugging
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except UserPermission.DoesNotExist:
             return Response({'message': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -516,8 +639,8 @@ def parse_date(date_str):
             return None
 @csrf_exempt
 def employee_events(request):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     today = date.today()
 
     employees = Employee.objects.all()
@@ -536,7 +659,7 @@ def employee_events(request):
         if dob and dateofjoining:
             if today.month == dob.month and today.day == dob.day:
                 birthdays.append(employee.name)
-                print(f"Today is the birthday of: {employee.name}")
+                # print(f"Today is the birthday of: {employee.name}")
 
             # Calculate work anniversary
             work_anniversary = today.year - dateofjoining.year
@@ -546,7 +669,7 @@ def employee_events(request):
             # Check if it's a work anniversary
             if work_anniversary > 0 and today.month == dateofjoining.month and today.day == dateofjoining.day:
                 joining_anniversaries.append((employee.name, work_anniversary))
-                print(f"{employee.name} is celebrating {work_anniversary} years of joining")
+                # print(f"{employee.name} is celebrating {work_anniversary} years of joining")
 
     response_text = ""
     if birthdays:
@@ -563,9 +686,24 @@ def employee_events(request):
 
 @csrf_exempt
 def submit_employee_exit_form(request):
+    """
+    View for submitting an employee exit form.
+
+    This view supports the POST method and expects JSON data containing employee exit information.
+    The data is then used to create a new EmployeeExitForm object and save it to the database.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response indicating the success or failure of the form submission.
+    """
     if request.method == 'POST':
         try:
+            # Parse JSON data from the request body
             data = json.loads(request.body.decode('utf-8'))
+
+            # Create an EmployeeExitForm object with data from the request
             employee_exit_form = EmployeeExitForm(
                 name=data.get('name'),
                 id=data.get('id'),
@@ -573,18 +711,39 @@ def submit_employee_exit_form(request):
                 exitStatus=data.get('exitStatus'),
                 lastWorkingDate=data.get('lastWorkingDate')
             )
+
+            # Save the form to the database
             employee_exit_form.save()
+
+            # Return a success message in a JSON response
             return JsonResponse({'message': 'Form submitted successfully'})
         except Exception as e:
+            # Return an error message in a JSON response if an exception occurs
             return JsonResponse({'error': str(e)}, status=400)
+    else:
+        # Return an error response for invalid request method
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
         
 
 @csrf_exempt
 def get_employee_exit_form(request):
+    """
+    View for retrieving all employee exit forms.
+
+    This view supports the GET method and retrieves all employee exit forms from the database.
+    The retrieved data is serialized if needed and returned in a JSON response.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response containing employee exit form data or an error message.
+    """
     if request.method == 'GET':
         try:
-            # Retrieve all the employee exit forms
+            # Retrieve all employee exit forms from the database
             exit_forms = EmployeeExitForm.objects.all()
+
             # Serialize the data if needed
             serialized_exit_forms = []
             for form in exit_forms:
@@ -595,10 +754,15 @@ def get_employee_exit_form(request):
                     'exitStatus': form.exitStatus,
                     'lastWorkingDate': form.lastWorkingDate,
                 })
+
+            # Return a JSON response with the serialized exit form data
             return JsonResponse({'data': serialized_exit_forms})
         except Exception as e:
+            # Return an error message in a JSON response with a status code of 400 if an exception occurs
             return JsonResponse({'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Invalid request method'}, status=400)
+    else:
+        # Return an error response with a status code of 400 for invalid request methods
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 
@@ -606,37 +770,78 @@ def get_employee_exit_form(request):
 from django.http import JsonResponse
 from datetime import date
 from dateutil.parser import parse as parse_date, ParserError
+
+
 def parse_date_with_flexibility(date_str):
+    """
+    Parse a date string with flexibility, handling ParserError.
+
+    Args:
+        date_str (str): The date string to parse.
+
+    Returns:
+        date: The parsed date or None if parsing fails.
+    """
     try:
         return parse_date(str(date_str)).date()
     except ParserError:
         # Handle cases where parsing fails
         print(f"Error parsing date: {date_str}")
         return None
+
 def employee_events(request):
+    """
+    View for retrieving employee events such as birthdays and joining anniversaries.
+
+    This view calculates and identifies employees with birthdays and work anniversaries for the current date.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response containing employee event data.
+    """
     today = date.today()
     employees = Employee.objects.all()
     joining_anniversaries = []
     birthdays = []
+
     for employee in employees:
         try:
+            # Parse date of birth and date of joining with flexibility
             dob = parse_date_with_flexibility(employee.dob)
             dateofjoining = parse_date_with_flexibility(employee.dateofjoining)
+
+            # Check for birthdays
             if dob is not None and today.month == dob.month and today.day == dob.day:
                 birthdays.append(employee.name + '_' + str(employee.id))
+
+            # Calculate work anniversary
             work_anniversary = today.year - dateofjoining.year
             if today.month < dateofjoining.month or (today.month == dateofjoining.month and today.day < dateofjoining.day):
                 work_anniversary -= 1
+
+            # Check for joining anniversaries
             if work_anniversary > 0 and today.month == dateofjoining.month and today.day == dateofjoining.day:
                 joining_anniversaries.append({"name": employee.name, "anniversary": work_anniversary})
-                print(f"{employee.name} is celebrating {work_anniversary} years of joining")
+                # print(f"{employee.name} is celebrating {work_anniversary} years of joining")
+
         except Exception as e:
             # Handle other exceptions
-            print(f"Error processing employee {employee.name}: {e}")
-            print(f"Today: {today}")
+            # print(f"Error processing employee {employee.name}: {e}")
+            # print(f"Today: {today}")
             print(f"Employee: {employee.name}, DOB: {dob}")
+
+    # Prepare response data
     response_data = {
         "birthdays": birthdays,
         "joining_anniversaries": joining_anniversaries,
     }
+
+    # Return a JSON response with employee event data
     return JsonResponse(response_data)
+
+
+
+
+
