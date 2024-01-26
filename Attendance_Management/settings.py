@@ -17,7 +17,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# settings.py
+
+DEBUG = True  # Ensure DEBUG is set to True for development
+
+# Use SSL and set paths to the generated certificate files
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# SSL certificate paths
+SECURE_SSL_CERTIFICATE = "localhost.pem"
+SECURE_SSL_KEY = "localhost-key.pem"
+
 
 ALLOWED_HOSTS = [
     'smrftadmin.netlify.app',
