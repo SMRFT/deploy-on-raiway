@@ -1069,11 +1069,11 @@ class RetrieveEmployeehours(APIView):
         month = data.get("month")
         year = data.get("year")
         emp_id = data.get("id")
-        if emp_id:
+        if emp_id and month and year and not day:  # Check if only emp_id, month, and year are provided
             emp_data = Admincalendarlogin.objects.filter(Q(id=emp_id) & Q(month=month) & Q(year=year)).values()
+            emp_totlatelogin = timedelta()  # initialize the total late login time for this employee to zero
+            emp_Totalearlylogouttime = timedelta()  # initialize the total early logout time for this employee to zero
             for record in emp_data:
-                emp_totlatelogin = timedelta()  # initialize the total late login time for this employee to zero
-                emp_Totalearlylogouttime = timedelta()  # initialize the total early logout time for this employee to zero
                 # extract the time from the "latelogin" field and add it to the employee's total
                 if record['latelogin']:
                     latelogin_time = timedelta(hours=record['latelogin'].hour, minutes=record['latelogin'].minute, seconds=record['latelogin'].second)
@@ -1091,14 +1091,28 @@ class RetrieveEmployeehours(APIView):
                 record['department'] = employee.department
                 record['designation'] = employee.designation
             serializer = EmployeeHoursSerializer(emp_data, many=True)
-        else:
-            emp_data = Admincalendarlogin.objects.filter(Q(day=day) & Q(month=month) & Q(year=year)).values()
+        elif emp_id and day and month and year:  # Check if emp_id, day, month, and year are provided
+            emp_data = Admincalendarlogin.objects.filter(Q(id=emp_id) & Q(day=day) & Q(month=month) & Q(year=year)).values(
+                'id', 'name', 'month', 'year', 'date', 'day', 'latelogin', 'earlyLogout'
+            )
             for record in emp_data:
-                # get the employee id from the record and get the department and designation fields from the Employee model
-                employee = Employee.objects.get(id=record['id'])
-                record['department'] = employee.department
-                record['designation'] = employee.designation
+                emp_totlatelogin = timedelta()
+                emp_Totalearlylogouttime = timedelta()
+                if record['latelogin']:
+                    latelogin_time = timedelta(hours=record['latelogin'].hour, minutes=record['latelogin'].minute, seconds=record['latelogin'].second)
+                    emp_totlatelogin += latelogin_time
+                if record['earlyLogout']:
+                    earlylogout_time = timedelta(hours=record['earlyLogout'].hour, minutes=record['earlyLogout'].minute, seconds=record['earlyLogout'].second)
+                    emp_Totalearlylogouttime += earlylogout_time
+                record['totallatelogin'] = str(emp_totlatelogin)
+                record['Totalearlylogouttime'] = str(emp_Totalearlylogouttime)
+                record['totlateearlyhours'] = str(emp_totlatelogin + emp_Totalearlylogouttime)
+                employee = Employee.objects.get(id=emp_id)
+                record['department'] = employee.department  # Fetch 'department' from Employee model
+                record['designation'] = employee.designation  # Fetch 'designation' from Employee model
             serializer = EmployeeHoursdaySerializer(emp_data, many=True)
+        else:
+            return Response("Insufficient or incorrect data provided")
         return Response(serializer.data)
 
     # Retrieve Break Hours
