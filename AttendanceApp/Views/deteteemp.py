@@ -16,8 +16,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 class DeleteEmp(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     @csrf_exempt
     def post(self, request):
         data = request.data
@@ -36,7 +36,6 @@ class DeleteEmp(APIView):
         emp_languages =emp.languages
         emp_Aadhaarno=emp.Aadhaarno
         emp_PanNo=emp.PanNo
-    
         emp_BloodGroup=emp.BloodGroup
         emp_RNRNO=emp.RNRNO
         emp_TNMCNO =emp.TNMCNO
@@ -44,7 +43,7 @@ class DeleteEmp(APIView):
         emp_dateofjoining =emp.dateofjoining
         emp_bankaccnum =emp.bankaccnum
         emp.delete()
-        
+        emp_RNRNO = emp.RNRNO if emp.RNRNO != '' else None
         deleted_emp = DeletedEmployee(
             name=emp_name,
             id=emp_id,
@@ -59,9 +58,8 @@ class DeleteEmp(APIView):
             languages =emp.languages ,
             Aadhaarno=emp.Aadhaarno,
             PanNo=emp.PanNo,
-          
             BloodGroup=emp.BloodGroup,
-            RNRNO=emp.RNRNO,
+            RNRNO=emp_RNRNO,
             TNMCNO =emp.TNMCNO,
             ValidlityDate=emp.ValidlityDate,
             dateofjoining =emp.dateofjoining,
@@ -70,7 +68,6 @@ class DeleteEmp(APIView):
             deleted_at=timezone.now()
         )
         deleted_emp.save()
-        
         # Send email to HR
         subject = f"Employee Deleted - {emp_name}"
         message = f"The employee {emp_name} has been deleted from the system."
@@ -78,46 +75,46 @@ class DeleteEmp(APIView):
         recipient_list = ["parthibansmrft@gmail.com"]
         send_mail(subject, message, from_email, recipient_list)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 class DeletedEmployeeList(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     def get(self, request):
         employees = DeletedEmployee.objects.all()
         serializer = DeletedEmployeeSerializer(employees, many=True)
         return Response(serializer.data)
 
 class PermanentDeleteEmp(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     @csrf_exempt
     def post(self, request):
         data = request.data
         emp = DeletedEmployee.objects.get(id=data["id"])
-        print(emp)
+        # print(emp)
         emp.delete()
         return JsonResponse({'message': 'Employee deleted successfully.'})
-    
+
 class RestoreEmployee(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     @csrf_exempt
     def post(self, request):
         data = request.data
         deleted_employee = DeletedEmployee.objects.get(id=data["id"])
         employee = Employee(id=deleted_employee.id,
-                            name=deleted_employee.name, 
-                            email=deleted_employee.email, 
+                            name=deleted_employee.name,
+                            email=deleted_employee.email,
                             department=deleted_employee.department,
                             mobile=deleted_employee.mobile,
-                            designation=deleted_employee.designation, 
-                            address=deleted_employee.address, 
+                            designation=deleted_employee.designation,
+                            address=deleted_employee.address,
                             educationData =deleted_employee.educationData,
                             experienceData=deleted_employee.experienceData,
                             referenceData=deleted_employee.referenceData,
                             languages =deleted_employee.languages ,
                             Aadhaarno=deleted_employee.Aadhaarno,
                             PanNo=deleted_employee.PanNo,
-                          
                             BloodGroup=deleted_employee.BloodGroup,
                             RNRNO=deleted_employee.RNRNO,
                             TNMCNO =deleted_employee.TNMCNO,
@@ -128,3 +125,4 @@ class RestoreEmployee(APIView):
         employee.save()
         deleted_employee.delete()
         return JsonResponse({'message': 'Employee restored successfully.'})
+
