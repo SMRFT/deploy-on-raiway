@@ -50,7 +50,7 @@ class AdminSerializer(serializers.ModelSerializer):
         uid = urlsafe_base64_encode(force_bytes(instance.id))
 
         # Build the activation link
-        activation_link = f"http://127.0.0.1:7000/attendance/activate/{uid}/{token}/"
+        activation_link = f"https://35.154.23.156:7000/attendance/activate/{uid}/{token}/"
         
         # Send an activation email to the user
         subject = 'Activate your account'
