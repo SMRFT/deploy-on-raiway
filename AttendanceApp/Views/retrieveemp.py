@@ -1069,11 +1069,11 @@ class RetrieveEmployeehours(APIView):
         month = data.get("month")
         year = data.get("year")
         emp_id = data.get("id")
-        if emp_id and month and year and not day:  # Check if only emp_id, month, and year are provided
+        if emp_id:
             emp_data = Admincalendarlogin.objects.filter(Q(id=emp_id) & Q(month=month) & Q(year=year)).values()
-            emp_totlatelogin = timedelta()  # initialize the total late login time for this employee to zero
-            emp_Totalearlylogouttime = timedelta()  # initialize the total early logout time for this employee to zero
             for record in emp_data:
+                emp_totlatelogin = timedelta()  # initialize the total late login time for this employee to zero
+                emp_Totalearlylogouttime = timedelta()  # initialize the total early logout time for this employee to zero
                 # extract the time from the "latelogin" field and add it to the employee's total
                 if record['latelogin']:
                     latelogin_time = timedelta(hours=record['latelogin'].hour, minutes=record['latelogin'].minute, seconds=record['latelogin'].second)
@@ -1091,28 +1091,14 @@ class RetrieveEmployeehours(APIView):
                 record['department'] = employee.department
                 record['designation'] = employee.designation
             serializer = EmployeeHoursSerializer(emp_data, many=True)
-        elif emp_id and day and month and year:  # Check if emp_id, day, month, and year are provided
-            emp_data = Admincalendarlogin.objects.filter(Q(id=emp_id) & Q(day=day) & Q(month=month) & Q(year=year)).values(
-                'id', 'name', 'month', 'year', 'date', 'day', 'latelogin', 'earlyLogout'
-            )
-            for record in emp_data:
-                emp_totlatelogin = timedelta()
-                emp_Totalearlylogouttime = timedelta()
-                if record['latelogin']:
-                    latelogin_time = timedelta(hours=record['latelogin'].hour, minutes=record['latelogin'].minute, seconds=record['latelogin'].second)
-                    emp_totlatelogin += latelogin_time
-                if record['earlyLogout']:
-                    earlylogout_time = timedelta(hours=record['earlyLogout'].hour, minutes=record['earlyLogout'].minute, seconds=record['earlyLogout'].second)
-                    emp_Totalearlylogouttime += earlylogout_time
-                record['totallatelogin'] = str(emp_totlatelogin)
-                record['Totalearlylogouttime'] = str(emp_Totalearlylogouttime)
-                record['totlateearlyhours'] = str(emp_totlatelogin + emp_Totalearlylogouttime)
-                employee = Employee.objects.get(id=emp_id)
-                record['department'] = employee.department  # Fetch 'department' from Employee model
-                record['designation'] = employee.designation  # Fetch 'designation' from Employee model
-            serializer = EmployeeHoursdaySerializer(emp_data, many=True)
         else:
-            return Response("Insufficient or incorrect data provided")
+            emp_data = Admincalendarlogin.objects.filter(Q(day=day) & Q(month=month) & Q(year=year)).values()
+            for record in emp_data:
+                # get the employee id from the record and get the department and designation fields from the Employee model
+                employee = Employee.objects.get(id=record['id'])
+                record['department'] = employee.department
+                record['designation'] = employee.designation
+            serializer = EmployeeHoursdaySerializer(emp_data, many=True)
         return Response(serializer.data)
 
     # Retrieve Break Hours
@@ -1267,3 +1253,159 @@ class UploadEmployeeData(APIView):
             return Response("Employees uploaded successfully", status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+from django.utils import timezone
+@csrf_exempt
+def calculate_payroll(request):
+    if request.method == "POST":
+        try:
+            # Get all employees
+            employees = Employee.objects.all()
+            # Get the current date
+            today = timezone.now().date()
+            # Calculate the start date (26th of last month)
+            if today.day >= 26:
+                start_date = datetime(today.year, today.month, 26).date()
+            else:
+                last_month = today.replace(day=1) - timedelta(days=1)
+                start_date = datetime(last_month.year, last_month.month, 26).date()
+            # Calculate the end date (25th of this month)
+            end_date = datetime(today.year, today.month, 25).date()
+            payroll_data = []
+            for employee in employees:
+                # Initialize variable for working days
+                working_days = 0
+                # Retrieve the salary of the employee
+                salary = employee.salary
+                if salary is not None:
+                    salary = int(salary)
+                else:
+                    # Handle the case when salary is None
+                    # For example, set it to 0 or any default value as per your requirement
+                    salary = 0
+                # Get the login sessions for the employee from the start date to today
+                emp_data = Admincalendarlogin.objects.filter(id=employee.id)
+                for emp in emp_data:
+                    if emp.leavetype == "none":
+                        start_time = emp.start
+                        if start_time:
+                            # Count the session as a working day if it's not a weekend
+                            if start_time.weekday() != 5 and start_time.weekday() != 6:  # Saturday and Sunday
+                                working_days += 1
+                # Calculate the number of days between start_date and end_date
+                num_days = (end_date - start_date).days + 1
+                # Calculate the loss of pay
+                lop_days = working_days - num_days
+                # Calculate the CTC
+                ctc = (salary / num_days) * working_days
+                # Calculate the basic salary as 40% of the CTC
+                basic_salary = ctc * 0.40
+                # Calculate the HRA as 20% of the CTC
+                hra = ctc * 0.20
+                # Calculate the conveyance as 5% of the CTC
+                conveyance = ctc * 0.05
+                # Calculate the food_allowance as 5% of the CTC
+                food_allowance = ctc * 0.05
+                # Calculate the special_allowance as 5% of the CTC
+                special_allowance = ctc - (basic_salary + hra + conveyance + food_allowance)
+                # Call calculate_PayablebyManagement function
+                pf, pf_admin, esi, gross_salary, overtime = calculate_PayablebyManagement(basic_salary, salary, ctc)
+                # Call calculate_PayablebyEmployees function
+                pf_emp, esi_emp, net_salary = calculate_PayablebyEmployees(salary, gross_salary)
+                payroll_data.append({
+                    "employee_id": employee.id,
+                    "salary": salary,
+                    "working_days": working_days,
+                    "lop_days": lop_days,
+                    "ctc": ctc,
+                    "basic_salary": basic_salary,
+                    "hra": hra,
+                    "conveyance": conveyance,
+                    "food_allowance": food_allowance,
+                    "special_allowance": special_allowance,
+                    "pf": pf,
+                    "pf_admin": pf_admin,
+                    "esi": esi,
+                    "gross_salary": gross_salary,
+                    "pf_emp": pf_emp,
+                    "esi_emp": esi_emp,
+                    "net_salary": net_salary
+                })
+            return JsonResponse({"payroll_data": payroll_data})
+        except Employee.DoesNotExist:
+            return JsonResponse({"error": "Employee not found"}, status=404)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+def calculate_PayablebyManagement(basic_salary, salary, ctc):
+    overtime = 0
+    medi_claim = 0
+    pf = 0  # Initialize PF to 0 initially
+    pf_admin = basic_salary * 0.01  # Calculate PF_Admin regardless of basic salary
+    # Check if the basic salary is more than 15000
+    if salary > 15000:
+        pf = basic_salary * 0.12  # Calculate PF only if basic salary is more than 15000
+    # Calculate ESI
+    esi = basic_salary * 0.0325 + overtime
+    # Calculate Gross_salary
+    gross_salary = (pf + esi + pf_admin + medi_claim) - ctc
+    return pf, pf_admin, esi, gross_salary, overtime
+def calculate_PayablebyEmployees(salary, gross_salary):
+    pf_emp = 0  # Initialize PF to 0 initially
+    esi_emp = salary * 0.0075
+    # Check if the basic salary is more than 15000
+    if salary > 15000:
+        pf_emp = salary * 0.12  # Calculate PF only if basic salary is more than 15000
+    # Calculate Net_Salary
+    net_salary = (pf_emp + esi_emp) - gross_salary
+    return pf_emp, esi_emp, net_salary
+
+
+
+
+
+
+from datetime import datetime, timedelta
+from django.utils import timezone
+# import schedule
+import time
+# Dictionary to store the last sent email time for each employee
+last_email_sent = {}
+def send_logout_notification():
+    current_date = timezone.now().date()
+    start_of_day = timezone.make_aware(datetime.combine(current_date, datetime.min.time()))
+    end_of_day = timezone.make_aware(datetime.combine(current_date, datetime.max.time()))
+    logins_without_logout = Admincalendarlogin.objects.filter(end__isnull=True, start__range=(start_of_day, end_of_day))
+    for login in logins_without_logout:
+        try:
+            employee_id = login.id
+            employee = Employee.objects.get(id=employee_id)
+            employee_email = employee.email
+            # Check if an email has been sent to this employee today
+            if employee_id in last_email_sent:
+                last_sent_date = last_email_sent[employee_id].date()
+                if last_sent_date == current_date:
+                    # Email already sent today, skip sending
+                    continue
+            # Send reminder email
+            send_mail(
+                'Reminder: Logout required',
+                f'Dear {employee.name},\n\nYou have worked for more than 8 hours without logging out. Please remember to logout promptly.\n\nRegards,\nShanmuga Hospital \n Click here, https://smrftadmin.netlify.app/WebcamCaptureLogout',
+                'parthibansmrft@gmail.com',
+                [employee_email],
+                fail_silently=False,
+            )
+            print(f"Reminder email sent to {employee_email}")
+            # Update the last sent email record for this employee
+            last_email_sent[employee_id] = timezone.now()
+        except Exception as e:
+            print(f"Error sending email for employee with ID {login.id}: {str(e)}")
+# # Schedule the function to run every 2 minutes
+# schedule.every(2).minutes.do(send_logout_notification)
+# while True:
+#     schedule.run_pending()
+#     time.sleep(1)
