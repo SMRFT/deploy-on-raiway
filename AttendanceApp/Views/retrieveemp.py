@@ -1259,110 +1259,110 @@ class UploadEmployeeData(APIView):
 
 
 
-from django.utils import timezone
-@csrf_exempt
-def calculate_payroll(request):
-    if request.method == "POST":
-        try:
-            # Get all employees
-            employees = Employee.objects.all()
-            # Get the current date
-            today = timezone.now().date()
-            # Calculate the start date (26th of last month)
-            if today.day >= 26:
-                start_date = datetime(today.year, today.month, 26).date()
-            else:
-                last_month = today.replace(day=1) - timedelta(days=1)
-                start_date = datetime(last_month.year, last_month.month, 26).date()
-            # Calculate the end date (25th of this month)
-            end_date = datetime(today.year, today.month, 25).date()
-            payroll_data = []
-            for employee in employees:
-                # Initialize variable for working days
-                working_days = 0
-                # Retrieve the salary of the employee
-                salary = employee.salary
-                if salary is not None:
-                    salary = int(salary)
-                else:
-                    # Handle the case when salary is None
-                    # For example, set it to 0 or any default value as per your requirement
-                    salary = 0
-                # Get the login sessions for the employee from the start date to today
-                emp_data = Admincalendarlogin.objects.filter(id=employee.id)
-                for emp in emp_data:
-                    if emp.leavetype == "none":
-                        start_time = emp.start
-                        if start_time:
-                            # Count the session as a working day if it's not a weekend
-                            if start_time.weekday() != 5 and start_time.weekday() != 6:  # Saturday and Sunday
-                                working_days += 1
-                # Calculate the number of days between start_date and end_date
-                num_days = (end_date - start_date).days + 1
-                # Calculate the loss of pay
-                lop_days = working_days - num_days
-                # Calculate the CTC
-                ctc = (salary / num_days) * working_days
-                # Calculate the basic salary as 40% of the CTC
-                basic_salary = ctc * 0.40
-                # Calculate the HRA as 20% of the CTC
-                hra = ctc * 0.20
-                # Calculate the conveyance as 5% of the CTC
-                conveyance = ctc * 0.05
-                # Calculate the food_allowance as 5% of the CTC
-                food_allowance = ctc * 0.05
-                # Calculate the special_allowance as 5% of the CTC
-                special_allowance = ctc - (basic_salary + hra + conveyance + food_allowance)
-                # Call calculate_PayablebyManagement function
-                pf, pf_admin, esi, gross_salary, overtime = calculate_PayablebyManagement(basic_salary, salary, ctc)
-                # Call calculate_PayablebyEmployees function
-                pf_emp, esi_emp, net_salary = calculate_PayablebyEmployees(salary, gross_salary)
-                payroll_data.append({
-                    "employee_id": employee.id,
-                    "salary": salary,
-                    "working_days": working_days,
-                    "lop_days": lop_days,
-                    "ctc": ctc,
-                    "basic_salary": basic_salary,
-                    "hra": hra,
-                    "conveyance": conveyance,
-                    "food_allowance": food_allowance,
-                    "special_allowance": special_allowance,
-                    "pf": pf,
-                    "pf_admin": pf_admin,
-                    "esi": esi,
-                    "gross_salary": gross_salary,
-                    "pf_emp": pf_emp,
-                    "esi_emp": esi_emp,
-                    "net_salary": net_salary
-                })
-            return JsonResponse({"payroll_data": payroll_data})
-        except Employee.DoesNotExist:
-            return JsonResponse({"error": "Employee not found"}, status=404)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
-def calculate_PayablebyManagement(basic_salary, salary, ctc):
-    overtime = 0
-    medi_claim = 0
-    pf = 0  # Initialize PF to 0 initially
-    pf_admin = basic_salary * 0.01  # Calculate PF_Admin regardless of basic salary
-    # Check if the basic salary is more than 15000
-    if salary > 15000:
-        pf = basic_salary * 0.12  # Calculate PF only if basic salary is more than 15000
-    # Calculate ESI
-    esi = basic_salary * 0.0325 + overtime
-    # Calculate Gross_salary
-    gross_salary = (pf + esi + pf_admin + medi_claim) - ctc
-    return pf, pf_admin, esi, gross_salary, overtime
-def calculate_PayablebyEmployees(salary, gross_salary):
-    pf_emp = 0  # Initialize PF to 0 initially
-    esi_emp = salary * 0.0075
-    # Check if the basic salary is more than 15000
-    if salary > 15000:
-        pf_emp = salary * 0.12  # Calculate PF only if basic salary is more than 15000
-    # Calculate Net_Salary
-    net_salary = (pf_emp + esi_emp) - gross_salary
-    return pf_emp, esi_emp, net_salary
+# from django.utils import timezone
+# @csrf_exempt
+# def calculate_payroll(request):
+#     if request.method == "POST":
+#         try:
+#             # Get all employees
+#             employees = Employee.objects.all()
+#             # Get the current date
+#             today = timezone.now().date()
+#             # Calculate the start date (26th of last month)
+#             if today.day >= 26:
+#                 start_date = datetime(today.year, today.month, 26).date()
+#             else:
+#                 last_month = today.replace(day=1) - timedelta(days=1)
+#                 start_date = datetime(last_month.year, last_month.month, 26).date()
+#             # Calculate the end date (25th of this month)
+#             end_date = datetime(today.year, today.month, 25).date()
+#             payroll_data = []
+#             for employee in employees:
+#                 # Initialize variable for working days
+#                 working_days = 0
+#                 # Retrieve the salary of the employee
+#                 salary = employee.salary
+#                 if salary is not None:
+#                     salary = int(salary)
+#                 else:
+#                     # Handle the case when salary is None
+#                     # For example, set it to 0 or any default value as per your requirement
+#                     salary = 0
+#                 # Get the login sessions for the employee from the start date to today
+#                 emp_data = Admincalendarlogin.objects.filter(id=employee.id)
+#                 for emp in emp_data:
+#                     if emp.leavetype == "none":
+#                         start_time = emp.start
+#                         if start_time:
+#                             # Count the session as a working day if it's not a weekend
+#                             if start_time.weekday() != 5 and start_time.weekday() != 6:  # Saturday and Sunday
+#                                 working_days += 1
+#                 # Calculate the number of days between start_date and end_date
+#                 num_days = (end_date - start_date).days + 1
+#                 # Calculate the loss of pay
+#                 lop_days = working_days - num_days
+#                 # Calculate the CTC
+#                 ctc = (salary / num_days) * working_days
+#                 # Calculate the basic salary as 40% of the CTC
+#                 basic_salary = ctc * 0.40
+#                 # Calculate the HRA as 20% of the CTC
+#                 hra = ctc * 0.20
+#                 # Calculate the conveyance as 5% of the CTC
+#                 conveyance = ctc * 0.05
+#                 # Calculate the food_allowance as 5% of the CTC
+#                 food_allowance = ctc * 0.05
+#                 # Calculate the special_allowance as 5% of the CTC
+#                 special_allowance = ctc - (basic_salary + hra + conveyance + food_allowance)
+#                 # Call calculate_PayablebyManagement function
+#                 pf, pf_admin, esi, gross_salary, overtime = calculate_PayablebyManagement(basic_salary, salary, ctc)
+#                 # Call calculate_PayablebyEmployees function
+#                 pf_emp, esi_emp, net_salary = calculate_PayablebyEmployees(salary, gross_salary)
+#                 payroll_data.append({
+#                     "employee_id": employee.id,
+#                     "salary": salary,
+#                     "working_days": working_days,
+#                     "lop_days": lop_days,
+#                     "ctc": ctc,
+#                     "basic_salary": basic_salary,
+#                     "hra": hra,
+#                     "conveyance": conveyance,
+#                     "food_allowance": food_allowance,
+#                     "special_allowance": special_allowance,
+#                     "pf": pf,
+#                     "pf_admin": pf_admin,
+#                     "esi": esi,
+#                     "gross_salary": gross_salary,
+#                     "pf_emp": pf_emp,
+#                     "esi_emp": esi_emp,
+#                     "net_salary": net_salary
+#                 })
+#             return JsonResponse({"payroll_data": payroll_data})
+#         except Employee.DoesNotExist:
+#             return JsonResponse({"error": "Employee not found"}, status=404)
+#     else:
+#         return JsonResponse({"error": "Invalid request method"}, status=405)
+# def calculate_PayablebyManagement(basic_salary, salary, ctc):
+#     overtime = 0
+#     medi_claim = 0
+#     pf = 0  # Initialize PF to 0 initially
+#     pf_admin = basic_salary * 0.01  # Calculate PF_Admin regardless of basic salary
+#     # Check if the basic salary is more than 15000
+#     if salary > 15000:
+#         pf = basic_salary * 0.12  # Calculate PF only if basic salary is more than 15000
+#     # Calculate ESI
+#     esi = basic_salary * 0.0325 + overtime
+#     # Calculate Gross_salary
+#     gross_salary = (pf + esi + pf_admin + medi_claim) - ctc
+#     return pf, pf_admin, esi, gross_salary, overtime
+# def calculate_PayablebyEmployees(salary, gross_salary):
+#     pf_emp = 0  # Initialize PF to 0 initially
+#     esi_emp = salary * 0.0075
+#     # Check if the basic salary is more than 15000
+#     if salary > 15000:
+#         pf_emp = salary * 0.12  # Calculate PF only if basic salary is more than 15000
+#     # Calculate Net_Salary
+#     net_salary = (pf_emp + esi_emp) - gross_salary
+#     return pf_emp, esi_emp, net_salary
 
 
 
