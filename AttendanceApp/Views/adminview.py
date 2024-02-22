@@ -612,7 +612,6 @@ def user_permission(request):
                     'add_employee': user.add_employee,
                     'dashboard': user.dashboard,
                     'pending_approval': user.pending_approval,
-                    'admin_registration': user.admin_registration,
                 }
                 return Response(permissions, status=status.HTTP_200_OK)
             except UserPermission.DoesNotExist:
