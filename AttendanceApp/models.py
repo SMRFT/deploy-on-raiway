@@ -13,7 +13,16 @@ from django.http import JsonResponse
 from gridfs_storage.storage import GridFSStorage
 from django.utils import timezone
 
-# Employee model (Add employee model)
+
+
+import datetime
+import uuid
+
+
+
+# Employee
+
+gridfs_storage = GridFSStorage()
 class Employee(models.Model):
     id = models.CharField(primary_key=True, max_length=500)
     name = models.CharField(max_length=500)
@@ -77,22 +86,19 @@ class DeletedEmployee(models.Model):
     educationData = models.CharField(max_length=1200)
     experienceData = models.CharField(max_length=1200)
     referenceData = models.CharField(max_length=1200)
-    languages = models.CharField(max_length=1200,blank=True)
-    salary = models.CharField(max_length=1000,blank=True, null=True)
-    PF = models.CharField(max_length=1200,blank=True)
-    ESINO = models.CharField(max_length=1200,blank=True)
-    employmentCategory=models.CharField(max_length=500)
-    employeeType=models.CharField(max_length=500)
-    medicalClaimPolicyNo=models.CharField(max_length=500 ,null=True)
-    validityDateFrom=models.DateField(null=True)
-    validityDateTo=models.DateField(null=True)
-    bankName=models.CharField(max_length=500)
-    ifscCode=models.CharField(max_length=500)
-    companyEmail=models.CharField(max_length=500,blank=True, null=True)
-    assetDetails=models.CharField(max_length=1000,blank=True, null=True)
-    reportedBy=models.CharField(max_length=1000,blank=True, null=True)
-    deleted_at=models.CharField(max_length=500)
-    
+    languages = models.CharField(max_length=500, blank=True)
+    Aadhaarno = models.CharField(max_length=500)
+    PanNo = models.CharField(max_length=500, blank=True, null=True)
+    BloodGroup = models.CharField(max_length=500)
+    RNRNO = models.IntegerField(blank=True, null=True, default=None)
+    TNMCNO = models.CharField(max_length=500, blank=True, null=True)
+    ValidlityDate = models.DateField(blank=True, null=True)
+    dateofjoining = models.CharField(max_length=500, blank=True, null=True)
+    bankaccnum = models.IntegerField(blank=True, null=True)
+    salary = models.IntegerField(blank=True, null=True)
+
+
+# Admin Login
 from bson import ObjectId
 class ObjectIdField(models.CharField):
     def __init__(self, *args, **kwargs):
@@ -292,3 +298,12 @@ class AWSCredentials(models.Model):
     secret_access_key = models.CharField(max_length=255)
     bucket_name = models.CharField(max_length=255)
     s3_region = models.CharField(max_length=255)
+
+
+
+class LeaveRequest(models.Model):
+    mail = models.CharField(max_length=500, primary_key=True)
+    start_date = models.CharField(max_length=500)
+    end_date = models.CharField(max_length=500, blank=True, null=True)
+    leave_type = models.CharField(max_length=500, blank=True, null=True)
+    reason = models.CharField(max_length=500, blank=True, null=True)
