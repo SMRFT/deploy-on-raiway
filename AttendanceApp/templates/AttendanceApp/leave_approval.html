@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requesting Leave</title>
+    <style>
+        .accept-button {
+            background-color:  #42AA7A;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer !important;
+        }
+        .accept-button:hover {
+            background-color:  #307E59;
+        }
+        .reject-button {
+            background-color: #F08080;
+            color: white;
+            margin-left: 2%;
+            padding: 10px 20px;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer !important;
+        }
+        .reject-button:hover {
+            background-color: #F05151;
+        }
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+        }
+    </style>
+</head>
+<body>
+    <p> Hii Sir,</p>
+        <p>This is to request a leave of absence from {{start_date}} to {{end_date}} due to {{reason}}.</p>
+        <p>I will ensure that my responsibilities are covered during my absence and will be reachable if any urgent matters arise.</p>
+        <p>Thank you for your consideration.</p>
+        <p>Sincerely,<br/>
+        {{employee_name}}
+        </p>
+        <div class="button-container">
+            <button class="accept-button" type="submit" name="action" value="approve">Approve</button>
+            <button class="reject-button" type="submit" name="action" value="reject">Reject</button>
+        </div>
+</html>
