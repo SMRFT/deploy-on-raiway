@@ -8,7 +8,7 @@ from AttendanceApp.Views.deteteemp import DeleteEmp, DeletedEmployeeList, Perman
 from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events,get_employee_exit_form,submit_employee_exit_form,employee_events,get_aws_credentials,get_aws_credentials1
 from AttendanceApp.Views.retrieveemp import EmployeeEditView, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,  Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment,upload_aws_credentials
 from AttendanceApp.Views.adminview import EmployeeView, AdminLogin,admin_registration , UserDetails,upload_file,send_reset_code,reset_password,activate_account,GeneratePDF,user_permission,employee_events,get_employee_exit_form,submit_employee_exit_form,employee_events
-from AttendanceApp.Views.retrieveemp import EmployeeEditView,send_logout_notification, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,   Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment,UploadEmployeeData
+from AttendanceApp.Views.retrieveemp import EmployeeEditView,leave_request,approve_leave,reject_leave,calculate_payroll,send_logout_notification, RetriveEmp, EmployeeSearchView, RetriveEmpById, AdminCalendarView, AdmincalendarloginView, AdmincalendarlogoutView, RetrieveCalendarDataById,   Summary, RetriveEmployeeexport, BreakhoursView, BreakhourslogoutView, RetriveSummaryExport, RetriveBreakhours, send_email, send_whatsapp, get_file, RetrieveEmployeehours,RetriveEmpdepartmentCount,RetriveEmpBydepartment,UploadEmployeeData
 from .views import EmployeeView
 from AttendanceApp.Views.retrieveemp import RetrieveBreak
 from django.conf.urls.static import static
@@ -70,8 +70,11 @@ urlpatterns = [
     path('get_aws_credentials/', get_aws_credentials, name='get_aws_credentials'),
     path('get_aws_credentials1/', get_aws_credentials, name='get_aws_credentials'),
     path('upload-employees/', UploadEmployeeData.as_view()),
-    # path('payroll_calculation/', calculate_payroll, name='payroll_calculation'),
+    path('payroll_calculation/', calculate_payroll, name='payroll_calculation'),
     path('send_logout_notification/',send_logout_notification,name='send_logout_notification'),
+    path('leave_request/', leave_request, name='leave_request'),
+    path('approve_leave/', approve_leave, name='approve_leave'),
+    path('reject_leave/', reject_leave, name='reject_leave'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
