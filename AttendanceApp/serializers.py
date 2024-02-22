@@ -2,7 +2,7 @@ from curses.ascii import EM
 from dataclasses import fields
 from django import forms
 from rest_framework import serializers
-from AttendanceApp.models import Admincalendarlogin, Employee, Admin, Designation, Employeebydesignation, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest,UserPermission,AWSCredentials
+from AttendanceApp.models import Admincalendarlogin, LeaveRequest,Employee, Admin,  department, Employeebydepartment, Hour, Summary, Employeeexport, Summaryexport, Breakhours,EmployeeHours,DeletedEmployee,Employeebydepartment,department,PasswordResetRequest,UserPermission,AWSCredentials
 
 class AWSCredentialsForm(forms.ModelForm):
     class Meta:
@@ -69,13 +69,13 @@ class PasswordResetRequestSerializer(serializers.ModelSerializer):
 
 class EmployeedesignationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Designation
+        model =  department
         fields = ('label', 'value')
 
 
 class EmployeeShowbydesignationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Employeebydesignation
+        model = Employeebydepartment
         fields = ('id', 'name', 'mobile', 'designation', 'address')
 
 class EmployeedepartmentSerializer(serializers.ModelSerializer):
@@ -159,3 +159,9 @@ class EmployeeHoursdaySerializer(serializers.ModelSerializer):
     class Meta:
         model = EmployeeHours
         fields = ('id', 'name', 'month', 'year', 'date', 'day', 'department','designation','latelogin', 'earlyLogout')
+
+
+class LeaveRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeaveRequest
+        fields = '__all__'
