@@ -26,7 +26,7 @@ from django.db.models import Count
 from rest_framework.decorators import api_view
 from .constants import Login, Logout
 from django.db.models.functions import TruncDate
-from AttendanceApp.models import Employee, Admincalendarlogin, Hour, Breakhours, DeletedEmployee,AWSCredentials
+from AttendanceApp.models import LeaveRequest, Employee, Admincalendarlogin, Hour, Breakhours, DeletedEmployee,AWSCredentials
 from AttendanceApp.serializers import AdmincalendarSerializer, EmployeeShowSerializer, CalendarSerializer,  EmployeedesignationSerializer, EmployeeShowbydesignationSerializer, HourcalendarSerializer, SummarySerializer, EmployeeexportSerializer, SummaryexportSerializer, BreakhoursSerializer, EmployeeSerializer, EmployeeHoursSerializer, DeletedEmployeeSerializer,EmployeeShowbydepartmentSerializer, EmployeedepartmentSerializer,EmployeeHoursdaySerializer,AWSCredentialsForm
 from django.db.models import Q
 import json
@@ -667,7 +667,6 @@ class Summary(APIView):
         return Response(serializers.data)
 # Export Calendar Details
 
-
 class RetriveEmployeeexport(APIView):
     @csrf_exempt
     def post(self, request):
@@ -675,82 +674,98 @@ class RetriveEmployeeexport(APIView):
         emp_data = Admincalendarlogin.objects.filter(
             id=data["id"], month=data["month"], year=data["year"]).values()
         emp_details = []
+        total_overtime_hours = timedelta(0)  # Initialize total overtime hours
         for employee in emp_data:
             id = employee["id"]
             name = employee["name"]
             date = employee["date"]
             month = employee["month"]
+            year = employee["year"]
             start_time = employee["start"]
             end_time = employee["end"]
             shift = employee["shift"]
             leavetype = employee["leavetype"]
             if start_time is None or end_time is None:
-                continue  # skip this employee if start_time or end_time is None
+                continue  # Skip this employee if start_time or end_time is None
             hour = end_time - start_time
-            # print(hour)
+            # Calculate break hours
             break_hours = Breakhours.objects.filter(
                 id=id, date=date).values("Breakhour")
             if break_hours:
                 break_hours = break_hours[0]["Breakhour"]
             else:
                 break_hours = 0
-            overtime_hours = timedelta(0)
+            # Calculate overtime hours until the current date
+            current_date = date.today()
             t2 = timedelta(hours=8, minutes=0, seconds=0)
-            if hour > timedelta(hours=8):
-                overtime_hours = hour - t2
-                print(overtime_hours)
+            overtime_hours = hour - t2 if hour > t2 else timedelta(0)
+            # Calculate worked hours
             worked_hours = hour - overtime_hours
+            # Set leavetype and worked days
             if leavetype is None or leavetype.lower() == "none":
-                leavetype = "Present"  # set leavetype to "Present" if it is None or "None"
-                worked_days = 1  # set worked_days to 1 if leavetype is "Present"
+                leavetype = "Present"
+                worked_days = 1
             else:
+                leavetype = leavetype.capitalize()
                 worked_days = 0
             emp_details.append({
                 "id": id,
                 "name": name,
                 "date": date,
-                "start": employee["start"],
-                "end": employee["end"],
-                "month": employee["month"],
-                "shift": employee["shift"],
+                "month": month,
+                "year": year,
+                "start": start_time,
+                "end": end_time,
+                "shift": shift,
                 "workeddays": worked_days,
                 "workedhours": str(worked_hours),
                 "Breakhour": str(break_hours),
                 "overtimehours": str(overtime_hours),
                 "Total_hours_worked": str(hour),
-                "leavetype": leavetype
+                "leavetype": leavetype,
+                "Total_overtime_hrs": str(total_overtime_hours + overtime_hours),
             })
-        # Serialize the employee details list and return the response
-        serializer = EmployeeexportSerializer(emp_details, many=True)
+            # Update the total overtime hours
+            total_overtime_hours += overtime_hours
+        serializer = EmployeeexportSerializer(data=emp_details, many=True)
+        serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
+
 # Export Calendar Details
 
 # Export Calendar Details (Summary export for download outside the calendar(Employee details))
 # This view is for exporting overall employee details per month
 # Export Calendar Details (Summary export for download outside the calendar(Employee details))
 # This view is for exporting overall employee details per month
+from decimal import Decimal
+from datetime import datetime, timedelta, date
+import calendar
+from dateutil.relativedelta import relativedelta
+
+from django.db.models import Q
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 class RetriveSummaryExport(APIView):
     def post(self, request):
         data = request.data
-        month = data["month"]
-        year = data["year"]
-        selected_department = data.get("department", "")
+        year = int(data["year"])
+        month = int(data["month"])
 
+        selected_department = data.get("department", "")
         emp_data = Admincalendarlogin.objects.filter(Q(month=month) & Q(year=year)).values()
         emp_ids = emp_data.values_list("name", flat=True).distinct()
-
-        queryset = Employee.objects.none()
+        queryset = Employee.objects.all()
         if selected_department:
             queryset = queryset.filter(department=selected_department)
-
+        total_overtime_hours_dict = {}
         emp_details = []
         for emp_id in emp_ids:
             emp_id_split = emp_id.split("_")
             name = emp_id_split[0] if len(emp_id_split) >= 1 else None
             employee = Employee.objects.filter(name=name).first()
             id = employee.id if employee else None
-
+            total_overtime_hours_dict[emp_id] = timedelta(0)
             working_days = 0
             loss_of_pay = 0
             overtime_days = 0
@@ -758,61 +773,61 @@ class RetriveSummaryExport(APIView):
             weekoff_used = 0
             cl_taken = 0
             sl_taken = 0
-
-            for employee in emp_data.filter(name=emp_id):
-                if employee["leavetype"] == "none":
-                    start_time = employee["start"]
-                    end_time = employee["end"]
-                    hour = end_time - start_time
-                    if hour > timedelta(hours=8):
-                        overtime_days += (hour - timedelta(hours=8)).total_seconds() / 3600
-
+            for emp in emp_data.filter(name=emp_id):
+                if emp["leavetype"] == "none":
+                    start_time = emp.get("start")  # Get start time (may be None)
+                    end_time = emp.get("end")  # Get end time (may be None)
+                    if start_time and end_time:
+                        hour = end_time - start_time
+                        if hour > timedelta(hours=8):
+                            overtime_days += (hour - timedelta(hours=8)).total_seconds() / 3600
                     if start_time.weekday() == 6:
                         working_days += 1
                         weekoff_used += 1
                     else:
                         working_days += 1
-                elif employee["leavetype"] == "CL":
+                elif emp["leavetype"] == "CL":
                     cl_taken += 1
-                elif employee["leavetype"] == "SL":
+                    working_days += 1
+                elif emp["leavetype"] == "SL":
                     sl_taken += 1
+                    working_days += 1
+                overtime_hours = emp.get("overtimehours", timedelta(0))
+                total_overtime_hours_dict[emp_id] += overtime_hours
+            start_date = datetime(year, month, 26) - relativedelta(months=1)
 
-            days_in_month = calendar.monthrange(year, month)[1]
-            month_calendar = calendar.monthcalendar(year, month)
-            total_sundays = sum(1 for week in month_calendar if week[6] != 0)
-            month_days = calendar.monthrange(year, month)[1]
-            today = datetime.date.today()
-            if month == today.month and year == today.year:
-                month_days = today.day
-
-            total_weekoff += total_sundays
+            start_date = start_date.date()
+            end_date = datetime(year, month, 25).date()
+            days_in_month = (end_date - start_date).days
+            total_weekoff += sum(1 for week in calendar.monthcalendar(year, month) if week[6] != 0)
             remaining_weekoff = total_weekoff - weekoff_used
-            current_date = datetime.date.today().day
-            # print("current_date:",current_date )
-           # Include weekoffs until the current date
-            weekoff_until_current_date = min(current_date, remaining_weekoff)
-            # print("@@@:",weekoff_until_current_date)
-            loss_of_pay = current_date - (working_days + cl_taken + sl_taken + weekoff_until_current_date)
-
-            # print("current_date:", current_date)
-            # print("loss_of_pay:", loss_of_pay)
-
+            current_date = date.today()
+            current_day = current_date.day
+            num_sundays = sum(1 for day in range((end_date - start_date).days + 1) if (start_date + timedelta(days=day)).weekday() == 6 and (start_date + timedelta(days=day)) <= end_date)
+            loss_of_pay = current_day - (working_days + num_sundays)
             if id:
-                emp_det = Employee.objects.filter(id=id).values('department', 'designation')
+                emp_det = Employee.objects.filter(id=id).values('department', 'designation','salary')
                 if emp_det:
                     department = emp_det[0]['department']
                     designation = emp_det[0]['designation']
+                    salary = emp_det[0]['salary']
                 else:
                     department = None
                     designation = None
+                    salary = None
             else:
                 department = None
                 designation = None
-
+                salary = None
+            if salary is not None:
+                # Remove commas from the salary string and then convert to Decimal
+                cleaned_salary = salary.replace(',', '')
+                daily_salary = Decimal(cleaned_salary) / days_in_month
+                hourly_rate = daily_salary / 8
+            else:
+                daily_salary = None
+                hourly_rate = None
             if not selected_department or department == selected_department:
-                payable_days = working_days + cl_taken + sl_taken
-                paid_leave_days = cl_taken + sl_taken
-
                 emp_dict = {
                     "id": id,
                     "name": name,
@@ -829,12 +844,10 @@ class RetriveSummaryExport(APIView):
                     "weekoff_used": weekoff_used,
                     "remaining_weekoff": remaining_weekoff,
                     "Days_in_a_month": days_in_month,
-                    "payable_days": payable_days,
-                    "paid_leave_days": paid_leave_days
+                    "payroll": daily_salary,
+                    "Total_overtime_hrs": str(total_overtime_hours_dict[emp_id]),
                 }
-
                 emp_details.append(emp_dict)
-
         serializer = SummaryexportSerializer(emp_details, many=True)
         return Response(serializer.data)
 
@@ -1103,18 +1116,21 @@ class RetrieveEmployeehours(APIView):
 
     # Retrieve Break Hours
 # This view retrieves the break login and logout time for break details
-
-
+from datetime import date, datetime
+from django.utils.decorators import method_decorator
+import datetime
 class RetrieveBreak(APIView):
-    @csrf_exempt
+    @method_decorator(csrf_exempt)
     def get(self, request):
-        current_date = datetime.date.today()
+        current_date = date.today()
+
         # get the department parameter from the request query params
         department = request.GET.get('department')
         employees = Employee.objects.all()
         if department:  # check if department is present in the query params
             # filter employees based on the selected department
             employees = employees.filter(department=department)
+
         emp_breaks = Breakhours.objects.filter(date=current_date)
         # Get the list of employee IDs that are currently on break
         emp_ids_on_break = [emp.id for emp in emp_breaks]
@@ -1122,45 +1138,46 @@ class RetrieveBreak(APIView):
         for emp in emp_breaks:
             if emp.Breakhour != "0":
                 emp_ids_on_break.remove(emp.id)
+
         # Filter the employees based on whether they are on break or not
         employees_on_break = Employee.objects.filter(id__in=emp_ids_on_break)
         # Get the list of employee IDs that have logged in today
-        employee_logins = Admincalendarlogin.objects.filter(
-            date=current_date).values()
+        employee_logins = Admincalendarlogin.objects.filter(date=current_date).values()
         emp_ids_logged_in = [emp['id'] for emp in employee_logins]
-        # Filter the employees based on whether they are on break or not
-        employees_on_break = employees.filter(id__in=emp_ids_on_break)
         # Filter the employees based on whether they have logged in today or not
         employees_not_on_break = employees.exclude(id__in=emp_ids_on_break)
-        employees_not_on_break = employees_not_on_break.exclude(
-            id__in=emp_ids_logged_in)
+        employees_not_on_break = employees_not_on_break.exclude(id__in=emp_ids_logged_in)
         # Filter the employees based on whether they are active or not
         employees_active = employees.filter(id__in=emp_ids_logged_in)
+
         # Create a dictionary to store employee IDs and their corresponding lunch start times
         emp_lunch_starts = {}
         for emp in emp_breaks:
             if emp.id in emp_ids_on_break:
                 emp_lunch_starts[emp.id] = emp.lunchstart
+
         # Create a list of dictionaries to store employee details along with their lunch start times
         emp_details_on_break = []
         for emp in employees_on_break:
             emp_dict = EmployeeShowSerializer(emp).data
             lunch_start = emp_lunch_starts.get(emp.id)
-            break_start_time = datetime.datetime.strptime(
-                lunch_start, "%Y-%m-%d %I:%M %p")
-            emp_dict["break_start_time"] = datetime.datetime.strftime(
-                break_start_time, "%I:%M %p")
+            if lunch_start:
+                break_start_time = datetime.strptime(lunch_start, "%Y-%m-%d %I:%M %p")
+                emp_dict["break_start_time"] = datetime.strftime(break_start_time, "%I:%M %p")
             emp_details_on_break.append(emp_dict)
+
         # Create a list of dictionaries for employees not on break
         emp_details_not_on_break = []
         for emp in employees_not_on_break:
             emp_dict = EmployeeShowSerializer(emp).data
             emp_details_not_on_break.append(emp_dict)
+
         # Create a list of dictionaries for active employees
         emp_details_active = []
         for emp in employees_active:
             emp_dict = EmployeeShowSerializer(emp).data
             emp_details_active.append(emp_dict)
+
         # Return a response containing the three lists: employees on break, employees not on break but active, and employees not on break and not active
         response_data = {
             "employees_on_break": emp_details_on_break,
@@ -1168,9 +1185,6 @@ class RetrieveBreak(APIView):
             "employees_not_active": emp_details_not_on_break
         }
         return Response(response_data)
-
-
-
 
 
 from dateutil import parser
@@ -1259,114 +1273,115 @@ class UploadEmployeeData(APIView):
 
 
 
-# from django.utils import timezone
-# @csrf_exempt
-# def calculate_payroll(request):
-#     if request.method == "POST":
-#         try:
-#             # Get all employees
-#             employees = Employee.objects.all()
-#             # Get the current date
-#             today = timezone.now().date()
-#             # Calculate the start date (26th of last month)
-#             if today.day >= 26:
-#                 start_date = datetime(today.year, today.month, 26).date()
-#             else:
-#                 last_month = today.replace(day=1) - timedelta(days=1)
-#                 start_date = datetime(last_month.year, last_month.month, 26).date()
-#             # Calculate the end date (25th of this month)
-#             end_date = datetime(today.year, today.month, 25).date()
-#             payroll_data = []
-#             for employee in employees:
-#                 # Initialize variable for working days
-#                 working_days = 0
-#                 # Retrieve the salary of the employee
-#                 salary = employee.salary
-#                 if salary is not None:
-#                     salary = int(salary)
-#                 else:
-#                     # Handle the case when salary is None
-#                     # For example, set it to 0 or any default value as per your requirement
-#                     salary = 0
-#                 # Get the login sessions for the employee from the start date to today
-#                 emp_data = Admincalendarlogin.objects.filter(id=employee.id)
-#                 for emp in emp_data:
-#                     if emp.leavetype == "none":
-#                         start_time = emp.start
-#                         if start_time:
-#                             # Count the session as a working day if it's not a weekend
-#                             if start_time.weekday() != 5 and start_time.weekday() != 6:  # Saturday and Sunday
-#                                 working_days += 1
-#                 # Calculate the number of days between start_date and end_date
-#                 num_days = (end_date - start_date).days + 1
-#                 # Calculate the loss of pay
-#                 lop_days = working_days - num_days
-#                 # Calculate the CTC
-#                 ctc = (salary / num_days) * working_days
-#                 # Calculate the basic salary as 40% of the CTC
-#                 basic_salary = ctc * 0.40
-#                 # Calculate the HRA as 20% of the CTC
-#                 hra = ctc * 0.20
-#                 # Calculate the conveyance as 5% of the CTC
-#                 conveyance = ctc * 0.05
-#                 # Calculate the food_allowance as 5% of the CTC
-#                 food_allowance = ctc * 0.05
-#                 # Calculate the special_allowance as 5% of the CTC
-#                 special_allowance = ctc - (basic_salary + hra + conveyance + food_allowance)
-#                 # Call calculate_PayablebyManagement function
-#                 pf, pf_admin, esi, gross_salary, overtime = calculate_PayablebyManagement(basic_salary, salary, ctc)
-#                 # Call calculate_PayablebyEmployees function
-#                 pf_emp, esi_emp, net_salary = calculate_PayablebyEmployees(salary, gross_salary)
-#                 payroll_data.append({
-#                     "employee_id": employee.id,
-#                     "salary": salary,
-#                     "working_days": working_days,
-#                     "lop_days": lop_days,
-#                     "ctc": ctc,
-#                     "basic_salary": basic_salary,
-#                     "hra": hra,
-#                     "conveyance": conveyance,
-#                     "food_allowance": food_allowance,
-#                     "special_allowance": special_allowance,
-#                     "pf": pf,
-#                     "pf_admin": pf_admin,
-#                     "esi": esi,
-#                     "gross_salary": gross_salary,
-#                     "pf_emp": pf_emp,
-#                     "esi_emp": esi_emp,
-#                     "net_salary": net_salary
-#                 })
-#             return JsonResponse({"payroll_data": payroll_data})
-#         except Employee.DoesNotExist:
-#             return JsonResponse({"error": "Employee not found"}, status=404)
-#     else:
-#         return JsonResponse({"error": "Invalid request method"}, status=405)
-# def calculate_PayablebyManagement(basic_salary, salary, ctc):
-#     overtime = 0
-#     medi_claim = 0
-#     pf = 0  # Initialize PF to 0 initially
-#     pf_admin = basic_salary * 0.01  # Calculate PF_Admin regardless of basic salary
-#     # Check if the basic salary is more than 15000
-#     if salary > 15000:
-#         pf = basic_salary * 0.12  # Calculate PF only if basic salary is more than 15000
-#     # Calculate ESI
-#     esi = basic_salary * 0.0325 + overtime
-#     # Calculate Gross_salary
-#     gross_salary = (pf + esi + pf_admin + medi_claim) - ctc
-#     return pf, pf_admin, esi, gross_salary, overtime
-# def calculate_PayablebyEmployees(salary, gross_salary):
-#     pf_emp = 0  # Initialize PF to 0 initially
-#     esi_emp = salary * 0.0075
-#     # Check if the basic salary is more than 15000
-#     if salary > 15000:
-#         pf_emp = salary * 0.12  # Calculate PF only if basic salary is more than 15000
-#     # Calculate Net_Salary
-#     net_salary = (pf_emp + esi_emp) - gross_salary
-#     return pf_emp, esi_emp, net_salary
-
-
-
-
+from django.utils import timezone
+@csrf_exempt
+def calculate_payroll(request):
+    if request.method == "POST":
+        try:
+            # Parse JSON data from the request body
+            data = json.loads(request.body)
+            start_date_str = data.get("start_date")
+            end_date_str = data.get("end_date")
+            # print("start_Date_str", start_date_str)
+            # print("end_Date_str", end_date_str)
+            # Parse start_date and end_date strings into datetime objects
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
+            end_date = datetime.strptime(end_date_str, "%Y-%m-%d")
+            # print("start_Date", start_date)
+            # print("end_Date", end_date)
+            # Get all employees
+            employees = Employee.objects.all()
+            payroll_data = []
+            for employee in employees:
+                # Initialize variable for working days
+                working_days = 0
+                # Retrieve the salary of the employee
+                salary = employee.salary
+                if salary is not None:
+                    salary = int(salary)
+                else:
+                    # Handle the case when salary is None
+                    # For example, set it to 0 or any default value as per your requirement
+                    salary = 0
+                # Get the login sessions for the employee within the specified date range
+                emp_data = Admincalendarlogin.objects.filter(id=employee.id, start__gte=start_date, start__lte=end_date)
+                for emp in emp_data:
+                    # Check if the session is not a weekend (Saturday or Sunday)
+                    if emp.leavetype == "none" and emp.start.weekday() != 5 and emp.start.weekday() != 6:
+                        working_days += 1
+                # Calculate the total number of days between start_date and end_date
+                num_days = (end_date - start_date).days + 1
+                # print("num_days",num_days)
+                # Calculate the total number of weekends (Saturdays and Sundays) between start_date and end_date
+                num_weekends = sum(1 for day in range(num_days) if (start_date + timedelta(days=day)).weekday() in [5, 6])
+                # print("num_weekends",num_weekends)
+                # Calculate the loss of pay days
+                lop_days = num_days - (working_days + num_weekends)
+                # print("lop_days",lop_days)
+                # Calculate the CTC
+                ctc = (salary / num_days) * working_days
+                # Calculate the basic salary as 40% of the CTC
+                basic_salary = ctc * 0.40
+                # Calculate the HRA as 20% of the CTC
+                hra = ctc * 0.20
+                # Calculate the conveyance as 5% of the CTC
+                conveyance = ctc * 0.05
+                # Calculate the food_allowance as 5% of the CTC
+                food_allowance = ctc * 0.05
+                # Calculate the special_allowance as 5% of the CTC
+                special_allowance = ctc - (basic_salary + hra + conveyance + food_allowance)
+                # Call calculate_PayablebyManagement function
+                pf, pf_admin, esi, gross_salary, overtime = calculate_PayablebyManagement(basic_salary, salary, ctc)
+                # Call calculate_PayablebyEmployees function
+                pf_emp, esi_emp, net_salary = calculate_PayablebyEmployees(salary, gross_salary)
+                payroll_data.append({
+                    "employee_id": employee.id,
+                    "name": employee.name,
+                    "month": end_date.month,
+                    "salary": salary,
+                    "working_days": working_days,
+                    "lop_days": lop_days,
+                    "ctc": ctc,
+                    "basic_salary": basic_salary,
+                    "hra": hra,
+                    "conveyance": conveyance,
+                    "food_allowance": food_allowance,
+                    "special_allowance": special_allowance,
+                    "pf": pf,
+                    "pf_admin": pf_admin,
+                    "esi": esi,
+                    "gross_salary": gross_salary,
+                    "pf_emp": pf_emp,
+                    "esi_emp": esi_emp,
+                    "net_salary": net_salary
+                })
+            return JsonResponse({"payroll_data": payroll_data})
+        except Employee.DoesNotExist:
+            return JsonResponse({"error": "Employee not found"}, status=404)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+def calculate_PayablebyManagement(basic_salary, salary, ctc):
+    overtime = 0
+    medi_claim = 0
+    pf = 0  # Initialize PF to 0 initially
+    pf_admin = basic_salary * 0.01  # Calculate PF_Admin regardless of basic salary
+    # Check if the basic salary is more than 15000
+    if salary > 15000:
+        pf = basic_salary * 0.12  # Calculate PF only if basic salary is more than 15000
+    # Calculate ESI
+    esi = basic_salary * 0.0325 + overtime
+    # Calculate Gross_salary
+    gross_salary = (pf + esi + pf_admin + medi_claim) - ctc
+    return pf, pf_admin, esi, gross_salary, overtime
+def calculate_PayablebyEmployees(salary, gross_salary):
+    pf_emp = 0  # Initialize PF to 0 initially
+    esi_emp = salary * 0.0075
+    # Check if the basic salary is more than 15000
+    if salary > 15000:
+        pf_emp = salary * 0.12  # Calculate PF only if basic salary is more than 15000
+    # Calculate Net_Salary
+    net_salary = (pf_emp + esi_emp) - gross_salary
+    return pf_emp, esi_emp, net_salary
 
 
 from datetime import datetime, timedelta
@@ -1409,3 +1424,78 @@ def send_logout_notification():
 # while True:
 #     schedule.run_pending()
 #     time.sleep(1)
+            
+
+from django.template.loader import render_to_string
+from django.shortcuts import render
+@csrf_exempt
+def leave_request(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)  # Parse the JSON data
+            mail = data.get('mail')
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+            leave_type = data.get('leave_type')
+            reason = data.get('reason')
+            # Retrieve the employee's name using their email
+            try:
+                employee = Employee.objects.get(email=mail)
+                employee_name = employee.name
+            except Employee.DoesNotExist:
+                employee_name = "Unknown"
+            # Save the leave request to the database
+            leave_request = LeaveRequest(mail=mail, start_date=start_date, end_date=end_date, reason=reason, leave_type=leave_type)
+            leave_request.save()
+            # Render the email message content from the template
+            email_content = render_to_string('AttendanceApp/leave_approval.html', {
+                'start_date': start_date,
+                'end_date': end_date,
+                'reason': reason,
+                'employee_name': employee_name,
+            })
+            # Send an email notification to HR
+            subject = 'Requesting Leave'
+            from_mail = mail
+            recipient_mail = ['sivasundarismrft@gmail.com']
+            send_mail(subject, '', from_mail, recipient_mail, html_message=email_content, fail_silently=False)
+            # Send an email notification to the employee
+            employee_subject = ''
+            employee_message = ''
+            if data.get('action') == 'approve':
+                employee_subject = 'Leave Approved'
+                employee_message = 'Your leave has been approved.'
+                print('#########',employee_message)
+            elif data.get('action') == 'reject':
+                employee_subject = 'Leave Rejected'
+                employee_message = 'Your leave has been rejected.'
+            send_mail(employee_subject, employee_message, from_mail, [mail], fail_silently=False)
+            return JsonResponse({'message': 'Leave request submitted successfully'})
+        except json.JSONDecodeError as e:
+            return JsonResponse({'message': 'Invalid JSON data'}, status=400)
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+@csrf_exempt
+def approve_leave(request):
+    if request.method == 'POST':
+        mail = request.POST.get('mail')
+        # Send an email to the employee to inform them that their leave request is approved.
+        subject = 'Leave Approval'
+        message = 'Your leave approval has been approved.'
+        from_mail = 'sivasundarismrft@gmail.com'
+        recipient_mail = [mail]
+        send_mail(subject, message, from_mail, recipient_mail, fail_silently=False)
+        return JsonResponse({'message': 'Leave approval email sent successfully'})
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+@csrf_exempt
+def reject_leave(request):
+    if request.method == 'POST':
+        mail = request.POST.get('mail')
+        # Send an email to the employee to inform them that their leave request is rejected.
+        subject = 'Leave Rejection'
+        message = 'Your leave approval has been rejected.'
+        from_mail = 'sivasundarismrft@gmail.com'
+        recipient_mail = [mail]
+        send_mail(subject, message, from_mail, recipient_mail, fail_silently=False)
+        return JsonResponse({'message': 'Leave rejection email sent successfully'})
+    return JsonResponse({'message': 'Invalid request'}, status=400)
+
